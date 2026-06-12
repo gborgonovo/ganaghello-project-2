@@ -43,8 +43,10 @@ class TaskDetail extends Component
     public string $editingUpdateContent = '';
 
     // Stage
-    public bool   $showDueDatePrompt = false;
-    public ?int   $pendingStageId    = null;
+    public bool   $showDueDatePrompt     = false;
+    public bool   $showCompletedAtPrompt = false;
+    public string $pendingCompletedAt    = '';
+    public ?int   $pendingStageId        = null;
 
     // Sotto-task
     public string $newSubtaskTitle = '';
@@ -86,11 +88,20 @@ class TaskDetail extends Component
     public function setStage(int $stageId): void
     {
         $stage = Stage::find($stageId);
-        $needsDate = in_array($stage->code, ['todo', 'doing', 'in_attesa', 'done']);
+        $closedCodes = ['done', 'archiviato'];
 
-        if ($needsDate && !$this->task->due_date && !$this->due_date) {
+        // Stage aperti che richiedono una scadenza
+        if (in_array($stage->code, ['todo', 'doing', 'in_attesa']) && !$this->task->due_date && !$this->due_date) {
             $this->pendingStageId    = $stageId;
             $this->showDueDatePrompt = true;
+            return;
+        }
+
+        // Stage chiusi: chiedi la data di completamento (solo se non gia' impostata)
+        if (in_array($stage->code, $closedCodes) && !$this->task->completed_at) {
+            $this->pendingStageId        = $stageId;
+            $this->pendingCompletedAt    = now()->format('Y-m-d');
+            $this->showCompletedAtPrompt = true;
             return;
         }
 
@@ -111,6 +122,20 @@ class TaskDetail extends Component
         $this->pendingStageId    = null;
     }
 
+    public function confirmCompletedAt(): void
+    {
+        $this->applyStage($this->pendingStageId);
+        $this->showCompletedAtPrompt = false;
+        $this->pendingStageId        = null;
+    }
+
+    public function cancelCompletedAt(): void
+    {
+        $this->showCompletedAtPrompt = false;
+        $this->pendingStageId        = null;
+        $this->pendingCompletedAt    = '';
+    }
+
     private function applyStage(int $stageId): void
     {
         $stage = Stage::find($stageId);
@@ -118,7 +143,7 @@ class TaskDetail extends Component
 
         $closedCodes = ['done', 'archiviato'];
         if (in_array($stage->code, $closedCodes) && !$this->task->completed_at) {
-            $updates['completed_at'] = now();
+            $updates['completed_at'] = $this->pendingCompletedAt ?: now();
         }
         if (!in_array($stage->code, $closedCodes)) {
             $updates['completed_at'] = null;
@@ -127,6 +152,7 @@ class TaskDetail extends Component
             $updates['due_date'] = $this->due_date;
         }
 
+        $this->pendingCompletedAt = '';
         $this->task->update($updates);
         $this->task->refresh()->load(['stage', 'area', 'tags', 'goals', 'updates', 'children.stage', 'parent']);
         $this->syncFromModel();

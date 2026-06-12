@@ -40,6 +40,25 @@
             </div>
         </div>
         @endif
+
+        {{-- Prompt data completamento --}}
+        @if($showCompletedAtPrompt)
+        <div class="mt-3 border-t border-paper-dark pt-3">
+            <p class="text-sm text-ink mb-2">Quando è stato completato?</p>
+            <div class="flex items-center gap-2">
+                <x-date-input wire:model="pendingCompletedAt"
+                    class="text-sm border border-paper-dark rounded-lg px-2.5 py-1.5 focus:outline-none focus:border-salvia"></x-date-input>
+                <button wire:click="confirmCompletedAt"
+                    class="px-3 py-1.5 bg-salvia text-white rounded-lg text-sm hover:bg-salvia-dark transition-colors">
+                    Conferma
+                </button>
+                <button wire:click="cancelCompletedAt"
+                    class="px-3 py-1.5 text-ink/50 text-sm hover:text-ink transition-colors">
+                    Annulla
+                </button>
+            </div>
+        </div>
+        @endif
     </div>
 
     {{-- ===== TITOLO + DESCRIZIONE ===== --}}
@@ -161,9 +180,9 @@
                        focus:outline-none focus:border-salvia">
         </div>
 
-        {{-- Costi: stima/preventivo --}}
+        {{-- Costi --}}
         <div class="col-span-2">
-            <label class="text-xs text-ink/50 block mb-0.5">Costo stimato (€)</label>
+            <label class="text-xs text-ink/50 block mb-0.5">Costo (€)</label>
             <div class="flex items-center gap-2 flex-wrap">
                 <input wire:model="cost_min" type="number" min="0" step="100"
                     wire:blur="saveField('cost_min')"
@@ -184,17 +203,14 @@
                     <option value="preventivo">preventivo</option>
                     <option value="reale">reale</option>
                 </select>
+                <span class="text-ink/20 text-xs">|</span>
+                <input wire:model="cost_real" type="number" min="0" step="100"
+                    wire:blur="saveField('cost_real')"
+                    placeholder="importo effettivo"
+                    class="w-32 border border-paper-dark rounded-lg px-2.5 py-1.5 text-sm
+                           focus:outline-none focus:border-salvia">
+                <span class="text-xs text-ink/40">reale</span>
             </div>
-        </div>
-
-        {{-- Costo reale (consuntivo) --}}
-        <div>
-            <label class="text-xs text-ink/50 block mb-0.5">Costo reale (€)</label>
-            <input wire:model="cost_real" type="number" min="0" step="100"
-                wire:blur="saveField('cost_real')"
-                placeholder="importo effettivo"
-                class="w-full border border-paper-dark rounded-lg px-2.5 py-1.5 text-sm
-                       focus:outline-none focus:border-salvia">
         </div>
 
         {{-- Data completamento (solo se done o completato) --}}
