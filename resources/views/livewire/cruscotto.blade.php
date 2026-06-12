@@ -89,10 +89,10 @@
         </div>
 
         {{-- Griglia tessere --}}
-        <div class="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+        <div class="columns-2 md:columns-3 gap-3">
             @foreach($aree as $tessera)
             <a href="{{ route('aree.show', $tessera->area) }}"
-               class="group block rounded-xl border border-paper-dark bg-white px-4 py-4 hover:border-salvia-light hover:shadow-sm transition-all">
+               class="break-inside-avoid mb-3 group block rounded-xl border border-paper-dark bg-white px-4 py-4 hover:border-salvia-light hover:shadow-sm transition-all">
 
                 {{-- Nome area + colore --}}
                 <div class="flex items-center gap-2 mb-2">
@@ -156,7 +156,7 @@
 
             {{-- Tessera "Aggiungi area" --}}
             <a href="{{ route('aree') }}"
-               class="flex items-center justify-center rounded-xl border border-dashed border-paper-dark text-ink/30 hover:border-salvia hover:text-salvia transition-colors px-4 py-4 text-sm gap-1.5">
+               class="break-inside-avoid mb-3 flex items-center justify-center rounded-xl border border-dashed border-paper-dark text-ink/30 hover:border-salvia hover:text-salvia transition-colors px-4 py-4 text-sm gap-1.5">
                 <span class="text-lg leading-none">+</span>
                 <span>Nuova area</span>
             </a>

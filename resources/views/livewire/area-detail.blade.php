@@ -5,21 +5,23 @@
         <div class="flex items-start justify-between gap-4">
             <div class="flex-1 min-w-0">
 
-                {{-- Breadcrumb parent --}}
-                @if($area->parent)
-                <div class="flex items-center gap-1.5 mb-1.5">
-                    <span class="text-xs text-ink/35">Dentro a</span>
+                {{-- Breadcrumb --}}
+                <div class="flex items-center gap-1 mb-1.5 text-xs text-ink/40">
+                    <a href="{{ route('aree') }}" class="hover:text-salvia transition-colors">Aree</a>
+                    @if($area->parent)
+                    <span>/</span>
                     <a href="{{ route('aree.show', $area->parent) }}"
-                       class="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-lg border border-paper-dark
-                              text-ink/50 hover:border-salvia hover:text-salvia transition-colors">
+                       class="inline-flex items-center gap-1 hover:text-salvia transition-colors">
                         @if($area->parent->color)
                         <span class="w-1.5 h-1.5 rounded-full shrink-0"
                               style="background-color: {{ $area->parent->color }}"></span>
                         @endif
                         {{ $area->parent->name }}
                     </a>
+                    @endif
+                    <span>/</span>
+                    <span class="text-ink/60">{{ $area->name }}</span>
                 </div>
-                @endif
 
                 {{-- Nome area --}}
                 @if($editingName)
@@ -129,19 +131,23 @@
                 @endif
             </div>
 
-            {{-- Sotto-sotto-aree --}}
+            {{-- Sotto-sotto-aree come mini-box --}}
             @if($child->children->isNotEmpty())
-            <div class="border-t border-paper-dark pt-3 space-y-1.5">
+            <div class="border-t border-paper-dark pt-3 grid grid-cols-2 gap-2">
                 @foreach($child->children as $grandchild)
                 <a href="{{ route('aree.show', $grandchild) }}"
-                   class="flex items-center gap-1.5 group py-0.5">
-                    @if($grandchild->color)
-                    <span class="w-2 h-2 rounded-full shrink-0"
-                          style="background-color: {{ $grandchild->color }}"></span>
-                    @endif
-                    <span class="text-xs text-ink/60 group-hover:text-salvia transition-colors truncate">
-                        {{ $grandchild->name }}
-                    </span>
+                   class="block rounded-lg border border-paper-dark px-2.5 py-2
+                          hover:border-salvia group transition-colors">
+                    <div class="flex items-center gap-1.5 min-w-0">
+                        @if($grandchild->color)
+                        <span class="w-2 h-2 rounded-full shrink-0"
+                              style="background-color: {{ $grandchild->color }}"></span>
+                        @endif
+                        <span class="text-xs font-medium text-ink group-hover:text-salvia
+                                     transition-colors truncate">
+                            {{ $grandchild->name }}
+                        </span>
+                    </div>
                 </a>
                 @endforeach
             </div>
