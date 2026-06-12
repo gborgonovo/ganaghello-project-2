@@ -198,7 +198,7 @@
         </div>
 
         {{-- Data completamento (solo se done o completato) --}}
-        @if($task->completed_at || $task->stage?->code === 'done')
+        @if($task->completed_at || in_array($task->stage?->code, ['done', 'archiviato']))
         <div>
             <label class="text-xs text-ink/50 block mb-0.5">Data completamento</label>
             <x-date-input wire:model="completed_at" data-save="saveField"

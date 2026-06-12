@@ -116,10 +116,11 @@ class TaskDetail extends Component
         $stage = Stage::find($stageId);
         $updates = ['stage_id' => $stageId];
 
-        if ($stage->code === 'done' && !$this->task->completed_at) {
+        $closedCodes = ['done', 'archiviato'];
+        if (in_array($stage->code, $closedCodes) && !$this->task->completed_at) {
             $updates['completed_at'] = now();
         }
-        if ($stage->code !== 'done' && $this->task->completed_at) {
+        if (!in_array($stage->code, $closedCodes)) {
             $updates['completed_at'] = null;
         }
         if ($this->due_date) {
