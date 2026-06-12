@@ -26,11 +26,12 @@ class TaskDetail extends Component
     public string  $due_date     = '';
     public string  $start_date   = '';
     public string  $executor     = '';
-    public string  $work_estimate = '';
-    public string  $cost_min     = '';
-    public string  $cost_max     = '';
-    public string  $cost_basis   = '';
-    public string  $cost_real    = '';
+    public string  $work_estimate  = '';
+    public string  $cost_min      = '';
+    public string  $cost_max      = '';
+    public string  $cost_basis    = '';
+    public string  $cost_real     = '';
+    public string  $completed_at  = '';
     public array   $tagIds       = [];
     public array   $goalIds      = [];
 
@@ -76,6 +77,7 @@ class TaskDetail extends Component
         $this->cost_max      = $this->task->cost_max !== null ? (string) $this->task->cost_max : '';
         $this->cost_basis    = $this->task->cost_basis ?? '';
         $this->cost_real     = $this->task->cost_real !== null ? (string) $this->task->cost_real : '';
+        $this->completed_at  = $this->task->completed_at?->format('Y-m-d') ?? '';
         $this->tagIds        = $this->task->tags->pluck('id')->toArray();
         $this->goalIds       = $this->task->goals->pluck('id')->toArray();
     }
@@ -150,7 +152,7 @@ class TaskDetail extends Component
     {
         $allowed = ['area_id', 'priority', 'due_date', 'start_date', 'executor',
                     'work_estimate', 'cost_min', 'cost_max', 'cost_basis', 'cost_real',
-                    'parent_task_id'];
+                    'completed_at', 'parent_task_id'];
         if (!in_array($field, $allowed)) return;
 
         $value = $this->$field;

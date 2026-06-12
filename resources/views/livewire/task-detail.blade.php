@@ -161,9 +161,9 @@
                        focus:outline-none focus:border-salvia">
         </div>
 
-        {{-- Costi (full row) --}}
+        {{-- Costi: stima/preventivo --}}
         <div class="col-span-2">
-            <label class="text-xs text-ink/50 block mb-0.5">Costo (€)</label>
+            <label class="text-xs text-ink/50 block mb-0.5">Costo stimato (€)</label>
             <div class="flex items-center gap-2 flex-wrap">
                 <input wire:model="cost_min" type="number" min="0" step="100"
                     wire:blur="saveField('cost_min')"
@@ -182,14 +182,30 @@
                     <option value="">tipo...</option>
                     <option value="stima">stima</option>
                     <option value="preventivo">preventivo</option>
+                    <option value="reale">reale</option>
                 </select>
-                @if($task->cost_real !== null)
-                <span class="text-xs text-salvia ml-2">
-                    Consuntivo: €{{ number_format($task->cost_real, 0, ',', '.') }}
-                </span>
-                @endif
             </div>
         </div>
+
+        {{-- Costo reale (consuntivo) --}}
+        <div>
+            <label class="text-xs text-ink/50 block mb-0.5">Costo reale (€)</label>
+            <input wire:model="cost_real" type="number" min="0" step="100"
+                wire:blur="saveField('cost_real')"
+                placeholder="importo effettivo"
+                class="w-full border border-paper-dark rounded-lg px-2.5 py-1.5 text-sm
+                       focus:outline-none focus:border-salvia">
+        </div>
+
+        {{-- Data completamento (solo se done o completato) --}}
+        @if($task->completed_at || $task->stage?->code === 'done')
+        <div>
+            <label class="text-xs text-ink/50 block mb-0.5">Data completamento</label>
+            <x-date-input wire:model="completed_at" data-save="saveField"
+                class="w-full border border-paper-dark rounded-lg px-2.5 py-1.5 text-sm
+                       focus:outline-none focus:border-salvia"></x-date-input>
+        </div>
+        @endif
 
         {{-- Task padre --}}
         @if($task->parent)
