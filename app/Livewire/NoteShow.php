@@ -4,7 +4,6 @@ namespace App\Livewire;
 
 use App\Models\Area;
 use App\Models\Note;
-use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 
 class NoteShow extends Component
@@ -18,7 +17,6 @@ class NoteShow extends Component
 
     public function mount(Note $note): void
     {
-        abort_unless($note->user_id === Auth::id(), 403);
         $this->note = $note->load('area');
     }
 
@@ -48,6 +46,7 @@ class NoteShow extends Component
 
         $this->note->refresh()->load('area');
         $this->showModal = false;
+        $this->dispatch('toast', message: 'Nota salvata.');
     }
 
     public function render()

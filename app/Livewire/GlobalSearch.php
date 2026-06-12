@@ -7,7 +7,6 @@ use App\Models\Inspiration;
 use App\Models\Note;
 use App\Models\Post;
 use App\Models\Task;
-use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 
 class GlobalSearch extends Component
@@ -32,32 +31,26 @@ class GlobalSearch extends Component
         $results = [];
 
         if (strlen(trim($this->query)) >= 2) {
-            $uid  = Auth::id();
             $term = '%' . trim($this->query) . '%';
 
-            $tasks = Task::where('user_id', $uid)
-                ->where(fn($q) => $q->where('title', 'like', $term)->orWhere('description', 'like', $term))
+            $tasks = Task::where(fn($q) => $q->where('title', 'like', $term)->orWhere('description', 'like', $term))
                 ->with('stage')
                 ->orderByDesc('updated_at')
                 ->limit(5)->get();
 
-            $entries = Entry::where('user_id', $uid)
-                ->where('content', 'like', $term)
+            $entries = Entry::where('content', 'like', $term)
                 ->orderByDesc('entry_date')
                 ->limit(4)->get();
 
-            $notes = Note::where('user_id', $uid)
-                ->where(fn($q) => $q->where('title', 'like', $term)->orWhere('content', 'like', $term))
+            $notes = Note::where(fn($q) => $q->where('title', 'like', $term)->orWhere('content', 'like', $term))
                 ->orderByDesc('updated_at')
                 ->limit(4)->get();
 
-            $inspirations = Inspiration::where('user_id', $uid)
-                ->where(fn($q) => $q->where('title', 'like', $term)->orWhere('description', 'like', $term))
+            $inspirations = Inspiration::where(fn($q) => $q->where('title', 'like', $term)->orWhere('description', 'like', $term))
                 ->orderByDesc('id')
                 ->limit(4)->get();
 
-            $posts = Post::where('user_id', $uid)
-                ->where(fn($q) => $q->where('title', 'like', $term)
+            $posts = Post::where(fn($q) => $q->where('title', 'like', $term)
                     ->orWhere('excerpt', 'like', $term)
                     ->orWhere('content', 'like', $term))
                 ->orderByDesc('published_at')

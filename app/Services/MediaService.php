@@ -16,7 +16,7 @@ class MediaService
     private const SIZES = [
         'thumb'    => 400,
         'medium'   => 1400,
-        'original' => 3000,
+        'original' => 1920,
     ];
 
     public function store(\Illuminate\Http\UploadedFile $file, ?string $context = null): Media

@@ -7,7 +7,6 @@ use App\Models\Attachment;
 use App\Models\Entry;
 use App\Models\Media;
 use App\Services\MediaService;
-use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 
@@ -33,7 +32,6 @@ class DiarioShow extends Component
 
     public function mount(Entry $entry): void
     {
-        abort_unless($entry->user_id === Auth::id(), 403);
         $this->entry = $entry->load('area', 'attachments.media', 'posts');
     }
 
@@ -129,6 +127,7 @@ class DiarioShow extends Component
         $this->entry->refresh()->load('area', 'attachments.media');
         $this->showModal  = false;
         $this->modalCover = null;
+        $this->dispatch('toast', message: 'Pagina aggiornata.');
     }
 
     public function render()

@@ -33,6 +33,8 @@ class MediaUploader extends Component
 
     public function updatedUploads(): void
     {
+        $this->validate(['uploads.*' => 'mimes:jpeg,jpg,png,webp,gif,heic,heif|max:25600']);
+
         $mediaService      = app(MediaService::class);
         $attachmentService = app(AttachmentService::class);
         $entity            = $this->resolveEntity();

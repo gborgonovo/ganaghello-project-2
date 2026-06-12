@@ -24,13 +24,14 @@ class MediaController extends Controller
             abort(404);
         }
 
-        $mime     = $media->isImage() ? 'image/jpeg' : $media->mime_type;
-        $fullPath = Storage::disk('private')->path($path);
+        $mime        = $media->isImage() ? 'image/jpeg' : $media->mime_type;
+        $fullPath    = Storage::disk('private')->path($path);
+        $disposition = $media->isImage() ? 'inline' : 'attachment';
 
         return response()->file($fullPath, [
             'Content-Type'        => $mime,
             'Cache-Control'       => 'private, max-age=86400',
-            'Content-Disposition' => 'inline; filename="' . $media->original_filename . '"',
+            'Content-Disposition' => $disposition . '; filename="' . $media->original_filename . '"',
         ]);
     }
 }

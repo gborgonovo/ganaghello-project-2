@@ -4,7 +4,6 @@ namespace App\Livewire;
 
 use App\Models\Post;
 use App\Services\MediaService;
-use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 
 class BlogIndex extends Component
@@ -17,7 +16,7 @@ class BlogIndex extends Component
     {
         if (!in_array($visibility, ['private', 'draft', 'public'])) return;
 
-        $post = Post::where('user_id', Auth::id())->findOrFail($postId);
+        $post = Post::findOrFail($postId);
         $data = ['visibility' => $visibility];
         if ($visibility === 'public' && !$post->published_at) {
             $data['published_at'] = now();
@@ -27,7 +26,7 @@ class BlogIndex extends Component
 
     public function delete(int $postId): void
     {
-        $post = Post::where('user_id', Auth::id())->with('attachments.media')->findOrFail($postId);
+        $post = Post::with('attachments.media')->findOrFail($postId);
 
         // Rimuove le foto del post. Cancella il file fisico SOLO se nessun altro
         // attachment lo referenzia (il media puo' essere condiviso con una voce di diario).
@@ -45,8 +44,7 @@ class BlogIndex extends Component
 
     public function render()
     {
-        $posts = Post::where('user_id', Auth::id())
-            ->with('attachments.media')
+        $posts = Post::with('attachments.media')
             ->when($this->filterVisibility, fn ($q) => $q->where('visibility', $this->filterVisibility))
             ->when($this->search, fn ($q) => $q->where(function ($q) {
                 $q->where('title', 'like', '%'.$this->search.'%')

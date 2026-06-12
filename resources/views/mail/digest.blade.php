@@ -78,8 +78,8 @@
     @foreach($dormant as $node)
     <div class="dormant-row">
       <div class="dormant-title">
-        @if($node['task_id'])
-        <a href="{{ url('/tasks/' . $node['task_id']) }}">{{ $node['label'] }}</a>
+        @if(!empty($node['url']))
+        <a href="{{ $node['url'] }}">{{ $node['label'] }}</a>
         @else
         {{ $node['label'] }}
         @endif

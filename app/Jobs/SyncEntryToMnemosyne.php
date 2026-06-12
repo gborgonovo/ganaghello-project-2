@@ -14,7 +14,7 @@ class SyncEntryToMnemosyne implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public int $tries = 5;
+    public int $tries = 3;
 
     public function __construct(public int $entryId) {}
 

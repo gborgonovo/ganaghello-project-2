@@ -65,8 +65,6 @@ class PostEditor extends Component
             return;
         }
 
-        abort_unless($post->user_id === Auth::id(), 403);
-
         $this->post        = $post->load('attachments.media', 'tags');
         $this->title       = $post->title === 'Senza titolo' ? '' : $post->title;
         $this->slug        = $post->slug;
@@ -109,6 +107,7 @@ class PostEditor extends Component
         ]);
 
         $this->saved = true;
+        $this->dispatch('toast', message: 'Post salvato.');
     }
 
     // ===== SET FOTOGRAFICO =====

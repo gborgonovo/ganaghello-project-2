@@ -17,12 +17,11 @@ class Cruscotto extends Component
 
     public function render()
     {
-        $userId   = Auth::id();
-        $oggi     = Carbon::today();
-        $tra14gg  = $oggi->copy()->addDays(14);
+        $oggi    = Carbon::today();
+        $tra14gg = $oggi->copy()->addDays(14);
 
         // Tessere area
-        $aree = $this->buildTessereArea($userId);
+        $aree = $this->buildTessereArea();
 
         if ($this->sortAree === 'calde') {
             $aree = $aree->sortByDesc('calore')->values();
@@ -32,7 +31,6 @@ class Cruscotto extends Component
 
         // Scadenze imminenti (prossimi 14 gg)
         $scadenze = Task::with(['area', 'stage'])
-            ->where('user_id', $userId)
             ->whereNull('completed_at')
             ->whereNull('deleted_at')
             ->whereNotNull('due_date')
@@ -64,7 +62,7 @@ class Cruscotto extends Component
         ])->layout('layouts.app', ['title' => 'Cruscotto']);
     }
 
-    private function buildTessereArea(int $userId)
+    private function buildTessereArea()
     {
         $doingCodes    = ['doing', 'in_attesa'];
         $decisCodes    = ['idea', 'discussione', 'approvato'];
@@ -75,7 +73,7 @@ class Cruscotto extends Component
             ->whereNull('parent_area_id')
             ->orderBy('sequence')
             ->get()
-            ->map(function (Area $area) use ($userId, $doingCodes, $decisCodes, $sogliaDorm) {
+            ->map(function (Area $area) use ($doingCodes, $decisCodes, $sogliaDorm) {
 
                 // Task aperti per quest'area
                 $taskQuery = Task::where('area_id', $area->id)

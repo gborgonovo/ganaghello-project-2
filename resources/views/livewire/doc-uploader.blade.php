@@ -72,10 +72,14 @@
 
         <input type="file"
                wire:model="docUpload"
-               accept=".pdf,.doc,.docx,.xls,.xlsx,.odt,.ods,.txt,.csv"
+               accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx"
                class="sr-only">
 
         <div wire:loading wire:target="docUpload" class="ml-auto text-salvia">Carico...</div>
     </label>
+
+    @error('docUpload')
+        <p class="text-xs text-terracotta mt-1 px-2">{{ $message }}</p>
+    @enderror
 
 </div>

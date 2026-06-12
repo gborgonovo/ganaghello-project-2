@@ -36,6 +36,8 @@ class MediaLibrary extends Component
 
     public function updatedImgUploads(): void
     {
+        $this->validate(['imgUploads.*' => 'mimes:jpeg,jpg,png,webp,gif,heic,heif|max:25600']);
+
         $service = app(MediaService::class);
         foreach ((array) $this->imgUploads as $file) {
             $service->store($file);
@@ -46,6 +48,9 @@ class MediaLibrary extends Component
     public function updatedDocUpload(): void
     {
         if (!$this->docUpload) return;
+
+        $this->validate(['docUpload' => 'mimes:pdf,doc,docx,xls,xlsx,ppt,pptx|max:15360']);
+
         app(MediaService::class)->store($this->docUpload);
         $this->docUpload = null;
     }

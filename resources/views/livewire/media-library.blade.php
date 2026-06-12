@@ -78,9 +78,13 @@
             </span>
             <span class="text-[10px] text-ink/30" x-show="!dragging">JPG, PNG, WEBP, GIF</span>
 
-            <input type="file" wire:model="imgUploads" multiple accept="image/*" class="sr-only">
+            <input type="file" wire:model="imgUploads" multiple accept=".jpg,.jpeg,.png,.webp,.gif,.heic,.heif" class="sr-only">
             <div wire:loading wire:target="imgUploads" class="text-xs text-salvia mt-1">Elaborazione...</div>
         </label>
+
+        @error('imgUploads.*')
+            <p class="text-xs text-terracotta mt-1">{{ $message }}</p>
+        @enderror
 
         {{-- Griglia --}}
         @if($images->isEmpty())
@@ -209,9 +213,13 @@
             </span>
 
             <input type="file" wire:model="docUpload"
-                   accept=".pdf,.doc,.docx,.xls,.xlsx,.odt,.ods,.txt,.csv" class="sr-only">
+                   accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx" class="sr-only">
             <div wire:loading wire:target="docUpload" class="text-xs text-salvia ml-2">Carico...</div>
         </label>
+
+        @error('docUpload')
+            <p class="text-xs text-terracotta mt-1">{{ $message }}</p>
+        @enderror
 
         {{-- Lista --}}
         @if($docs->isEmpty())

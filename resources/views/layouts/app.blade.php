@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>{{ isset($title) ? $title . ' — biglog' : 'biglog' }}</title>
+    <title>{{ isset($title) ? $title . ' — BiGlog' : 'BiGlog' }}</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @livewireStyles
 </head>
@@ -36,8 +36,8 @@
         {{-- Logo / titolo app --}}
         <div class="flex items-center justify-between px-5 py-4 border-b border-salvia">
             <div class="flex items-center gap-2">
-                <span class="text-lg font-semibold tracking-tight text-paper">biglog</span>
-                <span class="text-xs text-salvia-light font-normal">ganaghello</span>
+                <span class="text-lg font-semibold tracking-tight text-paper">BiGlog</span>
+                <span class="text-xs text-salvia-light font-normal">Ganaghello</span>
             </div>
             {{-- Chiudi sidebar (mobile only) --}}
             <button @click="sidebarOpen = false"
@@ -50,54 +50,21 @@
 
         {{-- Navigazione principale --}}
         <nav class="flex-1 overflow-y-auto py-4 px-2 space-y-0.5">
-            <x-sidebar-link href="{{ route('cruscotto') }}" :active="request()->routeIs('cruscotto')">
-                <x-slot name="icon">⊞</x-slot>
-                Cruscotto
-            </x-sidebar-link>
-            <x-sidebar-link href="{{ route('kanban') }}" :active="request()->routeIs('kanban')">
-                <x-slot name="icon">▦</x-slot>
-                Kanban
-            </x-sidebar-link>
-            <x-sidebar-link href="{{ route('timeline') }}" :active="request()->routeIs('timeline')">
-                <x-slot name="icon">⟶</x-slot>
-                Timeline
-            </x-sidebar-link>
-            <x-sidebar-link href="{{ route('diario') }}" :active="request()->routeIs('diario')">
-                <x-slot name="icon">◈</x-slot>
-                Diario
-            </x-sidebar-link>
-            <x-sidebar-link href="{{ route('blog') }}" :active="request()->routeIs('blog*')">
-                <x-slot name="icon">✑</x-slot>
-                Blog
-            </x-sidebar-link>
-            <x-sidebar-link href="{{ route('goals') }}" :active="request()->routeIs('goals')">
-                <x-slot name="icon">◎</x-slot>
-                Goals
-            </x-sidebar-link>
-            <x-sidebar-link href="{{ route('libreria') }}" :active="request()->routeIs('libreria')">
-                <x-slot name="icon">⬚</x-slot>
-                Libreria
-            </x-sidebar-link>
-            <x-sidebar-link href="{{ route('moodboard') }}" :active="request()->routeIs('moodboard')">
-                <x-slot name="icon">❐</x-slot>
-                Moodboard
-            </x-sidebar-link>
-            <x-sidebar-link href="{{ route('note') }}" :active="request()->routeIs('note')">
-                <x-slot name="icon">◇</x-slot>
-                Note
-            </x-sidebar-link>
+            <x-sidebar-link href="{{ route('cruscotto') }}" :active="request()->routeIs('cruscotto')" icon="home">Cruscotto</x-sidebar-link>
+            <x-sidebar-link href="{{ route('kanban') }}" :active="request()->routeIs('kanban')" icon="view-columns">Kanban</x-sidebar-link>
+            <x-sidebar-link href="{{ route('timeline') }}" :active="request()->routeIs('timeline')" icon="chart-bar">Timeline</x-sidebar-link>
+            <x-sidebar-link href="{{ route('diario') }}" :active="request()->routeIs('diario')" icon="book-open">Diario</x-sidebar-link>
+            <x-sidebar-link href="{{ route('blog') }}" :active="request()->routeIs('blog*')" icon="document-text">Blog</x-sidebar-link>
+            <x-sidebar-link href="{{ route('goals') }}" :active="request()->routeIs('goals')" icon="trophy">Goals</x-sidebar-link>
+            <x-sidebar-link href="{{ route('libreria') }}" :active="request()->routeIs('libreria')" icon="photo">Libreria</x-sidebar-link>
+            <x-sidebar-link href="{{ route('moodboard') }}" :active="request()->routeIs('moodboard')" icon="swatch">Moodboard</x-sidebar-link>
+            <x-sidebar-link href="{{ route('note') }}" :active="request()->routeIs('note')" icon="clipboard">Note</x-sidebar-link>
         </nav>
 
         {{-- Footer sidebar: utente + impostazioni --}}
         <div class="px-2 py-3 border-t border-salvia space-y-0.5">
-            <x-sidebar-link href="{{ route('aree') }}" :active="request()->routeIs('aree')">
-                <x-slot name="icon">⬡</x-slot>
-                Aree
-            </x-sidebar-link>
-            <x-sidebar-link href="{{ route('settings.index') }}" :active="request()->routeIs('settings.*')">
-                <x-slot name="icon">⚙</x-slot>
-                Impostazioni
-            </x-sidebar-link>
+            <x-sidebar-link href="{{ route('aree') }}" :active="request()->routeIs('aree')" icon="map-pin">Aree</x-sidebar-link>
+            <x-sidebar-link href="{{ route('settings.index') }}" :active="request()->routeIs('settings.*')" icon="cog-6-tooth">Impostazioni</x-sidebar-link>
 
             {{-- Utente --}}
             <div class="mt-2 px-3 py-2 rounded-lg flex items-center gap-2 text-sm text-paper/70">
@@ -154,7 +121,7 @@
 </div>
 
 @livewire('global-search')
+<x-toast />
 @livewireScripts
-@fluxScripts
 </body>
 </html>

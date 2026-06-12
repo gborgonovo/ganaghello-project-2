@@ -59,9 +59,13 @@
         </span>
         <span class="text-[10px] text-ink/30" x-show="!dragging">JPG, PNG, WEBP, GIF</span>
 
-        <input type="file" wire:model="uploads" multiple accept="image/*" class="sr-only">
+        <input type="file" wire:model="uploads" multiple accept=".jpg,.jpeg,.png,.webp,.gif,.heic,.heif" class="sr-only">
         <div wire:loading wire:target="uploads" class="text-xs text-salvia mt-1">Elaborazione...</div>
     </label>
+
+    @error('uploads.*')
+        <p class="text-xs text-terracotta mt-1">{{ $message }}</p>
+    @enderror
 
     {{-- ===== LINK DALLA LIBRERIA ===== --}}
     <button wire:click="toggleLibrary"

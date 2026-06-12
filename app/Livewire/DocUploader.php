@@ -28,6 +28,8 @@ class DocUploader extends Component
     {
         if (!$this->docUpload) return;
 
+        $this->validate(['docUpload' => 'mimes:pdf,doc,docx,xls,xlsx,ppt,pptx|max:15360']);
+
         $entity = $this->resolveEntity();
         $media  = app(MediaService::class)->store($this->docUpload);
         app(AttachmentService::class)->attach($media, $entity);

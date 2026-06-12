@@ -35,6 +35,7 @@ class Profilo extends Component
         ]);
 
         $this->saved = true;
+        $this->dispatch('toast', message: 'Profilo aggiornato.');
     }
 
     public function render()

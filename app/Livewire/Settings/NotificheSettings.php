@@ -47,6 +47,7 @@ class NotificheSettings extends Component
         Setting::set('digest.thresholds', json_encode(array_values($this->thresholds)));
 
         $this->savedMessage = 'Preferenze salvate.';
+        $this->dispatch('toast', message: 'Impostazioni salvate.');
     }
 
     public function toggleThreshold(int $days): void

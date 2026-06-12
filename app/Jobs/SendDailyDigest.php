@@ -3,6 +3,9 @@
 namespace App\Jobs;
 
 use App\Mail\DailyDigest;
+use App\Models\Area;
+use App\Models\Entry;
+use App\Models\Goal;
 use App\Models\NotificationLog;
 use App\Models\Setting;
 use App\Models\Task;
@@ -45,7 +48,6 @@ class SendDailyDigest implements ShouldQueue
 
     private function sendForUser(User $user, MnemosyneService $mnemosyne): void
     {
-        // Legge preferenze
         $enabled    = Setting::get('digest.enabled', '1') === '1';
         $thresholds = json_decode(Setting::get('digest.thresholds', json_encode([0, 1, 3, 7, 30])), true);
         $withMnemo  = Setting::get('digest.mnemosyne', '1') === '1';
@@ -54,9 +56,8 @@ class SendDailyDigest implements ShouldQueue
 
         $today = Carbon::today();
 
-        // Raccoglie task per soglia
-        $sections   = [];
-        $taskCount  = 0;
+        $sections  = [];
+        $taskCount = 0;
 
         foreach ($thresholds as $days) {
             $targetDate = $today->copy()->addDays($days);
@@ -83,9 +84,8 @@ class SendDailyDigest implements ShouldQueue
             }
         }
 
-        // Dormienti Mnemosyne
-        $dormant    = [];
-        $mnemoOk    = false;
+        $dormant = [];
+        $mnemoOk = false;
 
         if ($withMnemo) {
             try {
@@ -99,17 +99,14 @@ class SendDailyDigest implements ShouldQueue
             }
         }
 
-        // Niente da dire
         if ($taskCount === 0 && empty($dormant)) return;
 
-        // Invia
         Mail::to($user->email)->send(new DailyDigest(
-            sections:  $sections,
-            dormant:   $dormant,
-            userName:  $user->name,
+            sections: $sections,
+            dormant:  $dormant,
+            userName: $user->name,
         ));
 
-        // Log
         NotificationLog::create([
             'user_id' => $user->id,
             'type'    => 'digest',
@@ -132,31 +129,72 @@ class SendDailyDigest implements ShouldQueue
         $result  = [];
 
         foreach (array_slice($nodes, 0, 5) as $node) {
-            $name  = $node['name'] ?? '';
-            $label = $node['properties']['label'] ?? $name;
+            $name   = $node['name'] ?? '';
+            $entity = $this->findEntityByNodeName($name, $doneIds);
 
-            // Cerca il task corrispondente dal mnemosyne_node_name
-            $task = Task::where('mnemosyne_node_name', $name)
-                ->whereNotIn('stage_id', $doneIds)
-                ->whereNull('deleted_at')
-                ->first();
-
-            // Salta se già completato/archiviato (ma non trovato sopra)
-            if ($task === null && str_contains($name, '-')) {
-                continue; // nodo non riconducibile a un task attivo
+            if ($entity === null) {
+                continue;
             }
 
-            $daysInactive = $task
-                ? (int) $task->updated_at->diffInDays(now())
+            $daysInactive = $entity['updated_at']
+                ? (int) $entity['updated_at']->diffInDays(now())
                 : ($node['days_inactive'] ?? 0);
 
             $result[] = [
-                'label'        => $task ? $task->title : $label,
-                'task_id'      => $task?->id,
-                'days_inactive'=> $daysInactive,
+                'label'         => $entity['label'],
+                'url'           => $entity['url'],
+                'days_inactive' => $daysInactive,
             ];
         }
 
         return $result;
+    }
+
+    private function findEntityByNodeName(string $name, array $doneIds): ?array
+    {
+        // Task: solo attivi (non done/archiviati)
+        $task = Task::where('mnemosyne_node_name', $name)
+            ->whereNotIn('stage_id', $doneIds)
+            ->whereNull('deleted_at')
+            ->first();
+        if ($task) {
+            return [
+                'label'      => $task->title,
+                'url'        => route('tasks.show', $task),
+                'updated_at' => $task->updated_at,
+            ];
+        }
+
+        // Goal
+        $goal = Goal::where('mnemosyne_node_name', $name)->first();
+        if ($goal) {
+            return [
+                'label'      => $goal->title,
+                'url'        => route('goals'),
+                'updated_at' => $goal->updated_at,
+            ];
+        }
+
+        // Area
+        $area = Area::where('mnemosyne_node_name', $name)->first();
+        if ($area) {
+            return [
+                'label'      => $area->name,
+                'url'        => route('aree.show', $area),
+                'updated_at' => $area->updated_at,
+            ];
+        }
+
+        // Entry (diario)
+        $entry = Entry::where('mnemosyne_node_name', $name)->first();
+        if ($entry) {
+            return [
+                'label'      => $entry->title,
+                'url'        => route('diario.show', $entry),
+                'updated_at' => $entry->updated_at,
+            ];
+        }
+
+        return null;
     }
 }

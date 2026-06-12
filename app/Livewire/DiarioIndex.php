@@ -154,6 +154,7 @@ class DiarioIndex extends Component
 
         $this->showModal  = false;
         $this->modalCover = null;
+        $this->dispatch('toast', message: 'Pagina salvata.');
     }
 
     public function deleteEntry(int $id): void
@@ -194,8 +195,7 @@ class DiarioIndex extends Component
         if (empty($this->selectedIds)) return;
 
         // Voci in ordine cronologico (per la narrazione continua)
-        $entries = Entry::where('user_id', Auth::id())
-            ->whereIn('id', $this->selectedIds)
+        $entries = Entry::whereIn('id', $this->selectedIds)
             ->with('attachments.media')
             ->orderBy('entry_date')
             ->orderByRaw("CASE WHEN entry_time IS NULL THEN 1 ELSE 0 END")
@@ -245,8 +245,7 @@ class DiarioIndex extends Component
 
     public function render()
     {
-        $query = Entry::where('user_id', Auth::id())
-            ->with(['area', 'attachments.media'])
+        $query = Entry::with(['area', 'attachments.media'])
             ->when($this->filterAreaId, fn($q) => $q->where('area_id', $this->filterAreaId))
             ->when($this->search, fn($q) => $q->where('content', 'like', '%' . $this->search . '%'))
             ->orderByDesc('entry_date')

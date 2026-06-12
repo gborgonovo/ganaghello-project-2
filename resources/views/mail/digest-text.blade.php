@@ -32,8 +32,8 @@ FILI CHE SI RAFFREDDANO
 -----------------------
 @foreach($dormant as $node)
 · {{ $node['label'] }}  (fermo da {{ $node['days_inactive'] }} giorni)
-@if($node['task_id'])
-  {{ url('/tasks/' . $node['task_id']) }}
+@if(!empty($node['url']))
+  {{ $node['url'] }}
 @endif
 @endforeach
 
