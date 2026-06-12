@@ -140,20 +140,28 @@
             </select>
         </div>
 
-        {{-- Scadenza --}}
-        <div>
-            <label class="text-xs text-ink/50 block mb-0.5">Scadenza</label>
-            <x-date-input wire:model="due_date" data-save="saveField"
-                class="w-full border border-paper-dark rounded-lg px-2.5 py-1.5 text-sm
-                       focus:outline-none focus:border-salvia"></x-date-input>
-        </div>
-
-        {{-- Inizio --}}
-        <div>
-            <label class="text-xs text-ink/50 block mb-0.5">Data inizio</label>
-            <x-date-input wire:model="start_date" data-save="saveField"
-                class="w-full border border-paper-dark rounded-lg px-2.5 py-1.5 text-sm
-                       focus:outline-none focus:border-salvia"></x-date-input>
+        {{-- Date: scadenza | inizio | completamento --}}
+        <div class="col-span-2">
+            <div class="grid grid-cols-3 gap-3">
+                <div>
+                    <label class="text-xs text-ink/50 block mb-0.5">Scadenza</label>
+                    <x-date-input wire:model="due_date" data-save="saveField"
+                        class="w-full border border-paper-dark rounded-lg px-2.5 py-1.5 text-sm
+                               focus:outline-none focus:border-salvia"></x-date-input>
+                </div>
+                <div>
+                    <label class="text-xs text-ink/50 block mb-0.5">Inizio</label>
+                    <x-date-input wire:model="start_date" data-save="saveField"
+                        class="w-full border border-paper-dark rounded-lg px-2.5 py-1.5 text-sm
+                               focus:outline-none focus:border-salvia"></x-date-input>
+                </div>
+                <div>
+                    <label class="text-xs text-ink/50 block mb-0.5">Completamento</label>
+                    <x-date-input wire:model="completed_at" data-save="saveField"
+                        class="w-full border border-paper-dark rounded-lg px-2.5 py-1.5 text-sm
+                               focus:outline-none focus:border-salvia"></x-date-input>
+                </div>
+            </div>
         </div>
 
         {{-- Executor --}}
@@ -212,16 +220,6 @@
                 <span class="text-xs text-ink/40">reale</span>
             </div>
         </div>
-
-        {{-- Data completamento (solo se done o completato) --}}
-        @if($task->completed_at || in_array($task->stage?->code, ['done', 'archiviato']))
-        <div>
-            <label class="text-xs text-ink/50 block mb-0.5">Data completamento</label>
-            <x-date-input wire:model="completed_at" data-save="saveField"
-                class="w-full border border-paper-dark rounded-lg px-2.5 py-1.5 text-sm
-                       focus:outline-none focus:border-salvia"></x-date-input>
-        </div>
-        @endif
 
         {{-- Task padre --}}
         @if($task->parent)
