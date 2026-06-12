@@ -1,10 +1,10 @@
 <div class="space-y-4 pb-10">
 
-    {{-- Griglia aree --}}
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+    {{-- Griglia aree masonry --}}
+    <div class="columns-1 sm:columns-2 lg:columns-3 gap-4">
 
         @foreach($areas as $area)
-        <div class="rounded-xl border border-paper-dark bg-white px-5 py-4 space-y-3"
+        <div class="break-inside-avoid mb-4 rounded-xl border border-paper-dark bg-white px-5 py-4 space-y-3"
              wire:key="area-{{ $area->id }}">
 
             @if($editingId === $area->id)
@@ -85,10 +85,6 @@
                 </button>
             </div>
 
-            @if($area->parent)
-            <p class="text-xs text-ink/35">dentro: {{ $area->parent->name }}</p>
-            @endif
-
             @if($area->description)
             <p class="text-xs text-ink/50 leading-relaxed">{{ $area->description }}</p>
             @endif
@@ -99,6 +95,29 @@
                 <span class="text-salvia">{{ $area->open_tasks_count }} aperti</span>
                 @endif
             </div>
+
+            {{-- Sotto-aree --}}
+            @if($area->children->isNotEmpty())
+            <div class="border-t border-paper-dark pt-3 space-y-1.5">
+                @foreach($area->children as $child)
+                <a href="{{ route('aree.show', $child) }}"
+                   class="flex items-center justify-between gap-2 group py-0.5">
+                    <span class="flex items-center gap-1.5 min-w-0">
+                        @if($child->color)
+                        <span class="w-2 h-2 rounded-full shrink-0"
+                              style="background-color: {{ $child->color }}"></span>
+                        @endif
+                        <span class="text-xs text-ink/70 group-hover:text-salvia transition-colors truncate">
+                            {{ $child->name }}
+                        </span>
+                    </span>
+                    @if($child->open_tasks_count > 0)
+                    <span class="text-[10px] text-salvia shrink-0">{{ $child->open_tasks_count }}</span>
+                    @endif
+                </a>
+                @endforeach
+            </div>
+            @endif
 
             @if($confirmDeleteId === $area->id)
             <div class="flex items-center gap-2 pt-1 border-t border-paper-dark">
@@ -113,7 +132,7 @@
                 </button>
             </div>
             @else
-            @if($area->tasks_count === 0)
+            @if($area->tasks_count === 0 && $area->children->isEmpty())
             <button wire:click="$set('confirmDeleteId', {{ $area->id }})"
                     class="text-xs text-ink/25 hover:text-terracotta transition-colors">
                 Elimina
@@ -127,15 +146,17 @@
 
         {{-- Tessera "Nuova area" --}}
         @if(!$showCreate)
-        <button wire:click="$set('showCreate', true)"
-                class="rounded-xl border border-dashed border-paper-dark text-ink/30
-                       hover:border-salvia hover:text-salvia transition-colors px-5 py-4
-                       flex items-center justify-center gap-1.5 text-sm min-h-24">
-            <span class="text-lg leading-none">+</span>
-            <span>Nuova area</span>
-        </button>
+        <div class="break-inside-avoid mb-4">
+            <button wire:click="$set('showCreate', true)"
+                    class="w-full rounded-xl border border-dashed border-paper-dark text-ink/30
+                           hover:border-salvia hover:text-salvia transition-colors px-5 py-4
+                           flex items-center justify-center gap-1.5 text-sm min-h-24">
+                <span class="text-lg leading-none">+</span>
+                <span>Nuova area</span>
+            </button>
+        </div>
         @else
-        <div class="rounded-xl border border-salvia-light bg-white px-5 py-4 space-y-3">
+        <div class="break-inside-avoid mb-4 rounded-xl border border-salvia-light bg-white px-5 py-4 space-y-3">
             <p class="text-sm font-medium text-ink">Nuova area</p>
             <input wire:model="newName"
                    wire:keydown.enter="createArea"

@@ -94,12 +94,19 @@ class AreaIndex extends Component
 
     public function render()
     {
-        $areas = Area::with('parent')
-            ->withCount(['tasks', 'tasks as open_tasks_count' => function ($q) {
-                $doneCodes = ['done', 'archiviato'];
-                $doneIds   = Stage::whereIn('code', $doneCodes)->pluck('id');
-                $q->whereNotIn('stage_id', $doneIds);
-            }])
+        $doneIds = Stage::whereIn('code', ['done', 'archiviato'])->pluck('id');
+
+        $areas = Area::with(['children' => function ($q) use ($doneIds) {
+            $q->withCount([
+                'tasks',
+                'tasks as open_tasks_count' => fn($q2) => $q2->whereNotIn('stage_id', $doneIds),
+            ])->orderBy('sequence');
+        }])
+            ->whereNull('parent_area_id')
+            ->withCount([
+                'tasks',
+                'tasks as open_tasks_count' => fn($q) => $q->whereNotIn('stage_id', $doneIds),
+            ])
             ->orderBy('sequence')
             ->get();
 

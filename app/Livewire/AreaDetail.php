@@ -178,10 +178,18 @@ class AreaDetail extends Component
 
     public function render()
     {
-        $this->area->load('children', 'parent');
-
         // Task aperti ad albero (solo top-level, non completati/archiviati)
         $closedIds = Stage::whereIn('code', ['done', 'archiviato'])->pluck('id');
+
+        $this->area->load([
+            'children' => function ($q) use ($closedIds) {
+                $q->withCount([
+                    'tasks',
+                    'tasks as open_tasks_count' => fn($q2) => $q2->whereNotIn('stage_id', $closedIds),
+                ])->with('children')->orderBy('sequence');
+            },
+            'parent',
+        ]);
         $taskTree  = Task::with(['stage', 'children' => function ($q) use ($closedIds) {
             $q->with('stage')->orderBy('sequence');
         }])

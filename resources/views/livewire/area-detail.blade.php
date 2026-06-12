@@ -45,23 +45,6 @@
                 </h1>
                 @endif
 
-                {{-- Sub-aree di primo livello --}}
-                @if($area->children->isNotEmpty())
-                <div class="flex items-center gap-1.5 flex-wrap mb-2">
-                    @foreach($area->children as $sub)
-                    <a href="{{ route('aree.show', $sub) }}"
-                       class="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-lg border border-paper-dark
-                              text-ink/60 hover:border-salvia hover:text-salvia transition-colors">
-                        @if($sub->color)
-                        <span class="w-1.5 h-1.5 rounded-full shrink-0"
-                              style="background-color: {{ $sub->color }}"></span>
-                        @endif
-                        {{ $sub->name }}
-                    </a>
-                    @endforeach
-                </div>
-                @endif
-
                 {{-- Status --}}
                 <div class="flex items-center gap-3 flex-wrap">
                     <select wire:model.live="areaStatus" wire:change="saveStatus"
@@ -116,6 +99,58 @@
         </div>
         @endif
     </div>
+
+    {{-- ===== SOTTO-AREE (masonry, solo se presenti) ===== --}}
+    @if($area->children->isNotEmpty())
+    <div class="columns-1 sm:columns-2 lg:columns-3 gap-4 mb-5">
+        @foreach($area->children as $child)
+        <div class="break-inside-avoid mb-4 rounded-xl border border-paper-dark bg-white px-5 py-4 space-y-3"
+             wire:key="child-area-{{ $child->id }}">
+
+            <div class="flex items-center gap-2">
+                @if($child->color)
+                <span class="w-3 h-3 rounded-full shrink-0"
+                      style="background-color: {{ $child->color }}"></span>
+                @endif
+                <a href="{{ route('aree.show', $child) }}"
+                   class="font-semibold text-sm text-ink hover:text-salvia transition-colors truncate">
+                    {{ $child->name }}
+                </a>
+            </div>
+
+            @if($child->description)
+            <p class="text-xs text-ink/50 leading-relaxed">{{ $child->description }}</p>
+            @endif
+
+            <div class="flex items-center justify-between text-xs text-ink/50">
+                <span>{{ $child->tasks_count }} task totali</span>
+                @if($child->open_tasks_count > 0)
+                <span class="text-salvia">{{ $child->open_tasks_count }} aperti</span>
+                @endif
+            </div>
+
+            {{-- Sotto-sotto-aree --}}
+            @if($child->children->isNotEmpty())
+            <div class="border-t border-paper-dark pt-3 space-y-1.5">
+                @foreach($child->children as $grandchild)
+                <a href="{{ route('aree.show', $grandchild) }}"
+                   class="flex items-center gap-1.5 group py-0.5">
+                    @if($grandchild->color)
+                    <span class="w-2 h-2 rounded-full shrink-0"
+                          style="background-color: {{ $grandchild->color }}"></span>
+                    @endif
+                    <span class="text-xs text-ink/60 group-hover:text-salvia transition-colors truncate">
+                        {{ $grandchild->name }}
+                    </span>
+                </a>
+                @endforeach
+            </div>
+            @endif
+
+        </div>
+        @endforeach
+    </div>
+    @endif
 
     {{-- ===== DUE COLONNE ===== --}}
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
