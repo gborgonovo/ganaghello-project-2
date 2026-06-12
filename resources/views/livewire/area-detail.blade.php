@@ -164,6 +164,32 @@
         {{-- ========== DA FARE ========== --}}
         <div class="space-y-4">
 
+            {{-- Scadenze --}}
+            @if($scadenze->isNotEmpty())
+            <div class="rounded-xl border border-paper-dark bg-white px-5 py-4">
+                <p class="text-xs font-semibold uppercase tracking-wide text-salvia mb-3">Scadenze</p>
+                <ul class="space-y-1.5">
+                    @foreach($scadenze as $task)
+                    <li class="flex items-center gap-2 text-sm">
+                        @php $gg = (int) now()->diffInDays($task->due_date, false); @endphp
+                        <span class="shrink-0 text-xs font-medium w-16
+                                     {{ $gg < 0 ? 'text-terracotta' : ($gg <= 3 ? 'text-terracotta/80' : 'text-ink/40') }}">
+                            @if($gg === 0) oggi
+                            @elseif($gg === 1) domani
+                            @elseif($gg > 1) tra {{ $gg }} gg
+                            @else {{ abs($gg) }} gg fa
+                            @endif
+                        </span>
+                        <a href="{{ route('tasks.show', $task) }}"
+                           class="flex-1 text-ink hover:text-salvia truncate">
+                            {{ $task->title }}
+                        </a>
+                    </li>
+                    @endforeach
+                </ul>
+            </div>
+            @endif
+
             {{-- Task tree --}}
             <div class="rounded-xl border border-paper-dark bg-white px-5 py-4">
                 <div class="flex items-center justify-between mb-3">
@@ -237,32 +263,6 @@
                 <p class="text-sm text-ink/30 italic">Nessun task aperto in quest'area.</p>
                 @endforelse
             </div>
-
-            {{-- Scadenze --}}
-            @if($scadenze->isNotEmpty())
-            <div class="rounded-xl border border-paper-dark bg-white px-5 py-4">
-                <p class="text-xs font-semibold uppercase tracking-wide text-salvia mb-3">Scadenze</p>
-                <ul class="space-y-1.5">
-                    @foreach($scadenze as $task)
-                    <li class="flex items-center gap-2 text-sm">
-                        @php $gg = (int) now()->diffInDays($task->due_date, false); @endphp
-                        <span class="shrink-0 text-xs font-medium w-16
-                                     {{ $gg < 0 ? 'text-terracotta' : ($gg <= 3 ? 'text-terracotta/80' : 'text-ink/40') }}">
-                            @if($gg === 0) oggi
-                            @elseif($gg === 1) domani
-                            @elseif($gg > 1) tra {{ $gg }} gg
-                            @else {{ abs($gg) }} gg fa
-                            @endif
-                        </span>
-                        <a href="{{ route('tasks.show', $task) }}"
-                           class="flex-1 text-ink hover:text-salvia truncate">
-                            {{ $task->title }}
-                        </a>
-                    </li>
-                    @endforeach
-                </ul>
-            </div>
-            @endif
 
         </div>
 
