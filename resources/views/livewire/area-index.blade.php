@@ -1,7 +1,7 @@
 <div class="space-y-4 pb-10">
 
     {{-- Griglia aree masonry --}}
-    <div class="columns-1 sm:columns-2 lg:columns-3 gap-4">
+    <div class="columns-2 md:columns-3 gap-4">
 
         @foreach($areas as $area)
         <div class="break-inside-avoid mb-4 rounded-xl border border-paper-dark bg-white px-5 py-4 space-y-3"

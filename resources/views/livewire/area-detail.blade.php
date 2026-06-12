@@ -102,7 +102,7 @@
 
     {{-- ===== SOTTO-AREE (masonry, solo se presenti) ===== --}}
     @if($area->children->isNotEmpty())
-    <div class="columns-1 sm:columns-2 lg:columns-3 gap-4 mb-5">
+    <div class="columns-2 md:columns-3 gap-4 mb-5">
         @foreach($area->children as $child)
         <div class="break-inside-avoid mb-4 rounded-xl border border-paper-dark bg-white px-5 py-4 space-y-3"
              wire:key="child-area-{{ $child->id }}">
