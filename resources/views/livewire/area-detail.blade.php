@@ -36,14 +36,20 @@
                            autofocus>
                 </div>
                 @else
-                <h1 class="text-xl font-semibold text-ink mb-1 cursor-pointer group inline-flex items-center gap-1.5"
-                    wire:click="$set('editingName', true)">
-                    @if($area->color)
-                    <span class="w-3 h-3 rounded-full"
-                          style="background-color: {{ $area->color }}"></span>
-                    @endif
-                    {{ $area->name }}
-                    <span class="text-ink/20 text-sm font-normal group-hover:text-salvia-light">✎</span>
+                <h1 class="text-xl font-semibold text-ink mb-1 inline-flex items-center gap-2">
+                    <input type="color"
+                           wire:model="areaColor"
+                           wire:change="saveColor"
+                           class="w-4 h-4 rounded-full cursor-pointer border-0 p-0 shrink-0
+                                  [&::-webkit-color-swatch-wrapper]:p-0
+                                  [&::-webkit-color-swatch]:rounded-full
+                                  [&::-webkit-color-swatch]:border-0"
+                           title="Cambia colore">
+                    <span class="cursor-pointer group inline-flex items-center gap-1"
+                          wire:click="$set('editingName', true)">
+                        {{ $area->name }}
+                        <span class="text-ink/20 text-sm font-normal group-hover:text-salvia-light">✎</span>
+                    </span>
                 </h1>
                 @endif
 

@@ -100,27 +100,87 @@
             @if($area->children->isNotEmpty())
             <div class="border-t border-paper-dark pt-3 grid grid-cols-2 gap-2">
                 @foreach($area->children as $child)
-                <a href="{{ route('aree.show', $child) }}"
-                   class="block rounded-lg border border-paper-dark px-2.5 py-2
-                          hover:border-salvia group transition-colors">
-                    <div class="flex items-center gap-1.5 mb-1 min-w-0">
-                        @if($child->color)
-                        <span class="w-2 h-2 rounded-full shrink-0"
-                              style="background-color: {{ $child->color }}"></span>
-                        @endif
-                        <span class="text-xs font-medium text-ink group-hover:text-salvia
-                                     transition-colors truncate">
-                            {{ $child->name }}
-                        </span>
+
+                @if($editingId === $child->id)
+                {{-- Form edit sotto-area: occupa tutta la riga --}}
+                <div class="col-span-2 space-y-2 bg-paper rounded-lg p-3"
+                     wire:key="edit-child-{{ $child->id }}">
+                    <input wire:model="editName"
+                           wire:keydown.enter="saveEdit"
+                           wire:keydown.escape="cancelEdit"
+                           type="text"
+                           class="w-full text-sm font-medium border-b border-salvia bg-transparent
+                                  focus:outline-none pb-0.5"
+                           autofocus>
+                    @error('editName') <p class="text-xs text-red-500">{{ $message }}</p> @enderror
+
+                    <div class="flex items-center gap-3 flex-wrap">
+                        <div class="flex items-center gap-1.5">
+                            <input wire:model="editColor" type="color"
+                                   class="w-7 h-7 rounded cursor-pointer border border-paper-dark">
+                            <span class="text-xs text-ink/50">Colore</span>
+                        </div>
+                        <select wire:model="editStatus"
+                                class="text-xs border border-paper-dark rounded-lg px-2 py-1 bg-white
+                                       focus:outline-none focus:border-salvia">
+                            <option value="">Stato automatico</option>
+                            <option value="cantiere">Cantiere</option>
+                            <option value="attiva">Attiva</option>
+                            <option value="in_valutazione">In valutazione</option>
+                            <option value="dormiente">Dormiente</option>
+                        </select>
                     </div>
-                    <p class="text-[10px] text-ink/40">
-                        @if($child->open_tasks_count > 0)
-                            {{ $child->open_tasks_count }} aperti
-                        @else
-                            nessun task
-                        @endif
-                    </p>
-                </a>
+
+                    <textarea wire:model="editDesc" rows="2" placeholder="Descrizione..."
+                              class="w-full text-xs border border-paper-dark rounded-lg px-2.5 py-1.5
+                                     resize-none focus:outline-none focus:border-salvia
+                                     placeholder:text-ink/30"></textarea>
+
+                    <div class="flex items-center gap-2 pt-1">
+                        <button wire:click="saveEdit"
+                                class="text-xs px-3 py-1.5 bg-salvia text-white rounded-lg
+                                       hover:bg-salvia-dark transition-colors">
+                            Salva
+                        </button>
+                        <button wire:click="cancelEdit"
+                                class="text-xs text-ink/50 hover:text-ink transition-colors">
+                            Annulla
+                        </button>
+                    </div>
+                </div>
+
+                @else
+                {{-- Mini-box normale --}}
+                <div class="relative rounded-lg border border-paper-dark px-2.5 py-2 group
+                            hover:border-salvia transition-colors"
+                     wire:key="child-{{ $child->id }}">
+                    <a href="{{ route('aree.show', $child) }}" class="block pr-5">
+                        <div class="flex items-center gap-1.5 mb-1 min-w-0">
+                            @if($child->color)
+                            <span class="w-2 h-2 rounded-full shrink-0"
+                                  style="background-color: {{ $child->color }}"></span>
+                            @endif
+                            <span class="text-xs font-medium text-ink group-hover:text-salvia
+                                         transition-colors truncate">
+                                {{ $child->name }}
+                            </span>
+                        </div>
+                        <p class="text-[10px] text-ink/40">
+                            @if($child->open_tasks_count > 0)
+                                {{ $child->open_tasks_count }} aperti
+                            @else
+                                nessun task
+                            @endif
+                        </p>
+                    </a>
+                    <button wire:click="startEdit({{ $child->id }})"
+                            class="absolute top-1.5 right-1.5 text-xs text-ink/20
+                                   hover:text-salvia opacity-0 group-hover:opacity-100 transition-all">
+                        ✎
+                    </button>
+                </div>
+                @endif
+
                 @endforeach
             </div>
             @endif

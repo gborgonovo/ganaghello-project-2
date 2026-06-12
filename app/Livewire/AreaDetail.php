@@ -20,6 +20,7 @@ class AreaDetail extends Component
     public bool   $editingName   = false;
     public string $areaName      = '';
     public string $areaStatus    = '';
+    public string $areaColor     = '';
 
     // Storia
     public string $storiaFilter  = 'tutto';
@@ -40,6 +41,7 @@ class AreaDetail extends Component
         $this->area      = $area;
         $this->areaName  = $area->name;
         $this->areaStatus = $area->status ?? '';
+        $this->areaColor  = $area->color ?? '';
     }
 
     // Inline edit
@@ -54,6 +56,12 @@ class AreaDetail extends Component
     public function saveStatus(): void
     {
         $this->area->update(['status' => $this->areaStatus ?: null]);
+        $this->area->refresh();
+    }
+
+    public function saveColor(): void
+    {
+        $this->area->update(['color' => $this->areaColor ?: null]);
         $this->area->refresh();
     }
 
