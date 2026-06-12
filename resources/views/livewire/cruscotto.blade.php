@@ -151,6 +151,28 @@
                     @endif
                 </div>
 
+                {{-- Sotto-aree --}}
+                @if($tessera->area->children->isNotEmpty())
+                <div class="border-t border-paper-dark mt-3 pt-3 grid grid-cols-2 gap-1.5">
+                    @foreach($tessera->area->children as $child)
+                    <span class="block rounded-lg border border-paper-dark px-2 py-1.5
+                                 hover:border-salvia transition-colors cursor-pointer"
+                          @click.stop="window.location='{{ route('aree.show', $child) }}'">
+                        <div class="flex items-center gap-1.5 min-w-0 mb-0.5">
+                            @if($child->color)
+                            <span class="w-1.5 h-1.5 rounded-full shrink-0"
+                                  style="background-color: {{ $child->color }}"></span>
+                            @endif
+                            <span class="text-[11px] font-medium text-ink truncate">{{ $child->name }}</span>
+                        </div>
+                        <p class="text-[10px] text-ink/40">
+                            {{ $child->open_tasks_count > 0 ? $child->open_tasks_count . ' aperti' : 'nessun task' }}
+                        </p>
+                    </span>
+                    @endforeach
+                </div>
+                @endif
+
             </a>
             @endforeach
 

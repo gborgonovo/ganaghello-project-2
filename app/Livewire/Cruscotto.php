@@ -71,7 +71,9 @@ class Cruscotto extends Component
         $dormienzaGg   = 60;
         $sogliaDorm    = now()->subDays($dormienzaGg);
 
-        return Area::orderBy('sequence')
+        return Area::with(['children' => fn($q) => $q->orderBy('sequence')])
+            ->whereNull('parent_area_id')
+            ->orderBy('sequence')
             ->get()
             ->map(function (Area $area) use ($userId, $doingCodes, $decisCodes, $sogliaDorm) {
 
@@ -138,6 +140,20 @@ class Cruscotto extends Component
                     'dormiente'     => 0,
                     default         => 1,
                 };
+
+                // Conteggi task aperti per i figli
+                if ($area->children->isNotEmpty()) {
+                    $childIds = $area->children->pluck('id');
+                    $counts   = Task::whereIn('area_id', $childIds)
+                        ->whereNull('completed_at')
+                        ->whereNull('deleted_at')
+                        ->selectRaw('area_id, count(*) as cnt')
+                        ->groupBy('area_id')
+                        ->pluck('cnt', 'area_id');
+                    $area->children->each(
+                        fn($c) => $c->open_tasks_count = $counts[$c->id] ?? 0
+                    );
+                }
 
                 return (object)[
                     'area'           => $area,
