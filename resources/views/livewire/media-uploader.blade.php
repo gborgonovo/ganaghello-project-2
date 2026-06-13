@@ -31,41 +31,64 @@
     @endif
 
     {{-- ===== ZONA UPLOAD (click + drag-and-drop) ===== --}}
-    <label
-        x-data="{
+    <div x-data="{
             dragging: false,
+            sizeError: '',
+            checkFiles(files) {
+                this.sizeError = '';
+                for (const f of [...files]) {
+                    if (f.size > 25 * 1024 * 1024) {
+                        this.sizeError = `"${f.name}" supera il limite di 25 MB.`;
+                        return false;
+                    }
+                }
+                return true;
+            },
             handleDrop(e) {
                 this.dragging = false;
                 const files = [...e.dataTransfer.files].filter(f => f.type.startsWith('image/'));
                 if (!files.length) return;
+                if (!this.checkFiles(files)) return;
                 const dt = new DataTransfer();
                 files.forEach(f => dt.items.add(f));
                 const input = $el.querySelector('input[type=file]');
                 input.files = dt.files;
                 input.dispatchEvent(new Event('change'));
+            },
+            handleChange(e) {
+                if (!this.checkFiles(e.target.files)) {
+                    e.target.value = '';
+                    e.stopImmediatePropagation();
+                }
             }
-        }"
-        x-on:dragover.prevent="dragging = true"
-        x-on:dragleave.prevent="dragging = false"
-        x-on:drop.prevent="handleDrop($event)"
-        :class="dragging ? 'border-salvia bg-salvia/10 scale-[1.01]' : 'border-paper-dark hover:border-salvia hover:bg-salvia/5'"
-        class="flex flex-col items-center justify-center gap-1.5 border-2 border-dashed
-               rounded-lg py-5 px-3 cursor-pointer transition-all select-none">
+        }">
+        <label
+            x-on:dragover.prevent="dragging = true"
+            x-on:dragleave.prevent="dragging = false"
+            x-on:drop.prevent="handleDrop($event)"
+            :class="dragging ? 'border-salvia bg-salvia/10 scale-[1.01]' : 'border-paper-dark hover:border-salvia hover:bg-salvia/5'"
+            class="flex flex-col items-center justify-center gap-1.5 border-2 border-dashed
+                   rounded-lg py-5 px-3 cursor-pointer transition-all select-none">
 
-        <span class="text-2xl" :class="dragging ? 'text-salvia' : 'text-ink/25'">⊕</span>
-        <span class="text-xs" :class="dragging ? 'text-salvia font-medium' : 'text-ink/40'">
-            <span x-show="!dragging">Clicca o trascina qui le immagini</span>
-            <span x-show="dragging">Rilascia per caricare</span>
-        </span>
-        <span class="text-[10px] text-ink/30" x-show="!dragging">JPG, PNG, WEBP, GIF</span>
+            <span class="text-2xl" :class="dragging ? 'text-salvia' : 'text-ink/25'">⊕</span>
+            <span class="text-xs" :class="dragging ? 'text-salvia font-medium' : 'text-ink/40'">
+                <span x-show="!dragging">Clicca o trascina qui le immagini</span>
+                <span x-show="dragging">Rilascia per caricare</span>
+            </span>
+            <span class="text-[10px] text-ink/30" x-show="!dragging">JPG, PNG, WEBP, GIF — max 25 MB</span>
 
-        <input type="file" wire:model="uploads" multiple accept=".jpg,.jpeg,.png,.webp,.gif,.heic,.heif" class="sr-only">
-        <div wire:loading wire:target="uploads" class="text-xs text-salvia mt-1">Elaborazione...</div>
-    </label>
+            <input type="file" wire:model="uploads" multiple accept=".jpg,.jpeg,.png,.webp,.gif,.heic,.heif"
+                   x-on:change="handleChange($event)" class="sr-only">
+            <div wire:loading wire:target="uploads" class="text-xs text-salvia mt-1">Elaborazione...</div>
+        </label>
 
-    @error('uploads.*')
-        <p class="text-xs text-terracotta mt-1">{{ $message }}</p>
-    @enderror
+        <template x-if="sizeError">
+            <p x-text="sizeError" class="text-xs text-terracotta mt-1"></p>
+        </template>
+        @error('uploads.*')
+            <p class="text-xs text-terracotta mt-1">{{ $message }}</p>
+        @enderror
+    </div>
 
     {{-- ===== LINK DALLA LIBRERIA ===== --}}
     <button wire:click="toggleLibrary"

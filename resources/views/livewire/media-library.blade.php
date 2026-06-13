@@ -50,41 +50,64 @@
     @if($tab === 'images')
 
         {{-- Zona upload immagini --}}
-        <label
-            x-data="{
+        <div x-data="{
                 dragging: false,
+                sizeError: '',
+                checkFiles(files) {
+                    this.sizeError = '';
+                    for (const f of [...files]) {
+                        if (f.size > 25 * 1024 * 1024) {
+                            this.sizeError = `"${f.name}" supera il limite di 25 MB.`;
+                            return false;
+                        }
+                    }
+                    return true;
+                },
                 handleDrop(e) {
                     this.dragging = false;
                     const files = [...e.dataTransfer.files].filter(f => f.type.startsWith('image/'));
                     if (!files.length) return;
+                    if (!this.checkFiles(files)) return;
                     const dt = new DataTransfer();
                     files.forEach(f => dt.items.add(f));
                     const input = $el.querySelector('input[type=file]');
                     input.files = dt.files;
                     input.dispatchEvent(new Event('change'));
+                },
+                handleChange(e) {
+                    if (!this.checkFiles(e.target.files)) {
+                        e.target.value = '';
+                        e.stopImmediatePropagation();
+                    }
                 }
-            }"
-            x-on:dragover.prevent="dragging = true"
-            x-on:dragleave.prevent="dragging = false"
-            x-on:drop.prevent="handleDrop($event)"
-            :class="dragging ? 'border-salvia bg-salvia/10' : 'border-paper-dark hover:border-salvia hover:bg-salvia/5'"
-            class="flex flex-col items-center justify-center gap-1.5 border-2 border-dashed
-                   rounded-xl py-6 px-3 cursor-pointer transition-all select-none">
+            }">
+            <label
+                x-on:dragover.prevent="dragging = true"
+                x-on:dragleave.prevent="dragging = false"
+                x-on:drop.prevent="handleDrop($event)"
+                :class="dragging ? 'border-salvia bg-salvia/10' : 'border-paper-dark hover:border-salvia hover:bg-salvia/5'"
+                class="flex flex-col items-center justify-center gap-1.5 border-2 border-dashed
+                       rounded-xl py-6 px-3 cursor-pointer transition-all select-none">
 
-            <span class="text-2xl" :class="dragging ? 'text-salvia' : 'text-ink/25'">⊕</span>
-            <span class="text-xs" :class="dragging ? 'text-salvia font-medium' : 'text-ink/40'">
-                <span x-show="!dragging">Clicca o trascina qui le immagini</span>
-                <span x-show="dragging">Rilascia per caricare</span>
-            </span>
-            <span class="text-[10px] text-ink/30" x-show="!dragging">JPG, PNG, WEBP, GIF</span>
+                <span class="text-2xl" :class="dragging ? 'text-salvia' : 'text-ink/25'">⊕</span>
+                <span class="text-xs" :class="dragging ? 'text-salvia font-medium' : 'text-ink/40'">
+                    <span x-show="!dragging">Clicca o trascina qui le immagini</span>
+                    <span x-show="dragging">Rilascia per caricare</span>
+                </span>
+                <span class="text-[10px] text-ink/30" x-show="!dragging">JPG, PNG, WEBP, GIF — max 25 MB</span>
 
-            <input type="file" wire:model="imgUploads" multiple accept=".jpg,.jpeg,.png,.webp,.gif,.heic,.heif" class="sr-only">
-            <div wire:loading wire:target="imgUploads" class="text-xs text-salvia mt-1">Elaborazione...</div>
-        </label>
+                <input type="file" wire:model="imgUploads" multiple accept=".jpg,.jpeg,.png,.webp,.gif,.heic,.heif"
+                       x-on:change="handleChange($event)" class="sr-only">
+                <div wire:loading wire:target="imgUploads" class="text-xs text-salvia mt-1">Elaborazione...</div>
+            </label>
 
-        @error('imgUploads.*')
-            <p class="text-xs text-terracotta mt-1">{{ $message }}</p>
-        @enderror
+            <template x-if="sizeError">
+                <p x-text="sizeError" class="text-xs text-terracotta mt-1"></p>
+            </template>
+            @error('imgUploads.*')
+                <p class="text-xs text-terracotta mt-1">{{ $message }}</p>
+            @enderror
+        </div>
 
         {{-- Griglia --}}
         @if($images->isEmpty())
@@ -179,9 +202,19 @@
     @if($tab === 'docs')
 
         {{-- Zona upload documenti --}}
-        <label
-            x-data="{
+        <div x-data="{
                 dragging: false,
+                sizeError: '',
+                checkFiles(files) {
+                    this.sizeError = '';
+                    for (const f of [...files]) {
+                        if (f.size > 15 * 1024 * 1024) {
+                            this.sizeError = `"${f.name}" supera il limite di 15 MB.`;
+                            return false;
+                        }
+                    }
+                    return true;
+                },
                 handleDrop(e) {
                     this.dragging = false;
                     const allowed = ['application/pdf','application/msword',
@@ -192,34 +225,47 @@
                     const files = [...e.dataTransfer.files]
                         .filter(f => allowed.includes(f.type) || f.name.match(/\.(pdf|doc|docx|xls|xlsx|odt|ods|txt|csv)$/i));
                     if (!files.length) return;
+                    if (!this.checkFiles(files)) return;
                     const dt = new DataTransfer();
                     dt.items.add(files[0]);
                     const input = $el.querySelector('input[type=file]');
                     input.files = dt.files;
                     input.dispatchEvent(new Event('change'));
+                },
+                handleChange(e) {
+                    if (!this.checkFiles(e.target.files)) {
+                        e.target.value = '';
+                        e.stopImmediatePropagation();
+                    }
                 }
-            }"
-            x-on:dragover.prevent="dragging = true"
-            x-on:dragleave.prevent="dragging = false"
-            x-on:drop.prevent="handleDrop($event)"
-            :class="dragging ? 'border-salvia bg-salvia/10' : 'border-paper-dark hover:border-salvia hover:bg-salvia/5'"
-            class="flex items-center justify-center gap-2 border-2 border-dashed
-                   rounded-xl py-4 px-3 cursor-pointer transition-all select-none">
+            }">
+            <label
+                x-on:dragover.prevent="dragging = true"
+                x-on:dragleave.prevent="dragging = false"
+                x-on:drop.prevent="handleDrop($event)"
+                :class="dragging ? 'border-salvia bg-salvia/10' : 'border-paper-dark hover:border-salvia hover:bg-salvia/5'"
+                class="flex items-center justify-center gap-2 border-2 border-dashed
+                       rounded-xl py-4 px-3 cursor-pointer transition-all select-none">
 
-            <span class="text-xl" :class="dragging ? 'text-salvia' : 'text-ink/25'">+</span>
-            <span class="text-sm" :class="dragging ? 'text-salvia font-medium' : 'text-ink/40'">
-                <span x-show="!dragging">Clicca o trascina un documento (PDF, Word, Excel...)</span>
-                <span x-show="dragging">Rilascia per allegare</span>
-            </span>
+                <span class="text-xl" :class="dragging ? 'text-salvia' : 'text-ink/25'">+</span>
+                <span class="text-sm" :class="dragging ? 'text-salvia font-medium' : 'text-ink/40'">
+                    <span x-show="!dragging">Clicca o trascina un documento — PDF, Word, Excel, max 15 MB</span>
+                    <span x-show="dragging">Rilascia per allegare</span>
+                </span>
 
-            <input type="file" wire:model="docUpload"
-                   accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx" class="sr-only">
-            <div wire:loading wire:target="docUpload" class="text-xs text-salvia ml-2">Carico...</div>
-        </label>
+                <input type="file" wire:model="docUpload"
+                       accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx"
+                       x-on:change="handleChange($event)" class="sr-only">
+                <div wire:loading wire:target="docUpload" class="text-xs text-salvia ml-2">Carico...</div>
+            </label>
 
-        @error('docUpload')
-            <p class="text-xs text-terracotta mt-1">{{ $message }}</p>
-        @enderror
+            <template x-if="sizeError">
+                <p x-text="sizeError" class="text-xs text-terracotta mt-1"></p>
+            </template>
+            @error('docUpload')
+                <p class="text-xs text-terracotta mt-1">{{ $message }}</p>
+            @enderror
+        </div>
 
         {{-- Lista --}}
         @if($docs->isEmpty())
