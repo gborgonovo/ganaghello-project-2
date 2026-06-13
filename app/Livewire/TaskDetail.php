@@ -57,10 +57,28 @@ class TaskDetail extends Component
     // Tag
     public string $tagInput = '';
 
+    // Navigazione: URL da cui si è arrivati (per il redirect dopo eliminazione)
+    public string $backUrl = '';
+
     public function mount(Task $task): void
     {
-        $this->task = $task->load(['stage', 'area', 'tags', 'goals', 'updates', 'children.stage', 'parent']);
+        $this->task    = $task->load(['stage', 'area', 'tags', 'goals', 'updates', 'children.stage', 'parent']);
         $this->syncFromModel();
+        $this->backUrl = $this->resolveBackUrl();
+    }
+
+    private function resolveBackUrl(): string
+    {
+        $previous = url()->previous();
+        $current  = url()->current();
+
+        if ($previous
+            && $previous !== $current
+            && str_starts_with($previous, config('app.url'))) {
+            return $previous;
+        }
+
+        return route('cruscotto');
     }
 
     private function syncFromModel(): void
@@ -301,7 +319,7 @@ class TaskDetail extends Component
     public function deleteTask(): void
     {
         $this->task->delete();
-        $this->redirect(route('cruscotto'));
+        $this->redirect($this->backUrl, navigate: true);
     }
 
     public function render()
