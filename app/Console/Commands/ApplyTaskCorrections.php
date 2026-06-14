@@ -57,10 +57,12 @@ class ApplyTaskCorrections extends Command
             $stage = trim($row[2] ?? '');
             $scad  = trim($row[3] ?? '');
             $compl = trim($row[4] ?? '');
+            $canc  = trim($row[5] ?? ''); // deleted_at: data = cancella, vuoto = attivo/ripristina
 
             if (!$id) { $errors[] = "riga {$rowNum}: id mancante"; continue; }
 
-            $task = Task::find($id);
+            // withTrashed: così si ritrovano (ed eventualmente si ripristinano) i task già cancellati
+            $task = Task::withTrashed()->find($id);
             if (!$task) { $errors[] = "riga {$rowNum}: task #{$id} non trovato"; continue; }
 
             $stageId = $stageByKey[mb_strtolower($stage)] ?? null;
@@ -71,23 +73,32 @@ class ApplyTaskCorrections extends Command
 
             $due = $this->parseDate($scad, $rowNum, $id, $errors);
             $don = $this->parseDate($compl, $rowNum, $id, $errors);
-            if ($due === false || $don === false) { continue; }
+            $del = $this->parseDate($canc, $rowNum, $id, $errors);
+            if ($due === false || $don === false || $del === false) { continue; }
 
-            $newDue = $due;
-            $newDon = $don;
             $changed = $task->stage_id != $stageId
-                || optional($task->due_date)->format('Y-m-d') !== $newDue
-                || optional($task->completed_at)->format('Y-m-d') !== $newDon;
+                || optional($task->due_date)->format('Y-m-d') !== $due
+                || optional($task->completed_at)->format('Y-m-d') !== $don
+                || optional($task->deleted_at)->format('Y-m-d') !== $del;
 
             if (!$changed) { $unchanged++; continue; }
 
+            // Segnala in anteprima i passaggi di stato di cancellazione
+            $wasDeleted = $task->deleted_at !== null;
+            $flag = match (true) {
+                !$wasDeleted && $del !== null => ' [CANCELLA]',
+                $wasDeleted && $del === null  => ' [RIPRISTINA]',
+                default                       => '',
+            };
+
             if ($dry) {
-                $this->line(sprintf('#%d  stage:%s  scad:%s  compl:%s   (%s)',
-                    $id, $stage, $newDue ?? '—', $newDon ?? '—', \Illuminate\Support\Str::limit($task->title, 30)));
+                $this->line(sprintf('#%d  stage:%s  scad:%s  compl:%s%s   (%s)',
+                    $id, $stage, $due ?? '—', $don ?? '—', $flag, \Illuminate\Support\Str::limit($task->title, 30)));
             } else {
-                $task->stage_id    = $stageId;
-                $task->due_date    = $newDue;
-                $task->completed_at = $newDon;
+                $task->stage_id     = $stageId;
+                $task->due_date     = $due;
+                $task->completed_at = $don;
+                $task->deleted_at   = $del;
                 $task->saveQuietly(); // niente observer/sync Mnemosyne durante la correzione di massa
             }
             $updated++;
