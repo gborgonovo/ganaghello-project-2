@@ -46,7 +46,13 @@
 
     <footer class="border-t border-paper-dark/60 mt-16">
         <div class="max-w-3xl mx-auto px-5 py-8 text-center text-xs text-ink/35">
-            Ganaghello · una storia alla volta
+            {{-- Varco discreto: al cruscotto se loggato, altrimenti al login
+                 (così dalla vetrina / dalla PWA installata si raggiunge l'accesso). --}}
+            @auth
+            <a href="{{ route('cruscotto') }}" class="hover:text-salvia transition-colors">Ganaghello · una storia alla volta</a>
+            @else
+            <a href="{{ route('login') }}" class="hover:text-salvia transition-colors">Ganaghello · una storia alla volta</a>
+            @endauth
         </div>
     </footer>
 
