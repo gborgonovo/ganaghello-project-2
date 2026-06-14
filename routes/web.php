@@ -64,6 +64,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/tag',     TagSettings::class)->name('tag');
         Route::get('/utenti',    Utenti::class)->name('utenti');
         Route::get('/notifiche', \App\Livewire\Settings\NotificheSettings::class)->name('notifiche');
+        Route::get('/log',       \App\Livewire\Settings\Log::class)->name('log');
     });
 
     Route::get('/tasks/{task}', TaskDetail::class)->name('tasks.show');

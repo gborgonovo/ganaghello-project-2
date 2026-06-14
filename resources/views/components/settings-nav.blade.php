@@ -6,6 +6,7 @@ $items = [
     ['route' => 'settings.tag',       'label' => 'Tag'],
     ['route' => 'settings.utenti',    'label' => 'Utenti'],
     ['route' => 'settings.notifiche', 'label' => 'Notifiche'],
+    ['route' => 'settings.log',       'label' => 'Log'],
 ];
 @endphp
 

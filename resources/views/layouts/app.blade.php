@@ -57,6 +57,8 @@
             <x-sidebar-link href="{{ route('diario') }}" :active="request()->routeIs('diario')" icon="book-open">Diario</x-sidebar-link>
             <x-sidebar-link href="{{ route('blog') }}" :active="request()->routeIs('blog*')" icon="document-text">Blog</x-sidebar-link>
             <x-sidebar-link href="{{ route('goals') }}" :active="request()->routeIs('goals')" icon="trophy">Goals</x-sidebar-link>
+
+            <p class="px-3 pt-4 pb-1 text-[10px] font-semibold uppercase tracking-widest text-salvia-light/70">Raccolte</p>
             <x-sidebar-link href="{{ route('libreria') }}" :active="request()->routeIs('libreria')" icon="photo">Libreria</x-sidebar-link>
             <x-sidebar-link href="{{ route('moodboard') }}" :active="request()->routeIs('moodboard')" icon="swatch">Moodboard</x-sidebar-link>
             <x-sidebar-link href="{{ route('note') }}" :active="request()->routeIs('note')" icon="clipboard">Note</x-sidebar-link>
