@@ -462,7 +462,12 @@
             @else
             <p class="text-sm text-ink/80 whitespace-pre-wrap leading-relaxed">{{ $update->content }}</p>
             <div class="flex items-center gap-3 mt-1">
-                <span class="text-xs text-ink/40">{{ $update->created_at->format('d/m/Y H:i') }}</span>
+                <span class="text-xs text-ink/40">
+                    {{ $update->created_at->format('d/m/Y H:i') }}
+                    @if($update->updated_at && abs($update->updated_at->diffInSeconds($update->created_at)) > 1)
+                    <span class="text-ink/30 italic" title="Modificato il {{ $update->updated_at->format('d/m/Y H:i') }}">(modificato)</span>
+                    @endif
+                </span>
                 <button wire:click="startEditUpdate({{ $update->id }})"
                     class="text-xs text-ink/30 hover:text-salvia transition-colors opacity-0 group-hover:opacity-100">
                     modifica
