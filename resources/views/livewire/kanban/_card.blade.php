@@ -25,13 +25,9 @@
 
         {{-- Area --}}
         @if($task->area)
-        <span class="flex items-center gap-1 text-xs text-ink/50 mb-1.5 min-w-0">
-            @if($task->area->color)
-            <span class="w-2 h-2 rounded-full shrink-0"
-                  style="background-color: {{ $task->area->color }}"></span>
-            @endif
-            <span class="truncate">{{ $task->area->name }}</span>
-        </span>
+        <div class="mb-1.5">
+            <x-area-chip :area="$task->area" />
+        </div>
         @endif
 
         {{-- Titolo --}}

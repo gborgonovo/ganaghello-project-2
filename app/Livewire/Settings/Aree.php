@@ -8,15 +8,17 @@ use Livewire\Component;
 class Aree extends Component
 {
     // Crea
-    public string $newName     = '';
-    public string $newColor    = '#5C6B4F';
-    public ?int   $newParentId = null;
+    public string $newName      = '';
+    public string $newColor     = '#5C6B4F';
+    public string $newTextColor = '#FFFFFF';
+    public ?int   $newParentId  = null;
 
     // Edit inline
-    public ?int   $editingId   = null;
-    public string $editName    = '';
-    public string $editColor   = '';
-    public ?int   $editParentId = null;
+    public ?int   $editingId     = null;
+    public string $editName      = '';
+    public string $editColor     = '';
+    public string $editTextColor = '';
+    public ?int   $editParentId  = null;
 
     // Delete
     public ?int   $confirmDeleteId = null;
@@ -32,12 +34,14 @@ class Aree extends Component
         Area::create([
             'name'           => trim($this->newName),
             'color'          => $this->newColor,
+            'text_color'     => $this->newTextColor,
             'parent_area_id' => $this->newParentId ?: null,
         ]);
 
-        $this->newName     = '';
-        $this->newColor    = '#5C6B4F';
-        $this->newParentId = null;
+        $this->newName      = '';
+        $this->newColor     = '#5C6B4F';
+        $this->newTextColor = '#FFFFFF';
+        $this->newParentId  = null;
         $this->dispatch('toast', message: 'Area creata.');
     }
 
@@ -47,6 +51,7 @@ class Aree extends Component
         $this->editingId  = $id;
         $this->editName   = $area->name;
         $this->editColor  = $area->color ?? '#5C6B4F';
+        $this->editTextColor = $area->text_color ?? '#FFFFFF';
         $this->editParentId = $area->parent_area_id;
     }
 
@@ -60,6 +65,7 @@ class Aree extends Component
         Area::where('id', $this->editingId)->update([
             'name'           => trim($this->editName),
             'color'          => $this->editColor,
+            'text_color'     => $this->editTextColor,
             'parent_area_id' => $this->editParentId ?: null,
         ]);
 

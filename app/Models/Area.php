@@ -12,11 +12,36 @@ class Area extends Model
 {
     use HasMnemosyneNode;
 
-    protected $fillable = ['name', 'description', 'color', 'status', 'lat', 'lng', 'parent_area_id', 'sequence', 'mnemosyne_node_name'];
+    protected $fillable = ['name', 'description', 'color', 'text_color', 'status', 'lat', 'lng', 'parent_area_id', 'sequence', 'mnemosyne_node_name'];
 
     public function mnemosyneLabel(): string
     {
         return (string) $this->name;
+    }
+
+    /** Sfondo del chip area (fallback su un tono neutro). */
+    public function getChipBgColorAttribute(): string
+    {
+        return $this->color ?: '#E0DDD2';
+    }
+
+    /**
+     * Testo del chip area: se text_color non e' impostato, lo deriva dalla
+     * luminanza dello sfondo (chiaro -> testo scuro, scuro -> testo bianco).
+     */
+    public function getChipTextColorAttribute(): string
+    {
+        if ($this->text_color) {
+            return $this->text_color;
+        }
+        $hex = ltrim((string) $this->color, '#');
+        if (strlen($hex) !== 6 || !ctype_xdigit($hex)) {
+            return '#2C322A';
+        }
+        $lum = (0.299 * hexdec(substr($hex, 0, 2))
+              + 0.587 * hexdec(substr($hex, 2, 2))
+              + 0.114 * hexdec(substr($hex, 4, 2))) / 255;
+        return $lum > 0.6 ? '#2C322A' : '#FFFFFF';
     }
 
     public function parent()   { return $this->belongsTo(Area::class, 'parent_area_id'); }

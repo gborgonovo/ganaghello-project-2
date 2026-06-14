@@ -127,13 +127,7 @@
                     <div class="flex items-center justify-between mb-2">
                         <div>
                             @if($entry->area)
-                            <span class="flex items-center gap-1.5 text-xs text-ink/40 font-medium">
-                                @if($entry->area->color)
-                                <span class="w-2 h-2 rounded-full shrink-0"
-                                      style="background-color: {{ $entry->area->color }}"></span>
-                                @endif
-                                {{ $entry->area->name }}
-                            </span>
+                            <x-area-chip :area="$entry->area" />
                             @endif
                         </div>
                         @if($entry->entry_time)

@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>{{ isset($title) ? $title . ' — BiGlog' : 'BiGlog' }}</title>
+    <title>{{ isset($title) ? $title . ' · BiG-Log' : 'BiG-Log' }}</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @livewireStyles
 </head>
@@ -36,7 +36,7 @@
         {{-- Logo / titolo app --}}
         <div class="flex items-center justify-between px-5 py-4 border-b border-salvia">
             <div class="flex items-center gap-2">
-                <span class="text-lg font-semibold tracking-tight text-paper">BiGlog</span>
+                <span class="text-lg font-semibold tracking-tight text-paper">BiG-Log</span>
                 <span class="text-xs text-salvia-light font-normal">Ganaghello</span>
             </div>
             {{-- Chiudi sidebar (mobile only) --}}
@@ -68,9 +68,7 @@
 
             {{-- Utente --}}
             <div class="mt-2 px-3 py-2 rounded-lg flex items-center gap-2 text-sm text-paper/70">
-                <span class="w-7 h-7 rounded-full bg-salvia flex items-center justify-center text-xs font-semibold text-paper uppercase">
-                    {{ substr(auth()->user()->name ?? '?', 0, 2) }}
-                </span>
+                <x-identicon :user="auth()->user()" />
                 <span class="truncate">{{ auth()->user()->name ?? '' }}</span>
                 <form method="POST" action="{{ route('logout') }}" class="ml-auto">
                     @csrf

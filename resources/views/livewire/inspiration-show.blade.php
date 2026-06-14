@@ -76,13 +76,7 @@
                 <h1 class="text-xl font-semibold text-ink leading-snug">{{ $inspiration->title }}</h1>
                 @endif
                 @if($inspiration->area)
-                <span class="inline-flex items-center gap-1.5 text-xs text-ink/50">
-                    @if($inspiration->area->color)
-                    <span class="w-2 h-2 rounded-full shrink-0"
-                          style="background-color: {{ $inspiration->area->color }}"></span>
-                    @endif
-                    {{ $inspiration->area->name }}
-                </span>
+                <x-area-chip :area="$inspiration->area" />
                 @endif
             </div>
             <div class="flex items-center gap-2 shrink-0">

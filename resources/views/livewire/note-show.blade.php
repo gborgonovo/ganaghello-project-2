@@ -17,12 +17,8 @@
 
     {{-- Area --}}
     @if($note->area)
-    <div class="flex items-center gap-1.5 mb-6 text-xs text-ink/40">
-        @if($note->area->color)
-        <span class="w-1.5 h-1.5 rounded-full shrink-0"
-              style="background-color: {{ $note->area->color }}"></span>
-        @endif
-        {{ $note->area->name }}
+    <div class="mb-6">
+        <x-area-chip :area="$note->area" />
     </div>
     @elseif($note->title)
     <div class="mb-6"></div>

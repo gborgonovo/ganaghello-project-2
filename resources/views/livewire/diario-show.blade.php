@@ -39,13 +39,7 @@
         <span class="text-xs text-ink/25 font-mono">{{ substr($entry->entry_time, 0, 5) }}</span>
         @endif
         @if($entry->area)
-        <span class="flex items-center gap-1.5 text-xs text-ink/40">
-            @if($entry->area->color)
-            <span class="w-1.5 h-1.5 rounded-full shrink-0"
-                  style="background-color: {{ $entry->area->color }}"></span>
-            @endif
-            {{ $entry->area->name }}
-        </span>
+        <x-area-chip :area="$entry->area" />
         @endif
     </div>
 

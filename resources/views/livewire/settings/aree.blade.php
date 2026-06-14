@@ -19,10 +19,13 @@
                                   focus:outline-none focus:border-salvia flex-1 min-w-32">
                     @error('editName')<span class="text-xs text-red-500">{{ $message }}</span>@enderror
 
-                    <div class="flex items-center gap-1.5">
-                        <input type="color" wire:model="editColor"
+                    <div class="flex items-center gap-2">
+                        <input type="color" wire:model.live="editColor" title="Sfondo"
                                class="w-8 h-8 rounded cursor-pointer border border-paper-dark p-0.5">
-                        <span class="text-xs text-ink/40 font-mono w-16">{{ $editColor }}</span>
+                        <input type="color" wire:model.live="editTextColor" title="Testo"
+                               class="w-8 h-8 rounded cursor-pointer border border-paper-dark p-0.5">
+                        <span class="text-xs px-1.5 py-0.5 rounded font-medium"
+                              style="background-color: {{ $editColor }}; color: {{ $editTextColor }}">{{ $editName ?: 'Aa' }}</span>
                     </div>
 
                     <select wire:model="editParentId"
@@ -63,14 +66,12 @@
                 @else
                 {{-- Vista normale --}}
                 <div class="flex items-center gap-3 group">
-                    <span class="w-3 h-3 rounded-full shrink-0"
-                          style="background-color: {{ $area->color ?? '#ccc' }}"></span>
+                    <x-area-chip :area="$area" />
 
-                    <span class="text-sm text-ink flex-1">
+                    <span class="text-sm text-ink/40 flex-1 truncate">
                         @if($area->parent)
-                        <span class="text-ink/30 text-xs">{{ $area->parent->name }} /</span>
+                        <span class="text-xs">in {{ $area->parent->name }}</span>
                         @endif
-                        {{ $area->name }}
                     </span>
 
                     @if($total > 0)
@@ -106,10 +107,13 @@
                               focus:outline-none focus:border-salvia flex-1 min-w-32">
                 @error('newName')<span class="text-xs text-red-500">{{ $message }}</span>@enderror
 
-                <div class="flex items-center gap-1.5">
-                    <input type="color" wire:model="newColor"
+                <div class="flex items-center gap-2">
+                    <input type="color" wire:model.live="newColor" title="Sfondo"
                            class="w-8 h-8 rounded cursor-pointer border border-paper-dark p-0.5">
-                    <span class="text-xs text-ink/40 font-mono w-16">{{ $newColor }}</span>
+                    <input type="color" wire:model.live="newTextColor" title="Testo"
+                           class="w-8 h-8 rounded cursor-pointer border border-paper-dark p-0.5">
+                    <span class="text-xs px-1.5 py-0.5 rounded font-medium"
+                          style="background-color: {{ $newColor }}; color: {{ $newTextColor }}">{{ $newName ?: 'Aa' }}</span>
                 </div>
 
                 <select wire:model="newParentId"
