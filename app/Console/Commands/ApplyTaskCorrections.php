@@ -31,11 +31,16 @@ class ApplyTaskCorrections extends Command
         }
         $dry = (bool) $this->option('dry-run');
 
-        // Mappa stage: code e label (minuscolo) -> id
+        // Mappa stage: code e label (minuscolo) -> id, + sinonimi comuni
         $stageByKey = [];
         foreach (Stage::all() as $s) {
             $stageByKey[mb_strtolower($s->code)]  = $s->id;
             $stageByKey[mb_strtolower($s->label)] = $s->id;
+        }
+        foreach (['archivio' => 'archiviato', 'in attesa' => 'in_attesa', 'fatto' => 'done'] as $alias => $code) {
+            if (isset($stageByKey[$code])) {
+                $stageByKey[$alias] = $stageByKey[$code];
+            }
         }
 
         $lines = file($path, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
@@ -43,14 +48,16 @@ class ApplyTaskCorrections extends Command
             $this->error('CSV vuoto o illeggibile.');
             return self::FAILURE;
         }
-        // Toglie eventuale BOM dalla prima riga e scarta l'header
+        // Toglie eventuale BOM dalla prima riga; rileva il separatore dall'header (Excel salva spesso con ,)
         $lines[0] = preg_replace('/^\xEF\xBB\xBF/', '', $lines[0]);
+        $header   = $lines[0];
+        $sep      = substr_count($header, ';') >= substr_count($header, ',') ? ';' : ',';
         array_shift($lines);
 
         $updated = 0; $unchanged = 0; $errors = [];
 
         foreach ($lines as $n => $line) {
-            $row = str_getcsv($line, ';');
+            $row = str_getcsv($line, $sep);
             $rowNum = $n + 2; // +header +1-based
 
             $id    = (int) trim($row[0] ?? '');

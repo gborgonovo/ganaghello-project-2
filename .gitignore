@@ -30,3 +30,5 @@ Thumbs.db
 # tenuta solo in locale.
 /documentation/
 /correzione-task.csv
+/correzione-task-corretti.csv
+database/*.sqlite.bak-*
