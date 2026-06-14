@@ -37,7 +37,7 @@
                 this.sizeError = '';
                 for (const f of [...files]) {
                     if (f.size > 25 * 1024 * 1024) {
-                        this.sizeError = `"${f.name}" supera il limite di 25 MB.`;
+                        this.sizeError = `«${f.name}» supera il limite di 25 MB.`;
                         return false;
                     }
                 }
