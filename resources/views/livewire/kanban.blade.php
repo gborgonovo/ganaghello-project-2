@@ -12,9 +12,7 @@
                 class="text-sm border border-paper-dark rounded-lg px-2.5 py-1.5 bg-white text-ink
                        focus:outline-none focus:border-salvia flex-1 sm:flex-none">
             <option value="">Tutte le aree</option>
-            @foreach($areas as $area)
-            <option value="{{ $area->id }}">{{ $area->name }}</option>
-            @endforeach
+            <x-area-options />
         </select>
 
         @if($goals->isNotEmpty())

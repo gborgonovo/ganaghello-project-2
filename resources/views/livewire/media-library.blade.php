@@ -21,9 +21,7 @@
         <select wire:model.live="areaId"
                 class="text-sm border border-paper-dark rounded-lg px-3 py-2 bg-white text-ink focus:outline-none focus:border-salvia">
             <option value="">Tutte le aree</option>
-            @foreach($aree as $area)
-            <option value="{{ $area->id }}">{{ $area->name }}</option>
-            @endforeach
+            <x-area-options />
         </select>
 
         {{-- Filtro context --}}

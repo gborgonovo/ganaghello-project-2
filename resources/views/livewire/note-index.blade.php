@@ -21,9 +21,7 @@
                     class="text-sm border border-paper-dark rounded-lg px-3 py-1.5 bg-white
                            focus:outline-none focus:border-salvia text-ink/70">
                 <option value="">Nessuna area</option>
-                @foreach($aree as $area)
-                <option value="{{ $area->id }}">{{ $area->name }}</option>
-                @endforeach
+                <x-area-options />
             </select>
             <button wire:click="create"
                     class="px-4 py-1.5 bg-salvia text-white rounded-lg text-sm
@@ -101,9 +99,7 @@
                     class="w-full text-xs border border-paper-dark rounded px-2 py-1 mb-3
                            focus:outline-none focus:border-salvia bg-white">
                 <option value="">Nessuna area</option>
-                @foreach($aree as $area)
-                <option value="{{ $area->id }}">{{ $area->name }}</option>
-                @endforeach
+                <x-area-options />
             </select>
             <div class="flex gap-2">
                 <button wire:click="saveEdit"

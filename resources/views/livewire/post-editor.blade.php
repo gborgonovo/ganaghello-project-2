@@ -68,9 +68,7 @@
                     class="w-full text-sm border border-paper-dark rounded-lg px-3 py-2 bg-white
                            focus:outline-none focus:border-salvia">
                 <option value="">Nessuna</option>
-                @foreach($aree as $area)
-                <option value="{{ $area->id }}">{{ $area->name }}</option>
-                @endforeach
+                <x-area-options />
             </select>
         </div>
     </div>

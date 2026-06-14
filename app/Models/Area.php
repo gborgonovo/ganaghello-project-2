@@ -53,4 +53,27 @@ class Area extends Model
     public function inspirations() { return $this->hasMany(Inspiration::class); }
 
     public function tags() { return $this->morphToMany(Tag::class, 'taggable'); }
+
+    /**
+     * Opzioni per le <select>, ordinate ad albero: ogni radice seguita dalle sue
+     * discendenti, indentate. Restituisce oggetti con `id` e `label`.
+     */
+    public static function optionsTree(): \Illuminate\Support\Collection
+    {
+        $byParent = static::orderBy('sequence')->orderBy('name')->get()->groupBy('parent_area_id');
+        $out = collect();
+
+        $walk = function ($parentId, int $depth) use (&$walk, $byParent, $out) {
+            foreach ($byParent->get($parentId, collect()) as $area) {
+                $out->push((object) [
+                    'id'    => $area->id,
+                    'label' => str_repeat('— ', $depth) . $area->name,
+                ]);
+                $walk($area->id, $depth + 1);
+            }
+        };
+        $walk(null, 0);
+
+        return $out;
+    }
 }
