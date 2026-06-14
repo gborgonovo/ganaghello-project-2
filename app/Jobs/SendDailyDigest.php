@@ -125,12 +125,11 @@ class SendDailyDigest implements ShouldQueue
 
     private function buildDormant(array $nodes): array
     {
-        $doneIds = $this->doneStageIds();
-        $result  = [];
+        $mnemo  = app(MnemosyneService::class);
+        $result = [];
 
         foreach (array_slice($nodes, 0, 5) as $node) {
-            $name   = $node['name'] ?? '';
-            $entity = $this->findEntityByNodeName($name, $doneIds);
+            $entity = $mnemo->resolveNode($node['name'] ?? '');
 
             if ($entity === null) {
                 continue;
@@ -148,53 +147,5 @@ class SendDailyDigest implements ShouldQueue
         }
 
         return $result;
-    }
-
-    private function findEntityByNodeName(string $name, array $doneIds): ?array
-    {
-        // Task: solo attivi (non done/archiviati)
-        $task = Task::where('mnemosyne_node_name', $name)
-            ->whereNotIn('stage_id', $doneIds)
-            ->whereNull('deleted_at')
-            ->first();
-        if ($task) {
-            return [
-                'label'      => $task->title,
-                'url'        => route('tasks.show', $task),
-                'updated_at' => $task->updated_at,
-            ];
-        }
-
-        // Goal
-        $goal = Goal::where('mnemosyne_node_name', $name)->first();
-        if ($goal) {
-            return [
-                'label'      => $goal->title,
-                'url'        => route('goals'),
-                'updated_at' => $goal->updated_at,
-            ];
-        }
-
-        // Area
-        $area = Area::where('mnemosyne_node_name', $name)->first();
-        if ($area) {
-            return [
-                'label'      => $area->name,
-                'url'        => route('aree.show', $area),
-                'updated_at' => $area->updated_at,
-            ];
-        }
-
-        // Entry (diario)
-        $entry = Entry::where('mnemosyne_node_name', $name)->first();
-        if ($entry) {
-            return [
-                'label'      => $entry->title,
-                'url'        => route('diario.show', $entry),
-                'updated_at' => $entry->updated_at,
-            ];
-        }
-
-        return null;
     }
 }

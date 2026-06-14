@@ -65,7 +65,7 @@
     <div class="flex items-center justify-between bg-salvia/10 border border-salvia/30 rounded-lg px-4 py-2.5">
         <span class="text-sm text-salvia">Task creato con successo.</span>
         <div class="flex items-center gap-3">
-            <a href="{{ route('tasks.show', $convertedTaskId) }}"
+            <a href="{{ route('tasks.show', $convertedTaskId) }}" wire:navigate
                class="text-sm font-medium text-salvia hover:underline">Apri task →</a>
             <button wire:click="$set('convertedTaskId', null)"
                     class="text-ink/30 hover:text-ink text-xs">✕</button>
@@ -119,7 +119,7 @@
 
             @else
             {{-- ===== VISTA NORMALE ===== --}}
-            <a href="{{ route('note.show', $note->id) }}"
+            <a href="{{ route('note.show', $note->id) }}" wire:navigate
                class="block text-sm font-semibold text-ink hover:text-salvia transition-colors mb-1.5 leading-snug">
                 {{ $note->title }}
             </a>

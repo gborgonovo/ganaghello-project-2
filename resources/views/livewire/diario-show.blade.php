@@ -3,10 +3,7 @@
 
     {{-- Navigazione + azioni --}}
     <div class="flex items-center justify-between mb-8">
-        <a href="{{ route('diario') }}"
-           class="text-sm text-ink/40 hover:text-ink transition-colors flex items-center gap-1.5">
-            ← Diario
-        </a>
+        <x-back />
         <button wire:click="openEdit"
                 class="text-xs text-salvia hover:text-salvia-dark transition-colors flex items-center gap-1">
             ✎ Modifica

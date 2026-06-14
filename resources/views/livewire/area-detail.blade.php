@@ -5,23 +5,8 @@
         <div class="flex items-start justify-between gap-4">
             <div class="flex-1 min-w-0">
 
-                {{-- Breadcrumb --}}
-                <div class="flex items-center gap-1 mb-1.5 text-xs text-ink/40">
-                    <a href="{{ route('aree') }}" class="hover:text-salvia transition-colors">Aree</a>
-                    @if($area->parent)
-                    <span>/</span>
-                    <a href="{{ route('aree.show', $area->parent) }}"
-                       class="inline-flex items-center gap-1 hover:text-salvia transition-colors">
-                        @if($area->parent->color)
-                        <span class="w-1.5 h-1.5 rounded-full shrink-0"
-                              style="background-color: {{ $area->parent->color }}"></span>
-                        @endif
-                        {{ $area->parent->name }}
-                    </a>
-                    @endif
-                    <span>/</span>
-                    <span class="text-ink/60">{{ $area->name }}</span>
-                </div>
+                {{-- Torna indietro --}}
+                <x-back class="mb-1.5 text-xs" />
 
                 {{-- Nome area --}}
                 @if($editingName)
@@ -120,7 +105,7 @@
                 <span class="w-3 h-3 rounded-full shrink-0"
                       style="background-color: {{ $child->color }}"></span>
                 @endif
-                <a href="{{ route('aree.show', $child) }}"
+                <a href="{{ route('aree.show', $child) }}" wire:navigate
                    class="font-semibold text-sm text-ink hover:text-salvia transition-colors truncate">
                     {{ $child->name }}
                 </a>
@@ -141,7 +126,7 @@
             @if($child->children->isNotEmpty())
             <div class="border-t border-paper-dark pt-3 grid grid-cols-2 gap-2">
                 @foreach($child->children as $grandchild)
-                <a href="{{ route('aree.show', $grandchild) }}"
+                <a href="{{ route('aree.show', $grandchild) }}" wire:navigate
                    class="block rounded-lg border border-paper-dark px-2.5 py-2
                           hover:border-salvia group transition-colors">
                     <div class="flex items-center gap-1.5 min-w-0">
@@ -186,7 +171,7 @@
                             @else {{ abs($gg) }} gg fa
                             @endif
                         </span>
-                        <a href="{{ route('tasks.show', $task) }}"
+                        <a href="{{ route('tasks.show', $task) }}" wire:navigate
                            class="flex-1 text-ink hover:text-salvia truncate">
                             {{ $task->title }}
                         </a>
@@ -224,7 +209,7 @@
                         <span class="w-4 shrink-0"></span>
                         @endif
 
-                        <a href="{{ route('tasks.show', $task) }}"
+                        <a href="{{ route('tasks.show', $task) }}" wire:navigate
                            class="flex-1 text-sm text-ink hover:text-salvia truncate transition-colors">
                             {{ $task->title }}
                         </a>
@@ -250,7 +235,7 @@
                         @foreach($task->children as $child)
                         <div class="flex items-center gap-2 py-0.5" wire:key="child-{{ $child->id }}">
                             <span class="text-ink/30 text-xs">•</span>
-                            <a href="{{ route('tasks.show', $child) }}"
+                            <a href="{{ route('tasks.show', $child) }}" wire:navigate
                                class="flex-1 text-sm text-ink/80 hover:text-salvia truncate">
                                 {{ $child->title }}
                             </a>
@@ -328,7 +313,7 @@
                     @endif
 
                     @if($item['tipo'] === 'aggiornamento' && $item['obj']->task)
-                    <a href="{{ route('tasks.show', $item['obj']->task) }}"
+                    <a href="{{ route('tasks.show', $item['obj']->task) }}" wire:navigate
                        class="text-xs text-ink/40 hover:text-salvia truncate max-w-[150px]">
                         {{ $item['obj']->task->title }}
                     </a>
@@ -346,7 +331,7 @@
                 </p>
                 @elseif($item['tipo'] === 'fatto')
                 <p class="text-sm font-medium text-ink/80">
-                    <a href="{{ route('tasks.show', $item['obj']) }}" class="hover:text-salvia">
+                    <a href="{{ route('tasks.show', $item['obj']) }}" wire:navigate class="hover:text-salvia">
                         {{ $item['obj']->title }}
                     </a>
                 </p>

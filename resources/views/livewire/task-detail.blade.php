@@ -2,10 +2,7 @@
 
     {{-- ===== BACK BUTTON ===== --}}
     <div class="flex items-center justify-between">
-        <button onclick="history.back()"
-                class="flex items-center gap-1.5 text-sm text-ink/50 hover:text-salvia transition-colors">
-            ← Indietro
-        </button>
+        <x-back />
         <p class="text-xs text-ink/30 italic">Le modifiche vengono salvate automaticamente.</p>
     </div>
 
@@ -225,7 +222,7 @@
         @if($task->parent)
         <div class="col-span-2">
             <label class="text-xs text-ink/50 block mb-0.5">Task padre</label>
-            <a href="{{ route('tasks.show', $task->parent) }}"
+            <a href="{{ route('tasks.show', $task->parent) }}" wire:navigate
                class="text-sm text-salvia hover:text-salvia-dark transition-colors">
                 {{ $task->parent->title }}
             </a>
@@ -292,7 +289,7 @@
                     {{ $child->stage->label }}
                 </span>
                 @endif
-                <a href="{{ route('tasks.show', $child) }}"
+                <a href="{{ route('tasks.show', $child) }}" wire:navigate
                    class="flex-1 text-ink hover:text-salvia truncate transition-colors">
                     {{ $child->title }}
                 </a>

@@ -110,7 +110,7 @@
                 <span class="text-xs {{ $task->completed_at ? 'text-emerald-600' : 'text-ink/30' }}">
                     {{ $task->completed_at ? '✓' : '○' }}
                 </span>
-                <a href="{{ route('tasks.show', $task) }}"
+                <a href="{{ route('tasks.show', $task) }}" wire:navigate
                    class="flex-1 truncate {{ $task->completed_at ? 'text-ink/40 line-through' : 'text-ink hover:text-salvia' }}">
                     {{ $task->title }}
                 </a>
@@ -180,7 +180,7 @@
                                 <span class="{{ $task->completed_at ? 'text-emerald-600' : 'text-ink/30' }}">
                                     {{ $task->completed_at ? '✓' : '○' }}
                                 </span>
-                                <a href="{{ route('tasks.show', $task) }}"
+                                <a href="{{ route('tasks.show', $task) }}" wire:navigate
                                    class="{{ $task->completed_at ? 'text-ink/40 line-through' : 'text-ink/70 hover:text-salvia' }} truncate">
                                     {{ $task->title }}
                                 </a>

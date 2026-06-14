@@ -1,6 +1,4 @@
-<div class="space-y-6"
-     x-data
-     @task-created.window="window.location.reload()">
+<div class="space-y-6" x-data>
 
     {{-- ===== HEADER: bentornato + dormienti + scadenze ===== --}}
     <div class="rounded-xl border border-paper-dark bg-white px-4 sm:px-6 py-5 space-y-5">
@@ -33,9 +31,13 @@
                 <li class="flex items-start gap-2 text-sm text-ink/80">
                     <span class="mt-0.5 text-terracotta">•</span>
                     <span>
-                        <span class="font-medium">{{ $nodo['name'] ?? '—' }}</span>
+                        @if($nodo['url'] ?? null)
+                            <a href="{{ $nodo['url'] }}" wire:navigate class="font-medium hover:text-salvia transition-colors">{{ $nodo['label'] }}</a>
+                        @else
+                            <span class="font-medium">{{ $nodo['label'] ?: '—' }}</span>
+                        @endif
                         @if(!empty($nodo['properties']['description']))
-                            <span class="text-ink/50"> — {{ Str::limit($nodo['properties']['description'], 80) }}</span>
+                            <span class="text-ink/50"> · {{ Str::limit($nodo['properties']['description'], 80) }}</span>
                         @endif
                     </span>
                 </li>
@@ -50,20 +52,23 @@
             <p class="text-xs font-semibold uppercase tracking-wide text-salvia mb-2">In arrivo</p>
             <ul class="space-y-1">
                 @foreach($scadenze as $task)
-                <li class="flex items-center gap-3 text-sm">
-                    <span class="shrink-0 text-xs font-medium px-2 py-0.5 rounded"
-                          style="background-color: {{ $task->stage->bg_color }}; color: {{ $task->stage->text_color }}">
-                        {{ $task->stage->label }}
-                    </span>
-                    <span class="text-ink flex-1 truncate">{{ $task->title }}</span>
-                    <span class="shrink-0 text-ink/50 text-xs">
-                        @php $gg = (int) now()->diffInDays($task->due_date, false); @endphp
-                        @if($gg === 0) oggi
-                        @elseif($gg === 1) domani
-                        @elseif($gg > 1) tra {{ $gg }} gg
-                        @else <span class="text-terracotta">{{ abs($gg) }} gg fa</span>
-                        @endif
-                    </span>
+                <li>
+                    <a href="{{ route('tasks.show', $task) }}" wire:navigate
+                       class="flex items-center gap-3 text-sm -mx-2 px-2 py-1 rounded hover:bg-paper-dark/40 transition-colors">
+                        <span class="shrink-0 text-xs font-medium px-2 py-0.5 rounded"
+                              style="background-color: {{ $task->stage->bg_color }}; color: {{ $task->stage->text_color }}">
+                            {{ $task->stage->label }}
+                        </span>
+                        <span class="text-ink flex-1 truncate">{{ $task->title }}</span>
+                        <span class="shrink-0 text-ink/50 text-xs">
+                            @php $gg = (int) now()->diffInDays($task->due_date, false); @endphp
+                            @if($gg === 0) oggi
+                            @elseif($gg === 1) domani
+                            @elseif($gg > 1) tra {{ $gg }} gg
+                            @else <span class="text-terracotta">{{ abs($gg) }} gg fa</span>
+                            @endif
+                        </span>
+                    </a>
                 </li>
                 @endforeach
             </ul>
@@ -91,7 +96,7 @@
         {{-- Griglia tessere --}}
         <div class="columns-2 md:columns-3 gap-3">
             @foreach($aree as $tessera)
-            <a href="{{ route('aree.show', $tessera->area) }}"
+            <a href="{{ route('aree.show', $tessera->area) }}" wire:navigate
                class="break-inside-avoid mb-3 group block rounded-xl border border-paper-dark bg-white px-4 py-4 hover:border-salvia-light hover:shadow-sm transition-all">
 
                 {{-- Nome area + colore --}}
@@ -157,7 +162,7 @@
                     @foreach($tessera->area->children as $child)
                     <span class="block rounded-lg border border-paper-dark px-2 py-1.5
                                  hover:border-salvia transition-colors cursor-pointer"
-                          @click.stop="window.location='{{ route('aree.show', $child) }}'">
+                          @click.stop="Livewire.navigate('{{ route('aree.show', $child) }}')">
                         <div class="flex items-center gap-1.5 min-w-0 mb-0.5">
                             @if($child->color)
                             <span class="w-1.5 h-1.5 rounded-full shrink-0"
@@ -177,7 +182,7 @@
             @endforeach
 
             {{-- Tessera "Aggiungi area" --}}
-            <a href="{{ route('aree') }}"
+            <a href="{{ route('aree') }}" wire:navigate
                class="break-inside-avoid mb-3 flex items-center justify-center rounded-xl border border-dashed border-paper-dark text-ink/30 hover:border-salvia hover:text-salvia transition-colors px-4 py-4 text-sm gap-1.5">
                 <span class="text-lg leading-none">+</span>
                 <span>Nuova area</span>

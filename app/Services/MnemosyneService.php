@@ -2,6 +2,11 @@
 
 namespace App\Services;
 
+use App\Models\Area;
+use App\Models\Entry;
+use App\Models\Goal;
+use App\Models\Stage;
+use App\Models\Task;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
@@ -11,6 +16,9 @@ class MnemosyneService
     private string $apiKey;
     private string $project;
     private string $scope;
+
+    /** @var int[]|null memo degli stage chiusi, per resolveNode */
+    private ?array $doneStageIds = null;
 
     public function __construct()
     {
@@ -46,6 +54,45 @@ class MnemosyneService
             Log::warning('Mnemosyne non raggiungibile: ' . $e->getMessage());
             return null;
         }
+    }
+
+    /**
+     * Risolve il nome di un nodo Mnemosyne nell'entita' di dominio corrispondente.
+     * Ritorna ['label', 'url', 'updated_at'] oppure null se non trovata
+     * (o se e' un task gia' chiuso). Usato da cruscotto e digest per i link.
+     */
+    public function resolveNode(string $name): ?array
+    {
+        if ($name === '') {
+            return null;
+        }
+
+        $doneIds = $this->doneStageIds ??= Stage::whereIn('code', ['done', 'archiviato'])->pluck('id')->all();
+
+        $task = Task::where('mnemosyne_node_name', $name)
+            ->whereNotIn('stage_id', $doneIds)
+            ->whereNull('deleted_at')
+            ->first();
+        if ($task) {
+            return ['label' => $task->title, 'url' => route('tasks.show', $task), 'updated_at' => $task->updated_at];
+        }
+
+        $goal = Goal::where('mnemosyne_node_name', $name)->first();
+        if ($goal) {
+            return ['label' => $goal->title, 'url' => route('goals'), 'updated_at' => $goal->updated_at];
+        }
+
+        $area = Area::where('mnemosyne_node_name', $name)->first();
+        if ($area) {
+            return ['label' => $area->name, 'url' => route('aree.show', $area), 'updated_at' => $area->updated_at];
+        }
+
+        $entry = Entry::where('mnemosyne_node_name', $name)->first();
+        if ($entry) {
+            return ['label' => $entry->title, 'url' => route('diario.show', $entry), 'updated_at' => $entry->updated_at];
+        }
+
+        return null;
     }
 
     private function filterByProject(array $nodes): array

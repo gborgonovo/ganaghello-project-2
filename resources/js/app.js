@@ -28,3 +28,6 @@ function initKanbanSortables() {
 
 document.addEventListener('livewire:initialized', initKanbanSortables);
 document.addEventListener('livewire:updated',     initKanbanSortables);
+// Dopo una navigazione SPA (wire:navigate) 'initialized' non riscatta:
+// reinizializza i sortable del kanban a ogni cambio pagina.
+document.addEventListener('livewire:navigated',    initKanbanSortables);

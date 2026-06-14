@@ -9,11 +9,18 @@ use App\Services\MnemosyneService;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Livewire\Attributes\On;
 use Livewire\Component;
 
 class Cruscotto extends Component
 {
     public string $sortAree = 'calde';
+
+    /** Un task creato dal form rapido: il render() ricalcola tessere, scadenze e dormienti senza ricaricare la pagina. */
+    #[On('task-created')]
+    public function refreshDashboard(): void
+    {
+    }
 
     public function render()
     {
@@ -43,8 +50,16 @@ class Cruscotto extends Component
         $briefing  = null;
         $dormienti = collect();
         try {
-            $briefing  = app(MnemosyneService::class)->briefing();
-            $dormienti = collect($briefing['dormant'] ?? [])->take(5);
+            $mnemo     = app(MnemosyneService::class);
+            $briefing  = $mnemo->briefing();
+            $dormienti = collect($briefing['dormant'] ?? [])->take(5)
+                ->map(function ($node) use ($mnemo) {
+                    $resolved = $mnemo->resolveNode($node['name'] ?? '');
+                    $node['url']   = $resolved['url'] ?? null;
+                    $node['label'] = $resolved['label'] ?? ($node['name'] ?? '');
+                    return $node;
+                })
+                ->values();
         } catch (\Throwable) {
         }
 

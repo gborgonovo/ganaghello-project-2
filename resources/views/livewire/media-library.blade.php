@@ -163,7 +163,7 @@
                             flex flex-col justify-between p-2">
                     {{-- Task collegato --}}
                     @if($linkedTask)
-                    <a href="{{ route('tasks.show', $linkedTask) }}"
+                    <a href="{{ route('tasks.show', $linkedTask) }}" wire:navigate
                        class="text-[10px] text-white/80 hover:text-white truncate leading-tight">
                         {{ $linkedTask->title }}
                     </a>
@@ -294,7 +294,7 @@
                     <div class="flex items-center gap-3 mt-0.5">
                         <span class="text-[10px] text-ink/35">{{ number_format($media->size / 1024, 0) }} KB</span>
                         @if($task)
-                        <a href="{{ route('tasks.show', $task) }}"
+                        <a href="{{ route('tasks.show', $task) }}" wire:navigate
                            class="text-[10px] text-ink/40 hover:text-salvia truncate">
                             {{ $task->title }}
                         </a>
@@ -333,7 +333,7 @@
             <div class="px-5 py-3 flex items-center justify-between gap-4">
                 <span class="text-xs text-ink/40">{{ $lightboxMedia->original_filename }}</span>
                 @if($task)
-                <a href="{{ route('tasks.show', $task) }}"
+                <a href="{{ route('tasks.show', $task) }}" wire:navigate
                    class="text-xs text-salvia hover:underline shrink-0">
                     → {{ $task->title }}
                 </a>

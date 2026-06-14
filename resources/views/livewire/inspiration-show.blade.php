@@ -1,11 +1,7 @@
 <div class="max-w-3xl mx-auto space-y-6 pb-16">
 
-    {{-- Breadcrumb --}}
-    <div class="flex items-center gap-2 text-sm text-ink/40">
-        <a href="{{ route('moodboard') }}" wire:navigate class="hover:text-ink transition-colors">Moodboard</a>
-        <span>/</span>
-        <span class="text-ink/70 truncate">{{ $inspiration->title ?? 'Ispirazione' }}</span>
-    </div>
+    {{-- Torna indietro --}}
+    <x-back />
 
     {{-- ===== IMMAGINE ===== --}}
     @if($coverUrl)
@@ -117,7 +113,7 @@
             @if($convertedTaskId)
             <span class="text-sm text-salvia">
                 Task creato:
-                <a href="{{ route('tasks.show', $convertedTaskId) }}"
+                <a href="{{ route('tasks.show', $convertedTaskId) }}" wire:navigate
                    class="font-medium hover:underline" wire:navigate>
                     apri →
                 </a>

@@ -113,7 +113,7 @@
 
                 {{-- Copertina cliccabile --}}
                 @if($cover)
-                <a href="{{ route('diario.show', $entry->id) }}" class="block">
+                <a href="{{ route('diario.show', $entry->id) }}" wire:navigate class="block">
                     <img src="{{ route('media.serve', [$cover, 'medium']) }}"
                          alt=""
                          class="w-full max-h-72 object-cover">
@@ -151,7 +151,7 @@
                         <span class="text-sm font-semibold text-ink leading-snug">{{ $entry->title }}</span>
                     </div>
                     @else
-                    <a href="{{ route('diario.show', $entry->id) }}"
+                    <a href="{{ route('diario.show', $entry->id) }}" wire:navigate
                        class="block text-sm font-semibold text-ink hover:text-salvia transition-colors leading-snug mb-2">
                         {{ $entry->title }}
                     </a>

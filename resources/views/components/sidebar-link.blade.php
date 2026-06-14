@@ -1,6 +1,6 @@
 @props(['href' => '#', 'active' => false, 'icon' => null])
 
-<a href="{{ $href }}"
+<a href="{{ $href }}" wire:navigate
    class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors
           {{ $active
               ? 'bg-salvia text-paper font-medium'

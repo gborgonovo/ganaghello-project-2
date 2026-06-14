@@ -5,7 +5,7 @@
 
     {{-- Thumbnail prima immagine --}}
     @if($task->firstImage?->media)
-    <a href="{{ route('tasks.show', $task) }}" class="block" @click.stop>
+    <a href="{{ route('tasks.show', $task) }}" wire:navigate class="block" @click.stop>
         <img src="{{ route('media.serve', [$task->firstImage->media, 'thumb']) }}"
              alt=""
              class="w-full h-32 object-cover">
@@ -26,7 +26,7 @@
         @endif
 
         {{-- Titolo --}}
-        <a href="{{ route('tasks.show', $task) }}"
+        <a href="{{ route('tasks.show', $task) }}" wire:navigate
            class="block text-sm font-medium text-ink hover:text-salvia transition-colors leading-snug mb-1.5"
            @click.stop>
             {{ $task->title }}

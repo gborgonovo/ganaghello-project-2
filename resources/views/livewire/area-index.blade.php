@@ -74,7 +74,7 @@
                     <span class="w-3 h-3 rounded-full shrink-0"
                           style="background-color: {{ $area->color }}"></span>
                     @endif
-                    <a href="{{ route('aree.show', $area) }}"
+                    <a href="{{ route('aree.show', $area) }}" wire:navigate
                        class="font-semibold text-ink hover:text-salvia transition-colors truncate">
                         {{ $area->name }}
                     </a>
@@ -154,7 +154,7 @@
                 <div class="relative rounded-lg border border-paper-dark px-2.5 py-2 group
                             hover:border-salvia transition-colors"
                      wire:key="child-{{ $child->id }}">
-                    <a href="{{ route('aree.show', $child) }}" class="block pr-5">
+                    <a href="{{ route('aree.show', $child) }}" wire:navigate class="block pr-5">
                         <div class="flex items-center gap-1.5 mb-1 min-w-0">
                             @if($child->color)
                             <span class="w-2 h-2 rounded-full shrink-0"
