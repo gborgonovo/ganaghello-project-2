@@ -29,3 +29,4 @@ Thumbs.db
 # Documentazione di progetto: contiene dettagli di configurazione/infrastruttura,
 # tenuta solo in locale.
 /documentation/
+/correzione-task.csv
