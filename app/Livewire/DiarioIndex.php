@@ -160,12 +160,18 @@ class DiarioIndex extends Component
     public function deleteEntry(int $id): void
     {
         $entry = Entry::with('attachments.media')->findOrFail($id);
-        $entry->attachments->each(function ($att) {
-            app(MediaService::class)->delete($att->media);
+        foreach ($entry->attachments as $att) {
+            $media = $att->media;
             $att->delete();
-        });
+            // Rimuove il file solo se non e' usato altrove (es. un post composto
+            // da questa voce condivide gli stessi media).
+            if ($media && $media->attachments()->count() === 0) {
+                app(MediaService::class)->delete($media);
+            }
+        }
         $entry->delete();
         $this->confirmDeleteId = null;
+        $this->dispatch('toast', message: 'Voce eliminata.');
     }
 
     public function loadMore(): void

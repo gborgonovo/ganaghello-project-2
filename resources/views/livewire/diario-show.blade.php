@@ -13,6 +13,10 @@
                     class="text-xs text-salvia hover:text-salvia-dark transition-colors flex items-center gap-1">
                 ✎ Modifica
             </button>
+            <x-confirm action="deleteEntry"
+                    class="text-xs text-ink/40 hover:text-terracotta transition-colors flex items-center gap-1">
+                ✕ Elimina
+            </x-confirm>
         </div>
     </div>
 

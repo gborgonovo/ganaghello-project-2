@@ -122,21 +122,27 @@
 
                 <div class="px-5 py-4">
 
-                    {{-- Meta: area + ora --}}
-                    @if($entry->area || $entry->entry_time)
-                    <div class="flex items-center justify-between mb-2">
-                        <div>
+                    {{-- Meta: area (sx) · ora + azioni (dx) --}}
+                    <div class="flex items-center justify-between gap-2 mb-2 min-h-[1.25rem]">
+                        <div class="min-w-0">
                             @if($entry->area)
                             <x-area-chip :area="$entry->area" />
                             @endif
                         </div>
-                        @if($entry->entry_time)
-                        <span class="text-xs text-ink/30 font-mono shrink-0">
-                            {{ substr($entry->entry_time, 0, 5) }}
-                        </span>
-                        @endif
+                        <div class="flex items-center gap-2 shrink-0">
+                            @if($entry->entry_time)
+                            <span class="text-xs text-ink/30 font-mono">{{ substr($entry->entry_time, 0, 5) }}</span>
+                            @endif
+                            @unless($selecting || $confirmDeleteId === $entry->id)
+                            <div class="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <button wire:click="openEdit({{ $entry->id }})" title="Modifica questa pagina"
+                                        class="text-ink/25 hover:text-salvia text-xs transition-colors">✎</button>
+                                <button wire:click="$set('confirmDeleteId', {{ $entry->id }})" title="Elimina questa pagina"
+                                        class="text-ink/20 hover:text-terracotta text-xs transition-colors">✕</button>
+                            </div>
+                            @endunless
+                        </div>
                     </div>
-                    @endif
 
                     {{-- Titolo: link normale, oppure testo+data in modalità selezione --}}
                     @if($selecting)
@@ -156,7 +162,7 @@
                         {!! Str::markdown($entry->content, ['html_input' => 'escape']) !!}
                     </div>
 
-                    {{-- Azioni --}}
+                    {{-- Conferma eliminazione --}}
                     @if($confirmDeleteId === $entry->id)
                     <div class="flex items-center gap-2 mt-3 pt-3 border-t border-paper-dark">
                         <span class="text-xs text-ink/50">Eliminare questa voce?</span>
@@ -164,14 +170,6 @@
                                 class="text-xs text-terracotta hover:opacity-80">Sì, elimina</button>
                         <button wire:click="$set('confirmDeleteId', null)"
                                 class="text-xs text-ink/40 hover:text-ink">No</button>
-                    </div>
-                    @else
-                    <div class="absolute top-3 right-3 flex items-center gap-2
-                                opacity-0 group-hover:opacity-100 transition-opacity z-10">
-                        <button wire:click="openEdit({{ $entry->id }})"
-                                class="text-ink/25 hover:text-salvia text-xs transition-colors">✎</button>
-                        <button wire:click="$set('confirmDeleteId', {{ $entry->id }})"
-                                class="text-ink/20 hover:text-terracotta text-xs transition-colors">✕</button>
                     </div>
                     @endif
 

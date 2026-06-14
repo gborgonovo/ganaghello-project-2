@@ -166,6 +166,28 @@ class DiarioShow extends Component
         return $this->redirectRoute('blog.edit', ['post' => $post->id], navigate: true);
     }
 
+    /**
+     * Elimina la voce di diario (soft delete) e torna al diario. I file immagine
+     * si rimuovono solo se non sono usati altrove (es. un post composto da questa
+     * voce condivide gli stessi media): cosi' non si rompono i post.
+     */
+    public function deleteEntry()
+    {
+        $this->entry->load('attachments.media');
+
+        foreach ($this->entry->attachments as $att) {
+            $media = $att->media;
+            $att->delete();
+            if ($media && $media->attachments()->count() === 0) {
+                app(MediaService::class)->delete($media);
+            }
+        }
+
+        $this->entry->delete();
+
+        return $this->redirectRoute('diario', navigate: true);
+    }
+
     public function render()
     {
         $aree = Area::orderBy('name')->get();

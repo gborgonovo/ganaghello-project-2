@@ -75,7 +75,7 @@
                 @if($task->due_date)
                 @php $overdue = $task->due_date->isPast() && !$task->isDone(); @endphp
                 <span class="text-xs font-medium {{ $overdue ? 'text-terracotta' : 'text-ink/35' }}">
-                    {{ $task->due_date->format('d/m') }}@if($overdue) !@endif
+                    {{ $task->due_date->format('d/m/y') }}@if($overdue) !@endif
                 </span>
                 @endif
             </div>
