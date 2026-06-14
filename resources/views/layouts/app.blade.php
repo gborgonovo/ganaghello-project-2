@@ -2,9 +2,10 @@
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ isset($title) ? $title . ' · BiG-Log' : 'BiG-Log' }}</title>
+    <x-pwa-head />
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @livewireStyles
 </head>
@@ -28,7 +29,7 @@
          style="display:none"></div>
 
     {{-- Sidebar --}}
-    <aside class="fixed lg:relative inset-y-0 left-0 z-50 flex flex-col w-64 lg:w-56 shrink-0
+    <aside class="fixed lg:relative inset-y-0 left-0 z-50 flex flex-col safe-top w-64 lg:w-56 shrink-0
                   bg-salvia-dark text-paper border-r border-salvia-dark
                   -translate-x-full lg:translate-x-0 transition-transform duration-200 ease-in-out"
            :class="{ 'translate-x-0': sidebarOpen }">
@@ -82,7 +83,7 @@
     <div class="flex flex-col flex-1 min-w-0 overflow-hidden">
 
         {{-- Topbar: sempre visibile (serve il hamburger su mobile) --}}
-        <header class="h-14 shrink-0 flex items-center px-4 lg:px-6 gap-3 border-b border-paper-dark bg-paper">
+        <header class="h-14 shrink-0 flex items-center px-4 lg:px-6 gap-3 border-b border-paper-dark bg-paper safe-top">
 
             {{-- Hamburger (mobile only) --}}
             <button @click="sidebarOpen = true"

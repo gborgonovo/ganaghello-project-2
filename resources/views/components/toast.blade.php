@@ -9,7 +9,7 @@
         remove(id) { this.toasts = this.toasts.filter(t => t.id !== id); }
     }"
     @toast.window="show($event.detail.message, $event.detail.type)"
-    class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none">
+    class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none safe-bottom">
 
     <template x-for="t in toasts" :key="t.id">
         <div

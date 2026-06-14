@@ -18,6 +18,11 @@
     .font-narrative {
         @apply font-serif;
     }
+
+    /* Safe area (notch) in modalita standalone PWA. env() vale 0 ovunque
+       non ci sia notch o fuori dalla modalita installata: no-op sicuro. */
+    .safe-top    { padding-top: env(safe-area-inset-top); }
+    .safe-bottom { padding-bottom: env(safe-area-inset-bottom); }
 }
 
 /* Stili per contenuto Markdown del diario */

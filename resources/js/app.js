@@ -31,3 +31,11 @@ document.addEventListener('livewire:updated',     initKanbanSortables);
 // Dopo una navigazione SPA (wire:navigate) 'initialized' non riscatta:
 // reinizializza i sortable del kanban a ogni cambio pagina.
 document.addEventListener('livewire:navigated',    initKanbanSortables);
+
+// PWA: registra il service worker una sola volta (persiste tra le navigazioni
+// wire:navigate, che non ricaricano la pagina).
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js').catch(() => {});
+    });
+}
