@@ -4,10 +4,16 @@
     {{-- Navigazione + azioni --}}
     <div class="flex items-center justify-between mb-8">
         <x-back />
-        <button wire:click="openEdit"
-                class="text-xs text-salvia hover:text-salvia-dark transition-colors flex items-center gap-1">
-            ✎ Modifica
-        </button>
+        <div class="flex items-center gap-4">
+            <button wire:click="composePost"
+                    class="text-xs text-salvia hover:text-salvia-dark transition-colors flex items-center gap-1">
+                ✚ Componi un post
+            </button>
+            <button wire:click="openEdit"
+                    class="text-xs text-salvia hover:text-salvia-dark transition-colors flex items-center gap-1">
+                ✎ Modifica
+            </button>
+        </div>
     </div>
 
     {{-- Copertina --}}
@@ -71,9 +77,8 @@
 
 {{-- ===== MODALE MODIFICA ===== --}}
 @if($showModal)
-<div class="fixed inset-0 z-50 flex items-start justify-center bg-ink/60 p-4 overflow-y-auto"
-     wire:click.self="closeModal">
-    <div class="relative w-full max-w-2xl bg-paper rounded-2xl shadow-2xl my-8">
+<div class="fixed inset-0 z-50 bg-paper overflow-y-auto">
+    <div class="relative w-full max-w-2xl mx-auto min-h-screen">
 
         <div class="flex items-center justify-between px-6 py-4 border-b border-paper-dark">
             <h2 class="text-sm font-semibold text-ink">Modifica pagina</h2>

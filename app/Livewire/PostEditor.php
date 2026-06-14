@@ -231,6 +231,6 @@ class PostEditor extends Component
         $sourceEntries = $this->post->entries()->orderByDesc('entry_date')->get();
 
         return view('livewire.post-editor', compact('aree', 'libraryImages', 'photos', 'sourceEntries'))
-            ->layout('layouts.app', ['title' => $this->title ?: 'Nuovo post']);
+            ->layout('layouts.focus', ['title' => $this->title ?: 'Nuovo post']);
     }
 }
