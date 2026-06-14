@@ -3,6 +3,7 @@
 namespace App\Livewire;
 
 use App\Models\Area;
+use App\Models\Expense;
 use App\Models\Goal;
 use App\Models\Stage;
 use App\Models\Tag;
@@ -38,6 +39,16 @@ class TaskDetail extends Component
     public ?int    $assigned_to  = null;
     public array   $collaboratorIds = [];
 
+    // Spese
+    public bool   $showExpenseForm  = false;
+    public ?int   $editingExpenseId = null;
+    public string $expDescription   = '';
+    public string $expAmount        = '';
+    public string $expDate          = '';
+    public string $expCategory      = '';
+    public string $expSupplier      = '';
+    public string $expNotes         = '';
+
     // UI state
     public bool   $editingTitle       = false;
     public bool   $editingDescription = false;
@@ -65,7 +76,7 @@ class TaskDetail extends Component
 
     public function mount(Task $task): void
     {
-        $this->task    = $task->load(['stage', 'area', 'tags', 'goals', 'updates', 'children.stage', 'parent', 'assignedUser', 'collaborators']);
+        $this->task    = $task->load(['stage', 'area', 'tags', 'goals', 'updates', 'children.stage', 'parent', 'assignedUser', 'collaborators', 'expenses' => fn ($q) => $q->orderByDesc('expense_date')->orderByDesc('id')]);
         $this->syncFromModel();
         $this->backUrl = $this->resolveBackUrl();
     }
@@ -354,6 +365,85 @@ class TaskDetail extends Component
         $this->dispatch('toast', message: 'Collaboratori aggiornati.');
     }
 
+    // Spese (inserimento manuale, niente upload ricevuta)
+    public function newExpense(): void
+    {
+        $this->resetExpenseForm();
+        $this->expDate         = today()->toDateString();
+        $this->showExpenseForm = true;
+    }
+
+    public function editExpense(int $id): void
+    {
+        $e = $this->task->expenses()->findOrFail($id);
+        $this->editingExpenseId = $id;
+        $this->expDescription   = $e->description;
+        $this->expAmount        = (string) $e->amount;
+        $this->expDate          = $e->expense_date?->toDateString() ?? '';
+        $this->expCategory      = $e->category ?? '';
+        $this->expSupplier      = $e->supplier ?? '';
+        $this->expNotes         = $e->notes ?? '';
+        $this->showExpenseForm  = true;
+    }
+
+    public function saveExpense(): void
+    {
+        $this->validate([
+            'expDescription' => 'required|string|max:255',
+            'expAmount'      => 'required|numeric|min:0.01',
+            'expDate'        => 'nullable|date',
+            'expCategory'    => 'nullable|in:materiali,manodopera,professionisti,oneri,altro',
+            'expSupplier'    => 'nullable|string|max:255',
+            'expNotes'       => 'nullable|string',
+        ]);
+
+        $data = [
+            'description'  => trim($this->expDescription),
+            'amount'       => (float) $this->expAmount,
+            'category'     => $this->expCategory ?: null,
+            'supplier'     => trim($this->expSupplier) ?: null,
+            'expense_date' => $this->expDate ?: null,
+            'notes'        => trim($this->expNotes) ?: null,
+        ];
+
+        if ($this->editingExpenseId) {
+            $this->task->expenses()->whereKey($this->editingExpenseId)->update($data);
+            $msg = 'Spesa aggiornata.';
+        } else {
+            $this->task->expenses()->create($data);
+            $msg = 'Spesa aggiunta.';
+        }
+
+        $this->task->load(['expenses' => fn ($q) => $q->orderByDesc('expense_date')->orderByDesc('id')]);
+        $this->resetExpenseForm();
+        $this->dispatch('toast', message: $msg);
+    }
+
+    public function cancelExpense(): void
+    {
+        $this->resetExpenseForm();
+    }
+
+    public function deleteExpense(int $id): void
+    {
+        $this->task->expenses()->whereKey($id)->delete();
+        $this->task->load(['expenses' => fn ($q) => $q->orderByDesc('expense_date')->orderByDesc('id')]);
+        $this->dispatch('toast', message: 'Spesa eliminata.');
+    }
+
+    private function resetExpenseForm(): void
+    {
+        $this->showExpenseForm  = false;
+        $this->editingExpenseId = null;
+        $this->expDescription   = '';
+        $this->expAmount        = '';
+        $this->expDate          = '';
+        $this->expCategory      = '';
+        $this->expSupplier      = '';
+        $this->expNotes         = '';
+        $this->resetValidation();
+    }
+
     public function render()
     {
         return view('livewire.task-detail', [
@@ -362,6 +452,7 @@ class TaskDetail extends Component
             'goals'        => Goal::where('status', 'active')->orderBy('title')->get(),
             'selectedTags' => Tag::whereIn('id', $this->tagIds)->get(),
             'users'        => User::orderBy('name')->get(),
+            'suppliers'    => Expense::whereNotNull('supplier')->distinct()->orderBy('supplier')->pluck('supplier'),
         ])->layout('layouts.app', ['title' => $this->task->title]);
     }
 }

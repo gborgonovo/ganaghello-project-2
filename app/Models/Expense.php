@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Expense extends Model
 {
-    protected $fillable = ['task_id', 'description', 'amount', 'expense_date', 'notes', 'media_id'];
+    protected $fillable = ['task_id', 'description', 'amount', 'category', 'supplier', 'expense_date', 'notes', 'media_id'];
 
     protected function casts(): array
     {

@@ -252,6 +252,89 @@
             </div>
         </div>
 
+        {{-- Spese (inserimento manuale, niente upload) --}}
+        @php $expSum = $task->expenses->sum('amount'); @endphp
+        <div class="col-span-2 border-t border-paper-dark pt-4 mt-1">
+            <div class="flex items-center justify-between mb-2">
+                <label class="text-xs text-ink/50">
+                    Spese
+                    @if($task->expenses->isNotEmpty())
+                    <span class="text-ink/40">· somma €{{ number_format($expSum, 2, ',', '.') }}</span>
+                    @endif
+                </label>
+                @unless($showExpenseForm)
+                <button wire:click="newExpense" class="text-xs text-salvia hover:text-salvia-dark transition-colors">+ Aggiungi spesa</button>
+                @endunless
+            </div>
+
+            @if($task->cost_real && $expSum > 0 && abs($task->cost_real - $expSum) / $task->cost_real > 0.1)
+            <p class="text-[11px] text-ink/40 mb-2">Consuntivo €{{ number_format($task->cost_real, 2, ',', '.') }}, spese registrate €{{ number_format($expSum, 2, ',', '.') }}.</p>
+            @endif
+
+            @if($task->expenses->isNotEmpty())
+            <div class="rounded-lg border border-paper-dark divide-y divide-paper-dark mb-2">
+                @foreach($task->expenses as $e)
+                <div wire:key="exp-{{ $e->id }}" class="flex items-start gap-3 px-3 py-2 group">
+                    <span class="text-xs text-ink/40 w-12 shrink-0 pt-0.5">{{ $e->expense_date?->format('d/m/y') ?? '—' }}</span>
+                    <div class="flex-1 min-w-0">
+                        <div class="text-sm text-ink">{{ $e->description }}</div>
+                        @if($e->category || $e->supplier)
+                        <div class="text-[11px] text-ink/45">{{ $e->category }}@if($e->category && $e->supplier) · @endif{{ $e->supplier }}</div>
+                        @endif
+                        @if($e->notes)
+                        <div class="text-[11px] text-ink/35 italic">{{ $e->notes }}</div>
+                        @endif
+                    </div>
+                    <span class="text-sm text-ink font-medium shrink-0 pt-0.5">€{{ number_format($e->amount, 2, ',', '.') }}</span>
+                    <div class="flex items-center gap-2 shrink-0 pt-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <button wire:click="editExpense({{ $e->id }})" class="text-xs text-ink/40 hover:text-salvia" title="Modifica">✎</button>
+                        <x-confirm action="deleteExpense({{ $e->id }})" class="text-xs text-ink/30 hover:text-terracotta">✕</x-confirm>
+                    </div>
+                </div>
+                @endforeach
+            </div>
+            @endif
+
+            @if($showExpenseForm)
+            <div class="rounded-lg border border-salvia/40 bg-salvia/5 p-3 space-y-2">
+                <div class="flex flex-wrap gap-2">
+                    <input wire:model="expDescription" type="text" placeholder="Descrizione"
+                        class="flex-1 min-w-40 border border-paper-dark rounded-lg px-2.5 py-1.5 text-sm focus:outline-none focus:border-salvia">
+                    <input wire:model="expAmount" type="number" min="0" step="0.01" placeholder="€"
+                        class="w-28 border border-paper-dark rounded-lg px-2.5 py-1.5 text-sm focus:outline-none focus:border-salvia">
+                </div>
+                @error('expDescription')<p class="text-xs text-terracotta">{{ $message }}</p>@enderror
+                @error('expAmount')<p class="text-xs text-terracotta">{{ $message }}</p>@enderror
+                <div class="flex flex-wrap gap-2">
+                    <select wire:model="expCategory"
+                        class="border border-paper-dark rounded-lg px-2.5 py-1.5 bg-white text-sm focus:outline-none focus:border-salvia">
+                        <option value="">categoria...</option>
+                        <option value="materiali">materiali</option>
+                        <option value="manodopera">manodopera</option>
+                        <option value="professionisti">professionisti</option>
+                        <option value="oneri">oneri</option>
+                        <option value="altro">altro</option>
+                    </select>
+                    <input wire:model="expSupplier" type="text" placeholder="Fornitore" list="exp-suppliers"
+                        class="flex-1 min-w-32 border border-paper-dark rounded-lg px-2.5 py-1.5 text-sm focus:outline-none focus:border-salvia">
+                    <datalist id="exp-suppliers">
+                        @foreach($suppliers as $s)<option value="{{ $s }}">@endforeach
+                    </datalist>
+                    <x-date-input wire:model="expDate"
+                        class="w-36 border border-paper-dark rounded-lg px-2.5 py-1.5 text-sm focus:outline-none focus:border-salvia"></x-date-input>
+                </div>
+                <input wire:model="expNotes" type="text" placeholder="Note (opzionale)"
+                    class="w-full border border-paper-dark rounded-lg px-2.5 py-1.5 text-sm focus:outline-none focus:border-salvia">
+                <div class="flex items-center gap-2">
+                    <button wire:click="saveExpense" class="text-xs px-3 py-1.5 bg-salvia text-white rounded-lg hover:bg-salvia-dark transition-colors">
+                        {{ $editingExpenseId ? 'Salva' : 'Aggiungi' }}
+                    </button>
+                    <button wire:click="cancelExpense" class="text-xs text-ink/40 hover:text-ink transition-colors">Annulla</button>
+                </div>
+            </div>
+            @endif
+        </div>
+
         {{-- Task padre --}}
         @if($task->parent)
         <div class="col-span-2">
