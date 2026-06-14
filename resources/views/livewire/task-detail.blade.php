@@ -124,6 +124,22 @@
             </select>
         </div>
 
+        {{-- Responsabile --}}
+        <div>
+            <label class="text-xs text-ink/50 flex items-center gap-1.5 mb-0.5">
+                Responsabile
+                @if($task->assignedUser)<x-identicon :user="$task->assignedUser" size="w-4 h-4 text-[8px]" />@endif
+            </label>
+            <select wire:model="assigned_to" wire:change="saveAssignee"
+                class="w-full border border-paper-dark rounded-lg px-2.5 py-1.5 bg-white text-ink
+                       focus:outline-none focus:border-salvia text-sm">
+                <option value="">Nessuno</option>
+                @foreach($users as $u)
+                <option value="{{ $u->id }}">{{ $u->name }}</option>
+                @endforeach
+            </select>
+        </div>
+
         {{-- Priorita --}}
         <div>
             <label class="text-xs text-ink/50 block mb-0.5">Priorita</label>
@@ -135,6 +151,24 @@
                 <option value="media">Media</option>
                 <option value="alta">Alta</option>
             </select>
+        </div>
+
+        {{-- Collaboratori --}}
+        <div class="col-span-2">
+            <label class="text-xs text-ink/50 block mb-1">Collaboratori</label>
+            <div class="flex flex-wrap items-center gap-1.5">
+                @forelse($users as $u)
+                @php $active = in_array($u->id, $collaboratorIds); @endphp
+                <button type="button" wire:click="toggleCollaborator({{ $u->id }})"
+                        class="inline-flex items-center gap-1.5 pl-1 pr-2 py-0.5 rounded-full border text-xs transition-colors
+                               {{ $active ? 'border-salvia bg-salvia/10 text-ink' : 'border-paper-dark text-ink/45 hover:border-salvia' }}">
+                    <x-identicon :user="$u" size="w-5 h-5 text-[9px]" />
+                    {{ $u->name }}
+                </button>
+                @empty
+                <span class="text-xs text-ink/30 italic">Nessun altro utente.</span>
+                @endforelse
+            </div>
         </div>
 
         {{-- Date: scadenza | inizio | completamento --}}

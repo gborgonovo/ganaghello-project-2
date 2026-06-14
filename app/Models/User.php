@@ -23,6 +23,7 @@ class User extends Authenticatable
 
     public function tasks()       { return $this->hasMany(Task::class); }
     public function assignedTasks() { return $this->hasMany(Task::class, 'assigned_to'); }
+    public function collaboratingTasks() { return $this->belongsToMany(Task::class, 'task_collaborators'); }
     public function goals()       { return $this->hasMany(Goal::class); }
     public function entries()     { return $this->hasMany(Entry::class); }
     public function posts()       { return $this->hasMany(Post::class); }

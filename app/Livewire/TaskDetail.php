@@ -8,6 +8,7 @@ use App\Models\Stage;
 use App\Models\Tag;
 use App\Models\Task;
 use App\Models\TaskUpdate;
+use App\Models\User;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
@@ -34,6 +35,8 @@ class TaskDetail extends Component
     public string  $completed_at  = '';
     public array   $tagIds       = [];
     public array   $goalIds      = [];
+    public ?int    $assigned_to  = null;
+    public array   $collaboratorIds = [];
 
     // UI state
     public bool   $editingTitle       = false;
@@ -62,7 +65,7 @@ class TaskDetail extends Component
 
     public function mount(Task $task): void
     {
-        $this->task    = $task->load(['stage', 'area', 'tags', 'goals', 'updates', 'children.stage', 'parent']);
+        $this->task    = $task->load(['stage', 'area', 'tags', 'goals', 'updates', 'children.stage', 'parent', 'assignedUser', 'collaborators']);
         $this->syncFromModel();
         $this->backUrl = $this->resolveBackUrl();
     }
@@ -100,6 +103,8 @@ class TaskDetail extends Component
         $this->completed_at  = $this->task->completed_at?->format('Y-m-d') ?? '';
         $this->tagIds        = $this->task->tags->pluck('id')->toArray();
         $this->goalIds       = $this->task->goals->pluck('id')->toArray();
+        $this->assigned_to   = $this->task->assigned_to;
+        $this->collaboratorIds = $this->task->collaborators->pluck('id')->toArray();
     }
 
     // Stage selector
@@ -327,6 +332,28 @@ class TaskDetail extends Component
         $this->redirect($this->backUrl, navigate: true);
     }
 
+    // Assegnazione
+    public function saveAssignee(): void
+    {
+        // assigned_to e' operativo: non e' tra i campi semantici, quindi
+        // non scatena una risincronizzazione Mnemosyne (corretto).
+        $this->task->update(['assigned_to' => $this->assigned_to ?: null]);
+        $this->task->load('assignedUser');
+        $this->dispatch('toast', message: 'Responsabile aggiornato.');
+    }
+
+    public function toggleCollaborator(int $userId): void
+    {
+        if (in_array($userId, $this->collaboratorIds)) {
+            $this->collaboratorIds = array_values(array_diff($this->collaboratorIds, [$userId]));
+        } else {
+            $this->collaboratorIds[] = $userId;
+        }
+        $this->task->collaborators()->sync($this->collaboratorIds);
+        $this->task->load('collaborators');
+        $this->dispatch('toast', message: 'Collaboratori aggiornati.');
+    }
+
     public function render()
     {
         return view('livewire.task-detail', [
@@ -334,6 +361,7 @@ class TaskDetail extends Component
             'areas'        => Area::orderBy('sequence')->get(),
             'goals'        => Goal::where('status', 'active')->orderBy('title')->get(),
             'selectedTags' => Tag::whereIn('id', $this->tagIds)->get(),
+            'users'        => User::orderBy('name')->get(),
         ])->layout('layouts.app', ['title' => $this->task->title]);
     }
 }
