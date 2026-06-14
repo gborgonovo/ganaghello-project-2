@@ -90,11 +90,10 @@
                         class="text-xs text-ink/40 hover:text-ink transition-colors px-2 py-1">
                     modifica
                 </button>
-                <button wire:click="delete"
-                        wire:confirm="Eliminare questa ispirazione?"
+                <x-confirm action="delete"
                         class="text-xs text-ink/30 hover:text-terracotta transition-colors px-2 py-1">
                     elimina
-                </button>
+                </x-confirm>
             </div>
         </div>
 

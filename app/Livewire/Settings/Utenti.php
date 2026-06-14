@@ -44,6 +44,7 @@ class Utenti extends Component
         $this->newName     = '';
         $this->newEmail    = '';
         $this->newPassword = '';
+        $this->dispatch('toast', message: 'Utente creato.');
     }
 
     public function startEdit(int $id): void
@@ -67,6 +68,7 @@ class Utenti extends Component
         ]);
 
         $this->editingId = null;
+        $this->dispatch('toast', message: 'Utente aggiornato.');
     }
 
     public function cancelEdit(): void
@@ -92,6 +94,7 @@ class Utenti extends Component
 
         $this->changingPasswordId = null;
         $this->newPasswordForUser = '';
+        $this->dispatch('toast', message: 'Password aggiornata.');
     }
 
     public function cancelChangePassword(): void
@@ -103,11 +106,13 @@ class Utenti extends Component
     public function delete(int $id): void
     {
         if ($id === Auth::id()) {
-            return; // non si può eliminare se stessi
+            $this->dispatch('toast', message: 'Non puoi eliminare te stesso.', type: 'error');
+            return;
         }
 
         User::findOrFail($id)->delete();
         $this->confirmDeleteId = null;
+        $this->dispatch('toast', message: 'Utente eliminato.');
     }
 
     public function render()

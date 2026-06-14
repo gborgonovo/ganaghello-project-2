@@ -43,6 +43,7 @@ class MediaLibrary extends Component
             $service->store($file);
         }
         $this->imgUploads = [];
+        $this->dispatch('toast', message: 'Immagini caricate.');
     }
 
     public function updatedDocUpload(): void
@@ -53,6 +54,7 @@ class MediaLibrary extends Component
 
         app(MediaService::class)->store($this->docUpload);
         $this->docUpload = null;
+        $this->dispatch('toast', message: 'Documento caricato.');
     }
 
     public function openLightbox(int $mediaId): void
@@ -82,6 +84,7 @@ class MediaLibrary extends Component
         if ($this->linkingMediaId === $mediaId) $this->cancelLink();
 
         app(MediaService::class)->delete($media);
+        $this->dispatch('toast', message: 'File eliminato.');
     }
 
     public function startLink(int $mediaId): void
@@ -112,6 +115,7 @@ class MediaLibrary extends Component
 
         if (!$exists) {
             app(AttachmentService::class)->attach($media, $task);
+            $this->dispatch('toast', message: 'Collegato al task.');
         }
 
         $this->cancelLink();

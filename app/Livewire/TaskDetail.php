@@ -174,6 +174,7 @@ class TaskDetail extends Component
         $this->task->update($updates);
         $this->task->refresh()->load(['stage', 'area', 'tags', 'goals', 'updates', 'children.stage', 'parent']);
         $this->syncFromModel();
+        $this->dispatch('toast', message: 'Stato aggiornato.');
     }
 
     // Campo title
@@ -263,6 +264,7 @@ class TaskDetail extends Component
 
         $this->newSubtaskTitle = '';
         $this->task->refresh()->load('children.stage');
+        $this->dispatch('toast', message: 'Sotto-task creato.');
     }
 
     // Task updates
@@ -278,6 +280,7 @@ class TaskDetail extends Component
 
         $this->newUpdateContent = '';
         $this->task->refresh()->load('updates');
+        $this->dispatch('toast', message: 'Aggiornamento aggiunto.');
     }
 
     public function startEditUpdate(int $id): void
@@ -301,6 +304,7 @@ class TaskDetail extends Component
         $this->editingUpdateId      = null;
         $this->editingUpdateContent = '';
         $this->task->refresh()->load('updates');
+        $this->dispatch('toast', message: 'Aggiornamento modificato.');
     }
 
     public function cancelEditUpdate(): void
@@ -313,6 +317,7 @@ class TaskDetail extends Component
     {
         TaskUpdate::where('id', $id)->where('task_id', $this->task->id)->delete();
         $this->task->refresh()->load('updates');
+        $this->dispatch('toast', message: 'Aggiornamento eliminato.');
     }
 
     // Eliminazione task

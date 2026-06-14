@@ -183,9 +183,8 @@
                                     class="text-[10px] transition-colors {{ $media->context === 'inspiration' ? 'text-terracotta/90 hover:text-white' : 'text-white/40 hover:text-terracotta/80' }}">
                                 ✦
                             </button>
-                            <button wire:click="deleteMedia({{ $media->id }})"
-                                    wire:confirm="Eliminare questa immagine?"
-                                    class="text-[10px] text-white/70 hover:text-terracotta transition-colors">✕</button>
+                            <x-confirm action="deleteMedia({{ $media->id }})" tone="dark"
+                                    class="text-[10px] text-white/70 hover:text-terracotta transition-colors">✕</x-confirm>
                         </div>
                     </div>
                 </div>
@@ -304,11 +303,10 @@
                     </div>
                 </div>
 
-                <button wire:click="deleteMedia({{ $media->id }})"
-                        wire:confirm="Eliminare questo documento?"
+                <x-confirm action="deleteMedia({{ $media->id }})"
                         class="opacity-0 group-hover:opacity-100 transition-opacity text-ink/30 hover:text-terracotta text-xs">
                     ✕ elimina
-                </button>
+                </x-confirm>
             </div>
             @endforeach
         </div>

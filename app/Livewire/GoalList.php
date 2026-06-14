@@ -46,6 +46,7 @@ class GoalList extends Component
             'status'      => $this->editStatus,
         ]);
         $this->editingId = null;
+        $this->dispatch('toast', message: 'Goal aggiornato.');
     }
 
     public function cancelEdit(): void
@@ -72,12 +73,14 @@ class GoalList extends Component
         $this->newDesc     = '';
         $this->newDeadline = '';
         $this->newParentId = null;
+        $this->dispatch('toast', message: 'Goal creato.');
     }
 
     public function deleteGoal(int $id): void
     {
         Goal::findOrFail($id)->delete();
         $this->confirmDeleteId = null;
+        $this->dispatch('toast', message: 'Goal eliminato.');
     }
 
     public function toggleTasks(int $goalId): void

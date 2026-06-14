@@ -350,11 +350,10 @@
                     class="text-xs text-ink/30 hover:text-salvia transition-colors opacity-0 group-hover:opacity-100">
                     modifica
                 </button>
-                <button wire:click="deleteUpdate({{ $update->id }})"
-                    wire:confirm="Eliminare questo aggiornamento?"
+                <x-confirm action="deleteUpdate({{ $update->id }})"
                     class="text-xs text-ink/30 hover:text-terracotta transition-colors opacity-0 group-hover:opacity-100">
                     elimina
-                </button>
+                </x-confirm>
             </div>
             @endif
         </div>

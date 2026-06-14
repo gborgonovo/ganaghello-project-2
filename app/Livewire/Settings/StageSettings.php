@@ -46,6 +46,7 @@ class StageSettings extends Component
         $this->newLabel     = '';
         $this->newBgColor   = '#E0DDD2';
         $this->newTextColor = '#2C322A';
+        $this->dispatch('toast', message: 'Stage creato.');
     }
 
     public function startEdit(int $id): void
@@ -72,6 +73,7 @@ class StageSettings extends Component
         ]);
 
         $this->editingId = null;
+        $this->dispatch('toast', message: 'Stage aggiornato.');
     }
 
     public function cancelEdit(): void
@@ -119,6 +121,7 @@ class StageSettings extends Component
         $stage->delete();
         $this->confirmDeleteId = null;
         $this->deleteError     = null;
+        $this->dispatch('toast', message: 'Stage eliminato.');
     }
 
     public function cancelDelete(): void

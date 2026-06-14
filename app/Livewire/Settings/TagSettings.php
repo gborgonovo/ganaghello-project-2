@@ -30,6 +30,7 @@ class TagSettings extends Component
 
         $this->newName  = '';
         $this->newColor = '#5C6B4F';
+        $this->dispatch('toast', message: 'Tag creato.');
     }
 
     public function startEdit(int $id): void
@@ -53,6 +54,7 @@ class TagSettings extends Component
         ]);
 
         $this->editingId = null;
+        $this->dispatch('toast', message: 'Tag aggiornato.');
     }
 
     public function cancelEdit(): void
@@ -66,6 +68,7 @@ class TagSettings extends Component
         // Rimuove automaticamente le associazioni via cascade sul DB (taggables)
         $tag->delete();
         $this->confirmDeleteId = null;
+        $this->dispatch('toast', message: 'Tag eliminato.');
     }
 
     public function render()

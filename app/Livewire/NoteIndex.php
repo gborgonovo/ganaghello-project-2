@@ -49,6 +49,7 @@ class NoteIndex extends Component
         $this->newTitle   = '';
         $this->newContent = '';
         $this->newAreaId  = null;
+        $this->dispatch('toast', message: 'Nota creata.');
     }
 
     public function startEdit(int $id): void
@@ -71,6 +72,7 @@ class NoteIndex extends Component
         ]);
 
         $this->editingId = null;
+        $this->dispatch('toast', message: 'Nota aggiornata.');
     }
 
     public function cancelEdit(): void
@@ -82,6 +84,7 @@ class NoteIndex extends Component
     {
         Note::find($id)?->delete();
         $this->confirmDeleteId = null;
+        $this->dispatch('toast', message: 'Nota eliminata.');
     }
 
     public function convertToTask(int $id): void
@@ -99,6 +102,7 @@ class NoteIndex extends Component
         ]);
 
         $this->convertedTaskId = $task->id;
+        $this->dispatch('toast', message: 'Nota convertita in task.');
     }
 
     public function render()

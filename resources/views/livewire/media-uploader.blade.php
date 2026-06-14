@@ -19,11 +19,10 @@
                        wire:blur="saveCaption({{ $att->id }})"
                        placeholder="Didascalia..."
                        class="w-full text-[10px] bg-white/80 rounded px-1 py-0.5 text-ink placeholder-ink/40 mb-1">
-                <button wire:click="deleteAttachment({{ $att->id }})"
-                        wire:confirm="Eliminare questa immagine?"
+                <x-confirm action="deleteAttachment({{ $att->id }})" tone="dark"
                         class="self-end text-[10px] text-white/80 hover:text-terracotta transition-colors">
                     ✕ elimina
-                </button>
+                </x-confirm>
             </div>
         </div>
         @endforeach

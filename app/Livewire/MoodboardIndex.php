@@ -69,6 +69,7 @@ class MoodboardIndex extends Component
         ]);
 
         if (!$this->newTitle && !$this->newDescription && !$this->newUrl && !$this->newImageUrl && !$this->newImage && !$this->newImageMediaId) {
+            $this->dispatch('toast', message: 'Aggiungi almeno un contenuto.', type: 'error');
             return;
         }
 
@@ -97,6 +98,7 @@ class MoodboardIndex extends Component
 
         $this->resetForm();
         $this->showForm = false;
+        $this->dispatch('toast', message: 'Ispirazione salvata.');
     }
 
     public function updatedNewUrl(): void
@@ -123,6 +125,7 @@ class MoodboardIndex extends Component
 
         $insp->delete();
         $this->confirmDeleteId = null;
+        $this->dispatch('toast', message: 'Ispirazione eliminata.');
     }
 
     public function render()

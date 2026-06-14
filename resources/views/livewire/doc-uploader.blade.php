@@ -24,11 +24,10 @@
             </span>
         </div>
 
-        <button wire:click="deleteDoc({{ $doc->id }})"
-                wire:confirm="Eliminare questo documento?"
+        <x-confirm action="deleteDoc({{ $doc->id }})"
                 class="opacity-0 group-hover:opacity-100 transition-opacity text-ink/30 hover:text-terracotta text-xs">
             ✕
-        </button>
+        </x-confirm>
     </div>
     @empty
     <p class="text-xs text-ink/30 italic px-2">Nessun documento allegato.</p>

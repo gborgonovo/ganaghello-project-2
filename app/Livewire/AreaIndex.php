@@ -54,6 +54,7 @@ class AreaIndex extends Component
         ]);
 
         $this->editingId = null;
+        $this->dispatch('toast', message: 'Area aggiornata.');
     }
 
     public function cancelEdit(): void
@@ -82,14 +83,19 @@ class AreaIndex extends Component
         $this->newColor    = '#5C6B4F';
         $this->newDesc     = '';
         $this->newParentId = null;
+        $this->dispatch('toast', message: 'Area creata.');
     }
 
     public function deleteArea(int $id): void
     {
         $area = Area::withCount('tasks')->findOrFail($id);
-        if ($area->tasks_count > 0) return;
+        if ($area->tasks_count > 0) {
+            $this->dispatch('toast', message: "Usata da {$area->tasks_count} task: riassegna prima.", type: 'error');
+            return;
+        }
         $area->delete();
         $this->confirmDeleteId = null;
+        $this->dispatch('toast', message: 'Area eliminata.');
     }
 
     public function render()

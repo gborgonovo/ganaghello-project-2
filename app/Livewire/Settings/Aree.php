@@ -38,6 +38,7 @@ class Aree extends Component
         $this->newName     = '';
         $this->newColor    = '#5C6B4F';
         $this->newParentId = null;
+        $this->dispatch('toast', message: 'Area creata.');
     }
 
     public function startEdit(int $id): void
@@ -63,6 +64,7 @@ class Aree extends Component
         ]);
 
         $this->editingId = null;
+        $this->dispatch('toast', message: 'Area aggiornata.');
     }
 
     public function cancelEdit(): void
@@ -94,6 +96,7 @@ class Aree extends Component
         $area->delete();
         $this->confirmDeleteId = null;
         $this->deleteError     = null;
+        $this->dispatch('toast', message: 'Area eliminata.');
     }
 
     public function cancelDelete(): void
