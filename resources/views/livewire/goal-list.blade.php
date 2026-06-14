@@ -65,7 +65,7 @@
             </div>
 
             <div class="flex items-center gap-2 shrink-0">
-                <button wire:click="startEdit({{ $goal->id }})"
+                <button title="Modifica" wire:click="startEdit({{ $goal->id }})"
                         class="text-ink/30 hover:text-salvia text-sm transition-colors">✎</button>
                 @if($confirmDeleteId === $goal->id)
                 <span class="text-xs text-ink/50">Sicuro?</span>
@@ -74,7 +74,7 @@
                 <button wire:click="$set('confirmDeleteId', null)"
                         class="text-xs text-ink/40 hover:text-ink">No</button>
                 @else
-                <button wire:click="$set('confirmDeleteId', {{ $goal->id }})"
+                <button title="Elimina" wire:click="$set('confirmDeleteId', {{ $goal->id }})"
                         class="text-ink/20 hover:text-terracotta text-sm transition-colors">✕</button>
                 @endif
             </div>
@@ -166,9 +166,9 @@
                             @if($sub->deadline)
                             <span class="text-xs text-ink/35">{{ $sub->deadline->format('Y') }}</span>
                             @endif
-                            <button wire:click="startEdit({{ $sub->id }})"
+                            <button title="Modifica" wire:click="startEdit({{ $sub->id }})"
                                     class="text-ink/20 hover:text-salvia text-xs transition-colors">✎</button>
-                            <button wire:click="$set('confirmDeleteId', {{ $sub->id }})"
+                            <button title="Elimina" wire:click="$set('confirmDeleteId', {{ $sub->id }})"
                                     class="text-ink/15 hover:text-terracotta text-xs transition-colors">✕</button>
                         </div>
                         @if($subTotal > 0)

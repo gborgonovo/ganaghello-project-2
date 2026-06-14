@@ -79,7 +79,7 @@
                         {{ $area->name }}
                     </a>
                 </div>
-                <button wire:click="startEdit({{ $area->id }})"
+                <button title="Modifica" wire:click="startEdit({{ $area->id }})"
                         class="shrink-0 text-ink/30 hover:text-salvia transition-colors text-sm">
                     ✎
                 </button>
@@ -173,7 +173,7 @@
                             @endif
                         </p>
                     </a>
-                    <button wire:click="startEdit({{ $child->id }})"
+                    <button title="Modifica" wire:click="startEdit({{ $child->id }})"
                             class="absolute top-1.5 right-1.5 text-xs text-ink/20
                                    hover:text-salvia opacity-0 group-hover:opacity-100 transition-all">
                         ✎
@@ -199,7 +199,7 @@
             </div>
             @else
             @if($area->tasks_count === 0 && $area->children->isEmpty())
-            <button wire:click="$set('confirmDeleteId', {{ $area->id }})"
+            <button title="Elimina" wire:click="$set('confirmDeleteId', {{ $area->id }})"
                     class="text-xs text-ink/25 hover:text-terracotta transition-colors">
                 Elimina
             </button>

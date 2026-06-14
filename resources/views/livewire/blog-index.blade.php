@@ -73,7 +73,7 @@
             <button wire:click="delete({{ $post->id }})" class="text-xs text-terracotta font-medium">Elimina?</button>
             <button wire:click="$set('confirmDeleteId', null)" class="text-xs text-ink/30">no</button>
             @else
-            <button wire:click="$set('confirmDeleteId', {{ $post->id }})"
+            <button title="Elimina" wire:click="$set('confirmDeleteId', {{ $post->id }})"
                     class="text-ink/25 hover:text-terracotta text-sm transition-colors">✕</button>
             @endif
         </div>

@@ -63,9 +63,9 @@
 
                     {{-- Bottoni ordine --}}
                     <div class="flex flex-col gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button wire:click="moveUp({{ $stage->id }})"
+                        <button title="Sposta su" wire:click="moveUp({{ $stage->id }})"
                                 class="text-[9px] text-ink/30 hover:text-ink leading-none transition-colors">▲</button>
-                        <button wire:click="moveDown({{ $stage->id }})"
+                        <button title="Sposta giù" wire:click="moveDown({{ $stage->id }})"
                                 class="text-[9px] text-ink/30 hover:text-ink leading-none transition-colors">▼</button>
                     </div>
 
@@ -78,11 +78,11 @@
                     <span class="text-xs text-ink/30 font-mono flex-1">{{ $stage->code }}</span>
 
                     <div class="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button wire:click="startEdit({{ $stage->id }})"
+                        <button title="Modifica" wire:click="startEdit({{ $stage->id }})"
                                 class="text-xs text-ink/40 hover:text-salvia transition-colors">
                             modifica
                         </button>
-                        <button wire:click="confirmDelete({{ $stage->id }})"
+                        <button title="Elimina" wire:click="confirmDelete({{ $stage->id }})"
                                 class="text-xs text-ink/30 hover:text-terracotta transition-colors">
                             ✕
                         </button>

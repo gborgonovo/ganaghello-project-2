@@ -51,11 +51,11 @@
                     <span class="text-[10px] text-ink/30">{{ $total }} elem.</span>
                     @endif
                     <div class="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button wire:click="startEdit({{ $tag->id }})"
+                        <button title="Modifica" wire:click="startEdit({{ $tag->id }})"
                                 class="text-xs text-ink/40 hover:text-salvia transition-colors">
                             modifica
                         </button>
-                        <button wire:click="$set('confirmDeleteId', {{ $tag->id }})"
+                        <button title="Elimina" wire:click="$set('confirmDeleteId', {{ $tag->id }})"
                                 class="text-xs text-ink/30 hover:text-terracotta transition-colors">
                             ✕
                         </button>

@@ -286,7 +286,7 @@
                     <span class="text-sm text-ink font-medium shrink-0 pt-0.5">€{{ number_format($e->amount, 2, ',', '.') }}</span>
                     <div class="flex items-center gap-2 shrink-0 pt-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
                         <button wire:click="editExpense({{ $e->id }})" class="text-xs text-ink/40 hover:text-salvia" title="Modifica">✎</button>
-                        <x-confirm action="deleteExpense({{ $e->id }})" class="text-xs text-ink/30 hover:text-terracotta">✕</x-confirm>
+                        <x-confirm action="deleteExpense({{ $e->id }})" title="Elimina spesa" class="text-xs text-ink/30 hover:text-terracotta">✕</x-confirm>
                     </div>
                 </div>
                 @endforeach

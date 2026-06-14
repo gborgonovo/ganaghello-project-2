@@ -78,7 +78,7 @@
                         <p class="text-xs text-ink/40 truncate">{{ $user->email }}</p>
                     </div>
                     <div class="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button wire:click="startEdit({{ $user->id }})"
+                        <button title="Modifica" wire:click="startEdit({{ $user->id }})"
                                 class="text-xs text-ink/40 hover:text-salvia transition-colors">
                             modifica
                         </button>
@@ -87,7 +87,7 @@
                                 class="text-xs text-ink/40 hover:text-salvia transition-colors">
                             password
                         </button>
-                        <button wire:click="$set('confirmDeleteId', {{ $user->id }})"
+                        <button title="Elimina" wire:click="$set('confirmDeleteId', {{ $user->id }})"
                                 class="text-xs text-ink/30 hover:text-terracotta transition-colors">
                             ✕
                         </button>

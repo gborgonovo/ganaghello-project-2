@@ -181,7 +181,7 @@
                                     class="text-[10px] transition-colors {{ $media->context === 'inspiration' ? 'text-terracotta/90 hover:text-white' : 'text-white/40 hover:text-terracotta/80' }}">
                                 ✦
                             </button>
-                            <x-confirm action="deleteMedia({{ $media->id }})" tone="dark"
+                            <x-confirm action="deleteMedia({{ $media->id }})" tone="dark" title="Elimina"
                                     class="text-[10px] text-white/70 hover:text-terracotta transition-colors">✕</x-confirm>
                         </div>
                     </div>

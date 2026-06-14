@@ -222,7 +222,7 @@
                         <button wire:click="$set('confirmDeleteId', null)"
                                 class="text-[10px] text-ink/30 px-1">no</button>
                         @else
-                        <button wire:click="$set('confirmDeleteId', {{ $insp->id }})"
+                        <button title="Elimina" wire:click="$set('confirmDeleteId', {{ $insp->id }})"
                                 class="text-[10px] text-ink/30 hover:text-terracotta transition-colors px-1">
                             ✕
                         </button>

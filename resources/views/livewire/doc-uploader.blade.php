@@ -24,7 +24,7 @@
             </span>
         </div>
 
-        <x-confirm action="deleteDoc({{ $doc->id }})"
+        <x-confirm action="deleteDoc({{ $doc->id }})" title="Elimina documento"
                 class="opacity-0 group-hover:opacity-100 transition-opacity text-ink/30 hover:text-terracotta text-xs">
             ✕
         </x-confirm>

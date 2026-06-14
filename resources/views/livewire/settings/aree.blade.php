@@ -79,11 +79,11 @@
                     @endif
 
                     <div class="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button wire:click="startEdit({{ $area->id }})"
+                        <button title="Modifica" wire:click="startEdit({{ $area->id }})"
                                 class="text-xs text-ink/40 hover:text-salvia transition-colors">
                             modifica
                         </button>
-                        <button wire:click="confirmDelete({{ $area->id }})"
+                        <button title="Elimina" wire:click="confirmDelete({{ $area->id }})"
                                 class="text-xs text-ink/30 hover:text-terracotta transition-colors">
                             ✕
                         </button>

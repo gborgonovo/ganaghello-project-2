@@ -142,7 +142,7 @@
                             class="text-[10px] text-ink/40 hover:text-salvia transition-colors px-1">
                         → task
                     </button>
-                    <button wire:click="startEdit({{ $note->id }})"
+                    <button title="Modifica" wire:click="startEdit({{ $note->id }})"
                             class="text-[10px] text-ink/40 hover:text-ink transition-colors px-1">
                         modifica
                     </button>
@@ -152,7 +152,7 @@
                     <button wire:click="$set('confirmDeleteId', null)"
                             class="text-[10px] text-ink/30 px-1">no</button>
                     @else
-                    <button wire:click="$set('confirmDeleteId', {{ $note->id }})"
+                    <button title="Elimina" wire:click="$set('confirmDeleteId', {{ $note->id }})"
                             class="text-[10px] text-ink/30 hover:text-terracotta transition-colors px-1">
                         ✕
                     </button>
