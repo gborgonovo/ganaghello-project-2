@@ -50,10 +50,15 @@
                         <option value="dormiente">○ Dormiente</option>
                     </select>
 
-                    @if($costMin > 0 || $costReal > 0)
-                    <span class="text-xs text-ink/50">
-                        @if($costMin > 0)prev. €{{ number_format($costMin, 0, ',', '.') }}@endif
-                        @if($costReal > 0) / reale €{{ number_format($costReal, 0, ',', '.') }}@endif
+                    @if($costImpegnato > 0 || $costPotenziale > 0 || $costReal > 0)
+                    <span class="inline-flex items-center gap-2 text-xs">
+                        <span class="text-salvia font-medium" title="Task da Approvato in poi">Impegnato €{{ number_format($costImpegnato, 0, ',', '.') }}</span>
+                        @if($costPotenziale > $costImpegnato)
+                        <span class="text-ink/40" title="Inclusi Idea e In discussione">Potenziale €{{ number_format($costPotenziale, 0, ',', '.') }}</span>
+                        @endif
+                        @if($costReal > 0)
+                        <span class="text-terracotta" title="Consuntivo">reale €{{ number_format($costReal, 0, ',', '.') }}</span>
+                        @endif
                     </span>
                     @endif
                 </div>

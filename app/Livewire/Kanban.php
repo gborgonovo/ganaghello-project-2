@@ -5,15 +5,19 @@ namespace App\Livewire;
 use App\Models\Area;
 use App\Models\Goal;
 use App\Models\Stage;
+use App\Models\Tag;
 use App\Models\Task;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 
 class Kanban extends Component
 {
-    public ?int  $filterArea  = null;
-    public ?int  $filterGoal  = null;
-    public string $search     = '';
+    public ?int   $filterArea     = null;
+    public ?int   $filterGoal     = null;
+    public array  $filterTags     = [];
+    public string $filterScadenza = '';
+    public bool   $filterWeekend  = false;
+    public string $search         = '';
     public bool  $showDecisione = false;
     public bool  $showArchivio  = false;
 
@@ -105,6 +109,12 @@ class Kanban extends Component
             ->withCount('children')
             ->when($this->filterArea, fn($q) => $q->where('area_id', $this->filterArea))
             ->when($this->filterGoal, fn($q) => $q->whereHas('goals', fn($gq) => $gq->where('goals.id', $this->filterGoal)))
+            ->when($this->filterTags, fn($q) => $q->whereHas('tags', fn($tq) => $tq->whereIn('tags.id', $this->filterTags)))
+            ->when($this->filterScadenza === 'scaduti', fn($q) => $q->whereNotNull('due_date')->whereDate('due_date', '<', today()))
+            ->when($this->filterScadenza === '7gg', fn($q) => $q->whereNotNull('due_date')->whereDate('due_date', '<=', today()->addDays(7)))
+            ->when($this->filterScadenza === '30gg', fn($q) => $q->whereNotNull('due_date')->whereDate('due_date', '<=', today()->addDays(30)))
+            ->when($this->filterWeekend, fn($q) => $q->whereIn('executor', ['una_persona', 'team'])
+                ->whereNotNull('due_date')->whereDate('due_date', '<=', today()->endOfWeek()))
             ->when($this->search, fn($q) => $q->where('title', 'like', '%' . $this->search . '%'))
             ->orderBy('sequence')
             ->orderBy('id')
@@ -116,6 +126,7 @@ class Kanban extends Component
             'tasks'  => $tasks,
             'areas'  => Area::orderBy('sequence')->get(),
             'goals'  => Goal::where('status', 'active')->orderBy('title')->get(),
+            'tags'   => Tag::orderBy('name')->get(),
         ])->layout('layouts.app', ['title' => 'Kanban']);
     }
 }

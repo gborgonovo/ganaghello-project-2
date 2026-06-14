@@ -216,9 +216,13 @@ class AreaDetail extends Component
             ->limit(5)
             ->get();
 
-        // Costi aggregati
-        $costMin  = $this->area->tasks()->whereNotIn('stage_id', $closedIds)->sum('cost_min');
-        $costReal = $this->area->tasks()->sum('cost_real');
+        // Costi aggregati: due totali (07-delta §2)
+        // Impegnato = budget reale (da Approvato in poi); Potenziale = include i sogni (Idea/Discussione).
+        $impegnatoIds   = Stage::whereIn('code', ['approvato', 'todo', 'doing', 'in_attesa', 'done'])->pluck('id');
+        $potenzialeIds  = Stage::whereNotIn('code', ['archiviato'])->pluck('id');
+        $costImpegnato  = $this->area->tasks()->whereIn('stage_id', $impegnatoIds)->sum('cost_min');
+        $costPotenziale = $this->area->tasks()->whereIn('stage_id', $potenzialeIds)->sum('cost_min');
+        $costReal       = $this->area->tasks()->sum('cost_real');
 
         // Storia
         $storia    = $this->buildStoria();
@@ -227,8 +231,9 @@ class AreaDetail extends Component
         return view('livewire.area-detail', [
             'taskTree'      => $taskTree,
             'scadenze'      => $scadenze,
-            'costMin'       => $costMin,
-            'costReal'      => $costReal,
+            'costImpegnato'  => $costImpegnato,
+            'costPotenziale' => $costPotenziale,
+            'costReal'       => $costReal,
             'storia'        => $storia,
             'storiaHasMore' => $storiaHasMore,
         ])->layout('layouts.app', ['title' => $this->area->name]);

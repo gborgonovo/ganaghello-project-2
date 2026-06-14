@@ -1,7 +1,7 @@
 <div class="space-y-2 pb-10">
 
     {{-- ===== FILTRI ===== --}}
-    <div class="flex flex-wrap items-center gap-2 mb-4">
+    <div class="flex flex-wrap items-center gap-2 mb-2">
         <input wire:model.live.debounce.300ms="search"
                type="text"
                placeholder="Cerca task..."
@@ -28,8 +28,24 @@
         </select>
         @endif
 
-        @if($filterArea || $filterGoal || $search)
-        <button wire:click="$set('filterArea', null); $set('filterGoal', null); $set('search', '')"
+        <select wire:model.live="filterScadenza"
+                class="text-sm border border-paper-dark rounded-lg px-2.5 py-1.5 bg-white text-ink
+                       focus:outline-none focus:border-salvia flex-1 sm:flex-none">
+            <option value="">Scadenza</option>
+            <option value="scaduti">Scaduti</option>
+            <option value="7gg">Entro 7 gg</option>
+            <option value="30gg">Entro 30 gg</option>
+        </select>
+
+        {{-- Pill "Faccio io · weekend" (07-delta §3) --}}
+        <button wire:click="$toggle('filterWeekend')"
+                class="text-xs px-2.5 py-1.5 rounded-lg border transition-colors shrink-0
+                       {{ $filterWeekend ? 'bg-salvia text-white border-salvia' : 'border-paper-dark text-ink/60 hover:border-salvia' }}">
+            🔧 Faccio io · weekend
+        </button>
+
+        @if($filterArea || $filterGoal || $search || $filterScadenza || $filterWeekend || count($filterTags))
+        <button wire:click="$set('filterArea', null); $set('filterGoal', null); $set('filterScadenza', ''); $set('filterWeekend', false); $set('filterTags', []); $set('search', '')"
                 class="text-xs text-terracotta hover:text-ink transition-colors shrink-0">
             Azzera filtri
         </button>
@@ -39,6 +55,22 @@
             @livewire('task-form')
         </div>
     </div>
+
+    {{-- Filtro tag multi-select (07-delta §1) --}}
+    @if($tags->isNotEmpty())
+    <div class="flex flex-wrap items-center gap-1.5 mb-4">
+        <span class="text-xs text-ink/40 mr-0.5">Tag:</span>
+        @foreach($tags as $tag)
+        <label class="cursor-pointer">
+            <input type="checkbox" wire:model.live="filterTags" value="{{ $tag->id }}" class="peer sr-only">
+            <span class="text-xs px-2 py-0.5 rounded-full border border-paper-dark text-ink/50
+                         peer-checked:bg-salvia peer-checked:text-white peer-checked:border-salvia transition-colors">
+                {{ ucfirst($tag->name) }}
+            </span>
+        </label>
+        @endforeach
+    </div>
+    @endif
 
     {{-- ===== ZONA ESECUZIONE ===== --}}
     <div class="space-y-4">

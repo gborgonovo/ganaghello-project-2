@@ -1,5 +1,14 @@
+@php
+    // Striscia priorità (07-delta §4): solo alta/media, bassa nessuna.
+    $stripe = match($task->priority) {
+        'alta'  => '#C25E3A',
+        'media' => '#D4A017',
+        default => null,
+    };
+@endphp
 <div class="break-inside-avoid mb-2 rounded-lg border border-paper-dark bg-white overflow-hidden
             hover:border-salvia-light hover:shadow-sm transition-all group"
+     @if($stripe) style="border-left: 3px solid {{ $stripe }}" @endif
      data-task-id="{{ $task->id }}"
      wire:key="task-{{ $task->id }}">
 
@@ -43,6 +52,20 @@
         @if($task->latestUpdate)
         <p class="text-xs text-ink/50 leading-relaxed line-clamp-2 mb-2">
             {{ $task->latestUpdate->content }}
+        </p>
+        @endif
+
+        {{-- Executor + stima di lavoro (07-delta §3): solo se valorizzati --}}
+        @if($task->executor || $task->work_estimate)
+        <p class="flex items-center gap-1 text-xs text-ink/45 mb-1.5">
+            @if($task->executor)
+            <span>{{ ['una_persona' => '👤', 'team' => '👥', 'professionista' => '🔧', 'impresa' => '🏗'][$task->executor] ?? '' }}</span>
+            <span>{{ ['una_persona' => 'una persona', 'team' => 'team', 'professionista' => 'professionista', 'impresa' => 'impresa'][$task->executor] ?? '' }}</span>
+            @endif
+            @if($task->work_estimate)
+            <span class="text-ink/25">·</span>
+            <span>{{ rtrim(rtrim(number_format($task->work_estimate, 2, ',', ''), '0'), ',') }}h</span>
+            @endif
         </p>
         @endif
 

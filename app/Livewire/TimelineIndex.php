@@ -4,6 +4,7 @@ namespace App\Livewire;
 
 use App\Models\Area;
 use App\Models\Goal;
+use App\Models\Tag;
 use App\Models\Task;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
@@ -12,6 +13,7 @@ use Livewire\Component;
 class TimelineIndex extends Component
 {
     public array $expandedAreas = [];
+    public array $filterTags    = [];
 
     public function toggleArea(int $id): void
     {
@@ -66,12 +68,16 @@ class TimelineIndex extends Component
 
     public function render()
     {
+        // Filtro tag (07-delta §1): vincola i task caricati nelle corsie
+        $tagFilter = fn($q) => $q->when($this->filterTags, fn($qq) =>
+            $qq->whereHas('tags', fn($tq) => $tq->whereIn('tags.id', $this->filterTags)));
+
         // Aree con task e figli caricati (fino a 3 livelli)
         $areas = Area::whereNull('parent_area_id')
             ->with([
-                'tasks',
-                'children.tasks',
-                'children.children.tasks',
+                'tasks' => $tagFilter,
+                'children.tasks' => $tagFilter,
+                'children.children.tasks' => $tagFilter,
             ])
             ->orderBy('sequence')
             ->get();
@@ -118,9 +124,10 @@ class TimelineIndex extends Component
         $todayPct = min(100, max(0, $windowStart->diffInDays(now()) / $totalDays * 100));
 
         $rows = $this->buildRows($areas);
+        $tags = Tag::orderBy('name')->get();
 
         return view('livewire.timeline-index', compact(
-            'goals', 'rows', 'years', 'todayPct', 'windowStart', 'totalDays'
+            'goals', 'rows', 'years', 'todayPct', 'windowStart', 'totalDays', 'tags'
         ))->layout('layouts.app', ['title' => 'Timeline']);
     }
 }

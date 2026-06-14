@@ -4,6 +4,25 @@
     $barWidth = fn($s, $e) => max(0.4, $pct($e) - $pct($s));
 @endphp
 
+{{-- Filtro tag multi-select (07-delta §1) --}}
+@if($tags->isNotEmpty())
+<div class="flex flex-wrap items-center gap-1.5 mb-3">
+    <span class="text-xs text-ink/40 mr-0.5">Tag:</span>
+    @foreach($tags as $tag)
+    <label class="cursor-pointer">
+        <input type="checkbox" wire:model.live="filterTags" value="{{ $tag->id }}" class="peer sr-only">
+        <span class="text-xs px-2 py-0.5 rounded-full border border-paper-dark text-ink/50
+                     peer-checked:bg-salvia peer-checked:text-white peer-checked:border-salvia transition-colors">
+            {{ ucfirst($tag->name) }}
+        </span>
+    </label>
+    @endforeach
+    @if(count($filterTags))
+    <button wire:click="$set('filterTags', [])" class="text-xs text-terracotta hover:text-ink ml-1">azzera</button>
+    @endif
+</div>
+@endif
+
 <div class="overflow-x-auto rounded-xl border border-paper-dark bg-white">
 <div class="min-w-[700px] relative" id="timeline-grid-wrap">
 

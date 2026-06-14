@@ -10,6 +10,10 @@
         $done        = $allTasks->whereNotNull('completed_at')->count();
         $pct         = $total > 0 ? round($done / $total * 100) : 0;
         $aree        = $allTasks->map->area->filter()->unique('id');
+        $impegnatoCodes  = ['approvato', 'todo', 'doing', 'in_attesa', 'done'];
+        $potenzialeCodes = ['idea', 'discussione', 'approvato', 'todo', 'doing', 'in_attesa', 'done'];
+        $costImpegnato   = $allTasks->filter(fn($t) => in_array($t->stage?->code, $impegnatoCodes))->sum('cost_min');
+        $costPotenziale  = $allTasks->filter(fn($t) => in_array($t->stage?->code, $potenzialeCodes))->sum('cost_min');
     @endphp
 
     <div class="rounded-xl border border-paper-dark bg-white px-6 py-5"
@@ -98,6 +102,16 @@
             @if($aree->isNotEmpty())
             <p class="text-xs text-ink/40">
                 Aree: {{ $aree->pluck('name')->implode(' · ') }}
+            </p>
+            @endif
+
+            {{-- Due totali costi (07-delta §2) --}}
+            @if($costImpegnato > 0 || $costPotenziale > 0)
+            <p class="inline-flex items-center gap-2 text-xs mt-0.5">
+                <span class="text-salvia font-medium">Impegnato €{{ number_format($costImpegnato, 0, ',', '.') }}</span>
+                @if($costPotenziale > $costImpegnato)
+                <span class="text-ink/40">Potenziale €{{ number_format($costPotenziale, 0, ',', '.') }}</span>
+                @endif
             </p>
             @endif
         </div>
