@@ -13,17 +13,21 @@
         </span>
         @if($entry->title)
         <a href="{{ $url }}" wire:navigate
-           class="block font-narrative text-ink font-medium leading-snug mt-1 hover:text-salvia transition-colors">
+           class="block font-narrative text-lg text-ink font-medium leading-snug mt-1 hover:text-salvia transition-colors">
             {{ $entry->title }}
         </a>
         @endif
-        @if(trim($entry->content) !== '')
-        <p class="text-sm font-narrative text-ink/70 leading-snug mt-0.5 line-clamp-3">
-            {{ \Illuminate\Support\Str::limit(strip_tags(\Illuminate\Support\Str::markdown($entry->content)), 140) }}
-        </p>
-        @endif
-        @if($entry->area)
-        <div class="mt-1.5"><x-area-chip :area="$entry->area" /></div>
-        @endif
+        <div class="flex items-center justify-between gap-2 mt-1.5">
+            @if($entry->area)<x-area-chip :area="$entry->area" />@else<span></span>@endif
+            @if(trim($entry->content) !== '')
+            {{-- C'è del testo: piccolo segno, si legge aprendo --}}
+            <span title="Apri per leggere" class="shrink-0 text-ink/35">
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"
+                     stroke-linecap="round" class="w-3.5 h-3.5">
+                    <path d="M3 4.5h10M3 8h10M3 11.5h6" />
+                </svg>
+            </span>
+            @endif
+        </div>
     </div>
 </div>
