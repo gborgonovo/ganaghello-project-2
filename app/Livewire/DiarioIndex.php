@@ -122,6 +122,8 @@ class DiarioIndex extends Component
             $entry = Entry::with('attachments.media')->findOrFail($this->editEntryId);
             $entry->update($data);
         } else {
+            // Tipo di default in base al contenuto (foto -> polaroid, testo lungo -> nota, ...).
+            $data['kind'] = Entry::defaultKind($data['content'], (bool) ($this->modalCover || $this->modalCoverMediaId));
             $entry = Entry::create($data);
         }
 
@@ -263,8 +265,8 @@ class DiarioIndex extends Component
         $entries = $query->limit($this->limit)->get();
         $hasMore = $entries->count() < $total;
 
-        $byDate = $entries->groupBy(fn ($e) => $e->entry_date->format('Y-m-d'))->sortKeysDesc();
-        $aree   = Area::orderBy('name')->get();
+        $byMonth = $entries->groupBy(fn ($e) => $e->entry_date->format('Y-m'))->sortKeysDesc();
+        $aree    = Area::orderBy('name')->get();
 
         $libraryImages = $this->showLibrary
             ? Media::where('mime_type', 'like', 'image/%')
@@ -274,7 +276,7 @@ class DiarioIndex extends Component
                 ->get()
             : collect();
 
-        return view('livewire.diario-index', compact('byDate', 'aree', 'hasMore', 'libraryImages'))
+        return view('livewire.diario-index', compact('byMonth', 'aree', 'hasMore', 'libraryImages'))
             ->layout('layouts.app', ['title' => 'Diario']);
     }
 

@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Lora:ital,wght@0,400;0,500;0,600;1,400;1,500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Lora:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Caveat:wght@500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -17,6 +17,11 @@
 @layer utilities {
     .font-narrative {
         @apply font-serif;
+    }
+
+    /* Scrittura a mano per i separatori-mese e i timbri-data dello scrapbook diario. */
+    .font-hand {
+        font-family: 'Caveat', cursive;
     }
 
     /* Safe area (notch) in modalita standalone PWA. env() vale 0 ovunque

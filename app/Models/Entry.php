@@ -14,12 +14,28 @@ class Entry extends Model
 {
     use SoftDeletes, HasMnemosyneNode;
 
+    /** Tipi di voce per la resa scrapbook. Estensibile: aggiungi un valore + il partial in livewire/diario/entry. */
+    public const KINDS = ['polaroid', 'postit', 'nota'];
+
+    /** Oltre questa lunghezza di contenuto, una voce senza foto nasce come "nota" anziché "postit". */
+    public const NOTA_THRESHOLD = 280;
+
     public function mnemosyneLabel(): string
     {
         return $this->title ?: Str::limit((string) $this->content, 60, '');
     }
 
-    protected $fillable = ['user_id', 'area_id', 'title', 'content', 'entry_date', 'entry_time', 'mnemosyne_node_name'];
+    protected $fillable = ['user_id', 'area_id', 'title', 'content', 'kind', 'entry_date', 'entry_time', 'mnemosyne_node_name'];
+
+    /** Tipo di default in base al contenuto: con foto -> polaroid, testo lungo -> nota, altrimenti postit. */
+    public static function defaultKind(string $content, bool $hasPhoto): string
+    {
+        return match (true) {
+            $hasPhoto                                  => 'polaroid',
+            mb_strlen($content) > self::NOTA_THRESHOLD => 'nota',
+            default                                    => 'postit',
+        };
+    }
 
     protected function casts(): array
     {

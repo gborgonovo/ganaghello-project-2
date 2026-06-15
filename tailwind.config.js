@@ -20,6 +20,8 @@ export default {
                 'paper-dark':   '#E0DDD2',
                 'salvia-light': '#8A9E7A',
                 'salvia-dark':  '#3D4A35',
+                'postit':       '#F0E4B0',
+                'postit-dark':  '#E6D596',
             },
             fontFamily: {
                 sans:  ['Inter', ...defaultTheme.fontFamily.sans],
