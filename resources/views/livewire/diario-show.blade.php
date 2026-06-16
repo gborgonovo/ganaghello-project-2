@@ -23,9 +23,9 @@
     {{-- Copertina --}}
     @php $cover = $entry->attachments->first()?->media; @endphp
     @if($cover)
-    <div class="rounded-2xl overflow-hidden mb-8 border border-paper-dark">
+    <div class="rounded-2xl overflow-hidden mb-8 border border-paper-dark bg-paper-dark">
         <img src="{{ route('media.serve', [$cover, 'medium']) }}"
-             alt="" class="w-full max-h-80 object-cover">
+             alt="" class="w-full max-h-[70vh] object-contain">
     </div>
     @endif
 

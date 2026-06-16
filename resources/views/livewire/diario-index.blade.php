@@ -132,7 +132,7 @@
         @php $cover = $readEntry->attachments->first()?->media; @endphp
         @if($cover)
         <img src="{{ route('media.serve', [$cover, 'medium']) }}" alt=""
-             class="w-full max-h-[55vh] object-cover bg-paper-dark">
+             class="w-full max-h-[70vh] object-contain bg-paper-dark">
         @endif
 
         <div class="px-6 py-5">
