@@ -119,13 +119,24 @@
 @php $rt = $readEntry->entry_time ? substr($readEntry->entry_time, 0, 5) : null; @endphp
 <div class="fixed inset-0 z-50 bg-ink/70 flex items-start sm:items-center justify-center p-0 sm:p-6 overflow-y-auto"
      wire:click.self="closeRead"
-     x-data="{ portrait: false }" x-on:keydown.escape.window="$wire.closeRead()">
+     x-data="{
+        modalW: null,
+        fit(img) {
+            // Larghezza che l'immagine assume rispettando il tetto d'altezza (85vh):
+            // ci adattiamo a quella, cosi' la foto riempie la modale senza bande.
+            const capH = window.innerHeight * 0.85;
+            const w = Math.min(img.naturalWidth, capH * img.naturalWidth / img.naturalHeight);
+            this.modalW = Math.min(672, Math.round(w)); // 672 = max-w-2xl, tetto per le orizzontali
+        }
+     }"
+     x-on:keydown.escape.window="$wire.closeRead()">
 
-    {{-- Larghezza adattiva: stretta per le foto verticali (riempiono la larghezza,
-         niente bande), larga per orizzontali/quadrate o senza foto. --}}
+    {{-- Larghezza adattiva: la modale combacia con la larghezza reale della foto
+         (verticale o orizzontale); senza foto resta larga (max-w-2xl). --}}
     <div class="relative w-full bg-paper sm:rounded-2xl shadow-2xl my-0 sm:my-auto overflow-hidden
                 transition-[max-width] duration-200"
-         :class="portrait ? 'max-w-md' : 'max-w-2xl'">
+         :class="modalW ? '' : 'max-w-2xl'"
+         :style="modalW ? `max-width:${modalW}px` : ''">
 
         {{-- Chiudi --}}
         <button wire:click="closeRead"
@@ -136,8 +147,8 @@
         @php $cover = $readEntry->attachments->first()?->media; @endphp
         @if($cover)
         <img src="{{ route('media.serve', [$cover, 'medium']) }}" alt=""
-             x-on:load="portrait = $event.target.naturalHeight > $event.target.naturalWidth"
-             class="w-full max-h-[78vh] object-contain bg-paper-dark">
+             x-on:load="fit($event.target)"
+             class="block w-full h-auto max-h-[86vh] object-contain bg-paper-dark">
         @endif
 
         <div class="px-6 py-5">
