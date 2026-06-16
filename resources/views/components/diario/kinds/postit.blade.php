@@ -1,7 +1,7 @@
-{{-- Voce di solo testo corto: post-it giallo. Testo breve, niente fronzoli. --}}
+{{-- Voce di solo testo corto: post-it giallo. Click -> apre la lettura in modale. --}}
 @php $time = $entry->entry_time ? substr($entry->entry_time, 0, 5) : null; @endphp
-<a href="{{ $url }}" wire:navigate
-   class="block bg-postit hover:bg-postit-dark transition-colors shadow-lg shadow-ink/15 px-4 py-3">
+<div wire:click="openRead({{ $entry->id }})"
+   class="bg-postit hover:bg-postit-dark transition-colors shadow-lg shadow-ink/15 px-4 py-3 cursor-pointer">
     @if($entry->title)
     <div class="font-narrative font-semibold text-ink leading-snug mb-1">{{ $entry->title }}</div>
     @endif
@@ -12,4 +12,4 @@
         </span>
         @if($entry->area)<x-area-chip :area="$entry->area" />@endif
     </div>
-</a>
+</div>

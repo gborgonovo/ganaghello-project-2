@@ -14,6 +14,7 @@ use App\Livewire\NoteShow;
 use App\Livewire\AreaIndex;
 use App\Livewire\Cruscotto;
 use App\Livewire\DiarioIndex;
+use App\Livewire\DiarioEditor;
 use App\Livewire\DiarioShow;
 use App\Livewire\GoalList;
 use App\Livewire\TimelineIndex;
@@ -44,6 +45,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/timeline', TimelineIndex::class)->name('timeline');
 
     Route::get('/diario', DiarioIndex::class)->name('diario');
+    Route::get('/diario/nuovo', DiarioEditor::class)->name('diario.create');
+    Route::get('/diario/{entry}/modifica', DiarioEditor::class)->name('diario.edit');
     Route::get('/diario/{entry}', DiarioShow::class)->name('diario.show');
 
     // Blog: gestione (Livewire, dietro auth). La vetrina pubblica e' su /storie.

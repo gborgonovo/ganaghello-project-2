@@ -7,7 +7,6 @@
     $kind  = in_array($entry->kind, \App\Models\Entry::KINDS, true) ? $entry->kind : 'postit';
     $rot   = round(($entry->id * 37 % 101) / 10 - 5, 1); // -5.0 .. +5.0, deterministico
     $cover = $entry->attachments->first()?->media;
-    $url   = route('diario.show', $entry->id);
 @endphp
 <div class="break-inside-avoid mb-5 px-1.5" wire:key="entry-{{ $entry->id }}">
     <div class="relative group" style="transform: rotate({{ $rot }}deg)">
@@ -22,15 +21,15 @@
         @else
         {{-- Azioni (compaiono al passaggio del mouse) --}}
         <div class="absolute -top-2 -right-2 z-20 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-            <button wire:click="openEdit({{ $entry->id }})" title="Modifica questa voce"
-                    class="w-7 h-7 rounded-full bg-white shadow border border-paper-dark text-ink/50 hover:text-salvia text-xs flex items-center justify-center">✎</button>
+            <a href="{{ route('diario.edit', $entry->id) }}" wire:navigate title="Modifica questa voce"
+                    class="w-7 h-7 rounded-full bg-white shadow border border-paper-dark text-ink/50 hover:text-salvia text-xs flex items-center justify-center">✎</a>
             <x-confirm action="deleteEntry({{ $entry->id }})" title="Elimina questa voce"
                     class="w-7 h-7 rounded-full bg-white shadow border border-paper-dark text-ink/40 hover:text-terracotta text-xs flex items-center justify-center">✕</x-confirm>
         </div>
         @endif
 
         <div @class(['rounded ring-2 ring-salvia ring-offset-2 ring-offset-paper' => $selecting && $isSelected])>
-            @include('components.diario.kinds.'.$kind, ['entry' => $entry, 'cover' => $cover, 'url' => $url])
+            @include('components.diario.kinds.'.$kind, ['entry' => $entry, 'cover' => $cover])
         </div>
     </div>
 </div>

@@ -5,158 +5,34 @@ namespace App\Livewire;
 use App\Models\Area;
 use App\Models\Attachment;
 use App\Models\Entry;
-use App\Models\Media;
 use App\Models\Post;
 use App\Services\MediaService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Livewire\Component;
-use Livewire\WithFileUploads;
 
 class DiarioIndex extends Component
 {
-    use WithFileUploads;
-
     // Filtro e paginazione
-    public ?int    $filterAreaId = null;
-    public string  $search       = '';
-    public int     $limit        = 30;
+    public ?int   $filterAreaId = null;
+    public string $search       = '';
+    public int    $limit        = 30;
 
-    // Modale
-    public bool    $showModal        = false;
-    public ?int    $editEntryId      = null;
-    public string  $modalTitle       = '';
-    public string  $modalContent     = '';
-    public string  $modalDate        = '';
-    public string  $modalTime        = '';
-    public ?int    $modalAreaId      = null;
-    public         $modalCover            = null;
-    public ?string $currentCoverUrl       = null;
-    public bool    $removeCover           = false;
-    public bool    $showLibrary           = false;
-    public string  $libSearch             = '';
-    public ?int    $modalCoverMediaId     = null;
-    public ?string $selectedLibraryUrl    = null;
-
-    // Delete
-    public ?int $confirmDeleteId = null;
+    // Lettura (modale): la scrittura/modifica avviene nella pagina dedicata DiarioEditor.
+    public ?Entry $readEntry = null;
 
     // Componi dal diario
     public bool  $selecting   = false;
     public array $selectedIds = [];
 
-    protected function rules(): array
+    public function openRead(int $id): void
     {
-        return [
-            'modalTitle'   => 'required|string|max:255',
-            'modalContent' => 'required|string',
-            'modalDate'    => 'required|date',
-            'modalTime'    => ['nullable', 'regex:/^\d{1,2}:\d{2}$/'],
-            'modalCover'   => 'nullable|image|max:20480',
-        ];
+        $this->readEntry = Entry::with(['area', 'attachments.media', 'tags'])->find($id);
     }
 
-    public function openNew(): void
+    public function closeRead(): void
     {
-        $this->resetModal();
-        $this->modalDate = today()->toDateString();
-        $this->modalTime = now()->format('H:i');
-        $this->showModal = true;
-    }
-
-    public function openEdit(int $id): void
-    {
-        $entry = Entry::with('attachments.media')->findOrFail($id);
-
-        $this->resetModal();
-        $this->editEntryId  = $id;
-        $this->modalTitle   = $entry->title ?? '';
-        $this->modalContent = $entry->content;
-        $this->modalDate    = $entry->entry_date->toDateString();
-        $this->modalTime    = $entry->entry_time ? substr($entry->entry_time, 0, 5) : '';
-        $this->modalAreaId  = $entry->area_id;
-
-        $cover = $entry->attachments->first()?->media;
-        $this->currentCoverUrl = $cover ? route('media.serve', [$cover, 'medium']) : null;
-
-        $this->showModal = true;
-    }
-
-    public function closeModal(): void
-    {
-        $this->showModal  = false;
-        $this->modalCover = null;
-    }
-
-    public function toggleLibrary(): void
-    {
-        $this->showLibrary = !$this->showLibrary;
-        $this->libSearch   = '';
-    }
-
-    public function selectFromLibrary(int $mediaId): void
-    {
-        $media = Media::find($mediaId);
-        if (!$media) return;
-        $this->modalCoverMediaId  = $mediaId;
-        $this->selectedLibraryUrl = route('media.serve', [$media, 'medium']);
-        $this->modalCover         = null;
-        $this->removeCover        = false;
-        $this->showLibrary        = false;
-    }
-
-    public function saveModal(): void
-    {
-        $this->validate();
-
-        $data = [
-            'user_id'    => Auth::id(),
-            'area_id'    => $this->modalAreaId ?: null,
-            'title'      => trim($this->modalTitle),
-            'content'    => trim($this->modalContent),
-            'entry_date' => $this->modalDate,
-            'entry_time' => $this->modalTime ?: null,
-        ];
-
-        if ($this->editEntryId) {
-            $entry = Entry::with('attachments.media')->findOrFail($this->editEntryId);
-            $entry->update($data);
-        } else {
-            // Tipo di default in base al contenuto (foto -> polaroid, testo lungo -> nota, ...).
-            $data['kind'] = Entry::defaultKind($data['content'], (bool) ($this->modalCover || $this->modalCoverMediaId));
-            $entry = Entry::create($data);
-        }
-
-        // Rimuovi attachment esistente se rimpiazzato o rimosso
-        if ($this->removeCover || $this->modalCover || $this->modalCoverMediaId) {
-            $entry->load('attachments.media');
-            $entry->attachments->each(fn ($att) => $att->delete());
-        }
-
-        // Nuova copertina da upload
-        if ($this->modalCover) {
-            $media = app(MediaService::class)->store($this->modalCover);
-            Attachment::create([
-                'attachable_type' => Entry::class,
-                'attachable_id'   => $entry->id,
-                'media_id'        => $media->id,
-                'sequence'        => 1,
-            ]);
-        }
-
-        // Copertina dalla libreria
-        if ($this->modalCoverMediaId && !$this->removeCover) {
-            Attachment::create([
-                'attachable_type' => Entry::class,
-                'attachable_id'   => $entry->id,
-                'media_id'        => $this->modalCoverMediaId,
-                'sequence'        => 1,
-            ]);
-        }
-
-        $this->showModal  = false;
-        $this->modalCover = null;
-        $this->dispatch('toast', message: 'Pagina salvata.');
+        $this->readEntry = null;
     }
 
     public function deleteEntry(int $id): void
@@ -172,7 +48,10 @@ class DiarioIndex extends Component
             }
         }
         $entry->delete();
-        $this->confirmDeleteId = null;
+
+        if ($this->readEntry && $this->readEntry->id === $id) {
+            $this->readEntry = null;
+        }
         $this->dispatch('toast', message: 'Voce eliminata.');
     }
 
@@ -268,34 +147,7 @@ class DiarioIndex extends Component
         $byMonth = $entries->groupBy(fn ($e) => $e->entry_date->format('Y-m'))->sortKeysDesc();
         $aree    = Area::orderBy('name')->get();
 
-        $libraryImages = $this->showLibrary
-            ? Media::where('mime_type', 'like', 'image/%')
-                ->when($this->libSearch, fn ($q) => $q->where('original_filename', 'like', '%'.$this->libSearch.'%'))
-                ->orderByDesc('created_at')
-                ->limit(48)
-                ->get()
-            : collect();
-
-        return view('livewire.diario-index', compact('byMonth', 'aree', 'hasMore', 'libraryImages'))
+        return view('livewire.diario-index', compact('byMonth', 'aree', 'hasMore'))
             ->layout('layouts.app', ['title' => 'Diario']);
-    }
-
-    private function resetModal(): void
-    {
-        $this->editEntryId        = null;
-        $this->modalTitle         = '';
-        $this->modalContent       = '';
-        $this->modalDate          = '';
-        $this->modalTime          = '';
-        $this->modalAreaId        = null;
-        $this->modalCover         = null;
-        $this->currentCoverUrl    = null;
-        $this->removeCover        = false;
-        $this->showLibrary        = false;
-        $this->libSearch          = '';
-        $this->modalCoverMediaId  = null;
-        $this->selectedLibraryUrl = null;
-        $this->confirmDeleteId    = null;
-        $this->resetValidation();
     }
 }
