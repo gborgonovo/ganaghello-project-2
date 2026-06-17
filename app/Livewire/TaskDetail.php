@@ -134,7 +134,7 @@ class TaskDetail extends Component
         // Stage chiusi: chiedi la data di completamento (solo se non gia' impostata)
         if (in_array($stage->code, $closedCodes) && !$this->task->completed_at) {
             $this->pendingStageId        = $stageId;
-            $this->pendingCompletedAt    = now()->format('Y-m-d');
+            $this->pendingCompletedAt    = now('Europe/Rome')->format('Y-m-d');
             $this->showCompletedAtPrompt = true;
             return;
         }
@@ -369,7 +369,7 @@ class TaskDetail extends Component
     public function newExpense(): void
     {
         $this->resetExpenseForm();
-        $this->expDate         = today()->toDateString();
+        $this->expDate         = today('Europe/Rome')->toDateString();
         $this->showExpenseForm = true;
     }
 

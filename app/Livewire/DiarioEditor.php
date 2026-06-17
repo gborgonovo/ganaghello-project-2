@@ -52,7 +52,7 @@ class DiarioEditor extends Component
             $this->currentCoverUrl = $cover ? route('media.serve', [$cover, 'medium']) : null;
         } else {
             // Default proposti in ora italiana (lo storage resta com'e' inserito).
-            $this->date = today()->toDateString();
+            $this->date = today('Europe/Rome')->toDateString();
             $this->time = now('Europe/Rome')->format('H:i');
         }
     }

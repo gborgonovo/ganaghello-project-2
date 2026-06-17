@@ -38,7 +38,7 @@ class Kanban extends Component
         $updates = ['stage_id' => $stageId];
 
         if (in_array($stage->code, ['todo', 'doing', 'in_attesa', 'done']) && !$task->due_date) {
-            $updates['due_date'] = today();
+            $updates['due_date'] = today('Europe/Rome');
         }
         if ($stage->code === 'done' && !$task->completed_at) {
             $updates['completed_at'] = now();
@@ -84,7 +84,7 @@ class Kanban extends Component
         ];
 
         if (in_array($stage->code, ['todo', 'doing', 'in_attesa', 'done'])) {
-            $updates['due_date'] = today();
+            $updates['due_date'] = today('Europe/Rome');
         }
 
         Task::create($updates);

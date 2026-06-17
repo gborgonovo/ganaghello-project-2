@@ -102,7 +102,7 @@ class AreaDetail extends Component
             'user_id'    => Auth::id(),
             'area_id'    => $this->area->id,
             'content'    => $content,
-            'entry_date' => today(),
+            'entry_date' => today('Europe/Rome'),
         ]);
 
         $this->entryContent = '';

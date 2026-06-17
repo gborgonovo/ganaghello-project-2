@@ -1,4 +1,8 @@
-<div class="space-y-2 pb-10">
+<div class="space-y-2 pb-10"
+     x-data
+     x-on:livewire:navigated.window="$wire.$refresh()">
+    {{-- Al ritorno via wire:navigate la pagina arriva dalla cache (snapshot vecchio):
+         forziamo un refresh cosi' i task sono nella colonna giusta senza ricaricare. --}}
 
     {{-- ===== FILTRI ===== --}}
     <div class="flex flex-wrap items-center gap-2 mb-2">
