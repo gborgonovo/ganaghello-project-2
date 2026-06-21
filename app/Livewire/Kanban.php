@@ -8,10 +8,15 @@ use App\Models\Stage;
 use App\Models\Tag;
 use App\Models\Task;
 use Illuminate\Support\Facades\Auth;
+use Livewire\Attributes\On;
 use Livewire\Component;
 
 class Kanban extends Component
 {
+    /** Una voce creata dalla modale annidata (TaskForm): basta gestire l'evento per ridisegnare il board. */
+    #[On('task-created')]
+    public function onTaskCreated(): void {}
+
     public ?int   $filterArea     = null;
     public ?int   $filterGoal     = null;
     public array  $filterTags     = [];

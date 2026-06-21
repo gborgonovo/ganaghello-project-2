@@ -54,7 +54,9 @@
         @endif
 
         <div class="ml-auto shrink-0">
-            @livewire('task-form')
+            {{-- key stabile: il refresh del kanban (su navigated) non deve scollegare
+                 questa "isola" annidata, altrimenti il suo "Crea" smette di funzionare. --}}
+            @livewire('task-form', [], key('kanban-task-form'))
         </div>
     </div>
 
