@@ -41,6 +41,19 @@
             if (this.save) this.$wire[this.save](this.prop);
         },
 
+        // Su mobile il tastierino numerico non ha la barra '/': la inseriamo noi
+        // mentre l'utente digita (gg, poi gg/mm, poi gg/mm/aaaa).
+        format(value) {
+            const d = String(value || '').replace(/\D/g, '').slice(0, 8);
+            if (d.length > 4) return d.slice(0,2) + '/' + d.slice(2,4) + '/' + d.slice(4);
+            if (d.length > 2) return d.slice(0,2) + '/' + d.slice(2);
+            return d;
+        },
+
+        onInput(e) {
+            this.display = this.format(e.target.value);
+        },
+
         normalize() {
             this.display = this.toDisplay(this.toYmd(this.display));
         }
@@ -50,7 +63,8 @@
     <input
         type="text"
         inputmode="numeric"
-        x-model="display"
+        :value="display"
+        @input="onInput($event)"
         @change="sync()"
         @blur="normalize()"
         placeholder="{{ $placeholder }}"
