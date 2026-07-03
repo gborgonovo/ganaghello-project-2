@@ -47,10 +47,10 @@ class SyncTaskToMnemosyne implements ShouldQueue
 
         // Lo stato viene emesso come marcatore parsabile in coda alla descrizione:
         // Mnemosyne non ha un campo di stato strutturato, e altre app leggono lo stato da qui.
-        // Formato: "[stato: <code> | <label>]" (codice stabile + etichetta leggibile).
+        // Formato: "[stato: <code>]" (codice stabile dello stage).
         $description = (string) $task->description;
         if ($task->stage) {
-            $description = trim($description . "\n\n[stato: {$task->stage->code} | {$task->stage->label}]");
+            $description = trim($description . "\n\n[stato: {$task->stage->code}]");
         }
 
         $response = $mnemosyne->pushTask(
