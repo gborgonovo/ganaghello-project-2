@@ -115,13 +115,18 @@ class MnemosyneService
         return (bool) config('services.mnemosyne.sync', true) && !empty($this->apiKey);
     }
 
-    /** POST /tasks (upsert per nome). Ritorna il corpo JSON (con `name` canonico). */
-    public function pushTask(string $name, string $description, ?string $deadline, string $relations, string $scope = 'Private'): array
+    /**
+     * POST /tasks (upsert per nome). Ritorna il corpo JSON (con `name` canonico).
+     * `$status` e' il codice dello stage: Mnemosyne lo salva nel frontmatter `status`,
+     * ed e' l'unico modo per farlo (il marcatore in descrizione NON lo aggiorna).
+     */
+    public function pushTask(string $name, string $description, ?string $deadline, string $relations, ?string $status = null, string $scope = 'Private'): array
     {
         return $this->write('/tasks', [
             'name'        => $name,
             'description' => $description,
             'deadline'    => $deadline,
+            'status'      => $status,
             'folder'      => $this->project,
             'scopes'      => $scope,
             'relations'   => $relations,

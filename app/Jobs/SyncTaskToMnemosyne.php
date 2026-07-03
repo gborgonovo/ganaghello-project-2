@@ -58,6 +58,7 @@ class SyncTaskToMnemosyne implements ShouldQueue
             $description,
             $task->due_date?->toDateString(),
             implode(',', $relations),
+            $task->stage?->code,
         );
 
         $this->persistCanonicalName($task, $response);
