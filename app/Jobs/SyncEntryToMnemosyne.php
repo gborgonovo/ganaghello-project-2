@@ -43,10 +43,16 @@ class SyncEntryToMnemosyne implements ShouldQueue
         }
 
         $content = trim(($entry->title ? "# {$entry->title}\n\n" : '') . $entry->content);
+        if ($content === '') {
+            // Voce senza testo (es. solo foto): Mnemosyne richiede `content` non vuoto,
+            // e write() scarta le stringhe vuote. Diamo un contenuto minimo con la data.
+            $date = $entry->entry_date?->format('d/m/Y');
+            $content = 'Voce di diario' . ($date ? " del {$date}" : '') . '.';
+        }
 
         $response = $mnemosyne->pushNode(
             $entry->mnemosyneName(),
-            $content !== '' ? $content : $entry->mnemosyneLabel(),
+            $content,
             'Journal',
             implode(',', $relations),
             'Private', // il diario e' sempre privato; il pubblico vive nei Post (blog)
