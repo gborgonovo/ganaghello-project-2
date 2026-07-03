@@ -29,7 +29,7 @@ class SyncTaskToMnemosyne implements ShouldQueue
             return;
         }
 
-        $task = Task::with(['parent', 'area', 'goals'])->find($this->taskId);
+        $task = Task::with(['parent', 'area', 'goals', 'stage'])->find($this->taskId);
         if (!$task) {
             return;
         }
@@ -45,9 +45,12 @@ class SyncTaskToMnemosyne implements ShouldQueue
             $relations[] = $task->area->mnemosyneName() . ':LOCATED_IN';
         }
 
+        // Lo stato viene emesso come marcatore parsabile in coda alla descrizione:
+        // Mnemosyne non ha un campo di stato strutturato, e altre app leggono lo stato da qui.
+        // Formato: "[stato: <code> | <label>]" (codice stabile + etichetta leggibile).
         $description = (string) $task->description;
-        if ($task->isDone()) {
-            $description = trim($description . "\n\n(stato: completato)");
+        if ($task->stage) {
+            $description = trim($description . "\n\n[stato: {$task->stage->code} | {$task->stage->label}]");
         }
 
         $response = $mnemosyne->pushTask(

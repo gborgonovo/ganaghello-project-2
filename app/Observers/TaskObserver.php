@@ -9,7 +9,7 @@ use App\Models\Task;
 class TaskObserver
 {
     /** Campi semantici: solo questi giustificano una risincronizzazione. */
-    private const SEMANTIC = ['title', 'description', 'due_date', 'area_id', 'parent_task_id'];
+    private const SEMANTIC = ['title', 'description', 'due_date', 'area_id', 'parent_task_id', 'stage_id'];
 
     public function created(Task $task): void
     {
