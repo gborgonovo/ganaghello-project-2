@@ -2,6 +2,7 @@
 
 use App\Jobs\SendDailyDigest;
 use App\Models\Setting;
+use Carbon\Carbon;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Schedule;
@@ -27,7 +28,15 @@ Schedule::call(function () {
         return;
     }
 
-    Setting::set('digest.last_sent_date', $today);
+    // `digest.last_sent_date` lo scrive il job, e solo a invio riuscito: cosi' un
+    // fallimento viene ritentato invece di bruciare la giornata. Questo lock evita
+    // di riaccodare il job a ogni minuto mentre e' in coda o in esecuzione.
+    $lockedAt = Setting::get('digest.dispatched_at');
+    if ($lockedAt && now()->lt(Carbon::parse($lockedAt)->addMinutes(15))) {
+        return;
+    }
+    Setting::set('digest.dispatched_at', now()->toDateTimeString());
+
     SendDailyDigest::dispatch();
 })->everyMinute()->name('daily-digest')->withoutOverlapping();
 

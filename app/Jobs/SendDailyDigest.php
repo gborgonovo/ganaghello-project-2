@@ -33,16 +33,27 @@ class SendDailyDigest implements ShouldQueue
         30 => '30giorni',
     ];
 
+    /** @var int[]|null memo degli stage chiusi */
+    private ?array $doneStageIds = null;
+
     public function handle(MnemosyneService $mnemosyne): void
     {
-        $users = User::all();
+        $users  = User::all();
+        $failed = 0;
 
         foreach ($users as $user) {
             try {
                 $this->sendForUser($user, $mnemosyne);
             } catch (\Throwable $e) {
+                $failed++;
                 Log::error("SendDailyDigest: errore per user {$user->id}: {$e->getMessage()}");
             }
+        }
+
+        // La giornata si segna come fatta solo se nessun invio e' fallito: altrimenti un
+        // errore la "brucerebbe" e il digest non verrebbe piu' ritentato fino al giorno dopo.
+        if ($failed === 0) {
+            Setting::set('digest.last_sent_date', now()->toDateString());
         }
     }
 
@@ -59,17 +70,26 @@ class SendDailyDigest implements ShouldQueue
         $sections  = [];
         $taskCount = 0;
 
+        // Scaduti: aperti con la scadenza gia' passata. Il digest guardava solo in avanti,
+        // quindi una scadenza mancata non veniva piu' ricordata.
+        $overdue = $this->openTasksFor($user)
+            ->whereDate('due_date', '<', $today)
+            ->orderBy('due_date')
+            ->get();
+
+        if ($overdue->isNotEmpty()) {
+            $sections['scaduti'] = $overdue->map(fn($t) => [
+                'id'    => $t->id,
+                'title' => $t->title,
+                'area'  => $t->area?->name,
+            ])->all();
+            $taskCount += $overdue->count();
+        }
+
         foreach ($thresholds as $days) {
             $targetDate = $today->copy()->addDays($days);
-            $tasks = Task::with('area')
-                ->whereNull('deleted_at')
+            $tasks = $this->openTasksFor($user)
                 ->whereDate('due_date', $targetDate)
-                ->whereNotIn('stage_id', $this->doneStageIds())
-                ->where(function ($q) use ($user) {
-                    $q->where('user_id', $user->id)
-                      ->orWhere('assigned_to', $user->id)
-                      ->orWhereHas('collaborators', fn($c) => $c->where('user_id', $user->id));
-                })
                 ->orderBy('due_date')
                 ->get();
 
@@ -118,9 +138,22 @@ class SendDailyDigest implements ShouldQueue
         ]);
     }
 
+    /** Task aperti di cui l'utente e' proprietario, assegnatario o collaboratore. */
+    private function openTasksFor(User $user)
+    {
+        return Task::with('area')
+            ->whereNull('deleted_at')
+            ->whereNotIn('stage_id', $this->doneStageIds())
+            ->where(function ($q) use ($user) {
+                $q->where('user_id', $user->id)
+                  ->orWhere('assigned_to', $user->id)
+                  ->orWhereHas('collaborators', fn($c) => $c->where('user_id', $user->id));
+            });
+    }
+
     private function doneStageIds(): array
     {
-        return \App\Models\Stage::whereIn('code', ['done', 'archiviato'])->pluck('id')->all();
+        return $this->doneStageIds ??= \App\Models\Stage::whereIn('code', ['done', 'archiviato'])->pluck('id')->all();
     }
 
     private function buildDormant(array $nodes): array

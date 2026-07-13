@@ -5,6 +5,7 @@ Buongiorno {{ $userName }}.
 
 @php
   $sectionLabels = [
+    'scaduti'  => 'Scaduto',
     'oggi'     => 'Oggi',
     'domani'   => 'Domani',
     '3giorni'  => 'Entro 3 giorni',

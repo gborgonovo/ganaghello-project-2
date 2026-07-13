@@ -15,6 +15,7 @@
   .task-row { padding: 8px 0; border-bottom: 1px solid #EFEDE3; }
   .task-row:last-child { border-bottom: none; }
   .task-label { font-family: Arial, sans-serif; font-size: 11px; color: #8A9E7A; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 2px; }
+  .task-label.late { color: #C98A6B; font-weight: bold; }
   .task-title { font-size: 15px; color: #2C322A; }
   .task-title a { color: #2C322A; text-decoration: none; }
   .task-title a:hover { text-decoration: underline; }
@@ -41,6 +42,7 @@
 
     @php
       $sectionLabels = [
+        'scaduti'  => 'Scaduto',
         'oggi'     => 'Oggi',
         'domani'   => 'Domani',
         '3giorni'  => 'Entro 3 giorni',
@@ -57,7 +59,7 @@
       @if(!empty($sections[$key]))
       @foreach($sections[$key] as $task)
       <div class="task-row">
-        <div class="task-label">{{ $label }}</div>
+        <div class="task-label{{ $key === 'scaduti' ? ' late' : '' }}">{{ $label }}</div>
         <div class="task-title">
           <a href="{{ url('/tasks/' . $task['id']) }}">{{ $task['title'] }}</a>
         </div>
