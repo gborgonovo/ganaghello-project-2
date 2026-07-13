@@ -42,8 +42,8 @@ class DailyDigest extends Mailable
     public function content(): Content
     {
         return new Content(
-            htmlView: 'mail.digest',
-            textView: 'mail.digest-text',
+            view: 'mail.digest',
+            text: 'mail.digest-text',
         );
     }
 }
