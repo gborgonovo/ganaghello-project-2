@@ -51,6 +51,16 @@
         </p>
         @endif
 
+        {{-- Segno di vita dal diario: l'ultima voce collegata a questo lavoro --}}
+        @php $ultimaVoce = $task->entries->sortByDesc('entry_date')->first(); @endphp
+        @if($ultimaVoce)
+        <p class="flex items-center gap-1 text-xs text-ink/45 mb-2 truncate" title="Ultima voce di diario collegata">
+            <span>📖</span>
+            <span class="text-ink/35">{{ $ultimaVoce->entry_date->format('d/m/y') }}</span>
+            <span class="truncate">{{ Str::limit($ultimaVoce->title ?: 'Senza titolo', 30) }}</span>
+        </p>
+        @endif
+
         {{-- Executor + stima di lavoro (07-delta §3): solo se valorizzati --}}
         @if($task->executor || $task->work_estimate)
         <p class="flex items-center gap-1 text-xs text-ink/45 mb-1.5">

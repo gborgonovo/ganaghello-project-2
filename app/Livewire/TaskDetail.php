@@ -3,6 +3,7 @@
 namespace App\Livewire;
 
 use App\Models\Area;
+use App\Models\Entry;
 use App\Models\Expense;
 use App\Models\Goal;
 use App\Models\Stage;
@@ -68,6 +69,10 @@ class TaskDetail extends Component
     // Task updates
     public string $newUpdateContent = '';
 
+    // Collegamento con le voci di diario (pivot task_entry)
+    public bool   $showEntryPicker = false;
+    public string $entrySearch     = '';
+
     // Tag
     public string $tagInput = '';
 
@@ -76,7 +81,7 @@ class TaskDetail extends Component
 
     public function mount(Task $task): void
     {
-        $this->task    = $task->load(['stage', 'area', 'tags', 'goals', 'updates', 'children.stage', 'parent', 'assignedUser', 'collaborators', 'expenses' => fn ($q) => $q->orderByDesc('expense_date')->orderByDesc('id')]);
+        $this->task    = $task->load(['stage', 'area', 'tags', 'goals', 'updates', 'children.stage', 'parent', 'assignedUser', 'collaborators', 'entries.attachments.media', 'expenses' => fn ($q) => $q->orderByDesc('expense_date')->orderByDesc('id')]);
         $this->syncFromModel();
         $this->backUrl = $this->resolveBackUrl();
     }
@@ -283,6 +288,31 @@ class TaskDetail extends Component
         $this->dispatch('toast', message: 'Sotto-task creato.');
     }
 
+    // ===== Voci di diario collegate (pivot task_entry) =====
+
+    /** Aggancia una voce di diario gia' scritta a questo task. */
+    public function linkEntry(int $entryId): void
+    {
+        $this->task->entries()->syncWithoutDetaching([$entryId]);
+        $this->task->refresh()->load('entries.attachments.media');
+        $this->showEntryPicker = false;
+        $this->entrySearch     = '';
+        $this->dispatch('toast', message: 'Voce di diario collegata.');
+    }
+
+    public function unlinkEntry(int $entryId): void
+    {
+        $this->task->entries()->detach($entryId);
+        $this->task->refresh()->load('entries.attachments.media');
+        $this->dispatch('toast', message: 'Collegamento rimosso.');
+    }
+
+    public function toggleEntryPicker(): void
+    {
+        $this->showEntryPicker = !$this->showEntryPicker;
+        $this->entrySearch     = '';
+    }
+
     // Task updates
     public function addUpdate(): void
     {
@@ -446,7 +476,17 @@ class TaskDetail extends Component
 
     public function render()
     {
+        // Voci di diario agganciabili: cerca per titolo/testo, escluse quelle gia' collegate.
+        $entryCandidates = $this->showEntryPicker
+            ? Entry::whereNotIn('id', $this->task->entries->pluck('id'))
+                ->when($this->entrySearch, fn ($q) => $q->where(fn ($qq) => $qq
+                    ->where('title', 'like', '%' . $this->entrySearch . '%')
+                    ->orWhere('content', 'like', '%' . $this->entrySearch . '%')))
+                ->orderByDesc('entry_date')->limit(25)->get()
+            : collect();
+
         return view('livewire.task-detail', [
+            'entryCandidates' => $entryCandidates,
             'stages'       => Stage::orderBy('sequence')->get(),
             'areas'        => Area::orderBy('sequence')->get(),
             'goals'        => Goal::where('status', 'active')->orderBy('title')->get(),

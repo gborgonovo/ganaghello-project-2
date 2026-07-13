@@ -433,6 +433,81 @@
         </div>
     </div>
 
+    {{-- ===== DAL DIARIO (voci collegate, pivot task_entry) ===== --}}
+    <div class="bg-white rounded-xl border border-paper-dark px-6 py-5">
+        <div class="flex items-center justify-between mb-4">
+            <p class="text-xs font-semibold uppercase tracking-wide text-salvia">Dal diario</p>
+            <div class="flex items-center gap-3">
+                <button wire:click="toggleEntryPicker"
+                        class="text-xs text-ink/45 hover:text-salvia transition-colors">
+                    {{ $showEntryPicker ? '↑ Chiudi' : '⚯ Collega una voce' }}
+                </button>
+                <a href="{{ route('diario.create', ['task' => $task->id]) }}" wire:navigate
+                   class="text-xs text-salvia hover:text-salvia-dark transition-colors">
+                    ✎ Scrivi nel diario
+                </a>
+            </div>
+        </div>
+
+        {{-- Selettore: aggancia una voce gia' scritta --}}
+        @if($showEntryPicker)
+        <div class="mb-4 border border-paper-dark rounded-xl overflow-hidden">
+            <div class="px-3 py-2 border-b border-paper-dark bg-paper">
+                <input type="text" wire:model.live.debounce.300ms="entrySearch"
+                       placeholder="Cerca nel diario..."
+                       class="w-full text-xs border border-paper-dark rounded-lg px-2.5 py-1.5
+                              focus:outline-none focus:border-salvia bg-white">
+            </div>
+            @if($entryCandidates->isEmpty())
+            <p class="text-xs text-ink/30 text-center py-5 italic">Nessuna voce trovata.</p>
+            @else
+            <div class="max-h-52 overflow-y-auto divide-y divide-paper-dark">
+                @foreach($entryCandidates as $cand)
+                <button wire:click="linkEntry({{ $cand->id }})" wire:key="cand-{{ $cand->id }}"
+                        class="w-full text-left px-3 py-2 hover:bg-paper transition-colors">
+                    <span class="text-xs text-ink/40">{{ $cand->entry_date->format('d/m/Y') }}</span>
+                    <span class="text-sm text-ink ml-1">{{ $cand->title ?: 'Senza titolo' }}</span>
+                </button>
+                @endforeach
+            </div>
+            @endif
+        </div>
+        @endif
+
+        {{-- Voci collegate: la storia vera del lavoro, con le foto --}}
+        @forelse($task->entries->sortByDesc('entry_date') as $e)
+        @php $foto = $e->attachments->first()?->media; @endphp
+        <div wire:key="entry-{{ $e->id }}" class="flex gap-3 mb-4 group">
+            @if($foto)
+            <a href="{{ route('diario.show', $e->id) }}" wire:navigate class="shrink-0">
+                <img src="{{ route('media.serve', [$foto, 'thumb']) }}" alt=""
+                     class="w-16 h-16 rounded-lg object-cover border border-paper-dark">
+            </a>
+            @endif
+            <div class="flex-1 min-w-0">
+                <a href="{{ route('diario.show', $e->id) }}" wire:navigate
+                   class="text-sm font-medium text-ink hover:text-salvia transition-colors">
+                    {{ $e->title ?: 'Senza titolo' }}
+                </a>
+                <p class="text-xs text-ink/40 mt-0.5">{{ $e->entry_date->format('d/m/Y') }}</p>
+                @if(trim($e->content))
+                <p class="text-xs text-ink/60 leading-relaxed line-clamp-2 mt-1">
+                    {{ Str::limit(strip_tags($e->content), 140) }}
+                </p>
+                @endif
+            </div>
+            <x-confirm action="unlinkEntry({{ $e->id }})"
+                class="shrink-0 text-xs text-ink/25 hover:text-terracotta transition-colors opacity-0 group-hover:opacity-100">
+                scollega
+            </x-confirm>
+        </div>
+        @empty
+        <p class="text-sm text-ink/30 italic">
+            Nessuna voce di diario collegata. Scrivine una, oppure collegane una gia' scritta.
+        </p>
+        @endforelse
+    </div>
+
     {{-- ===== AGGIORNAMENTI ===== --}}
     <div class="bg-white rounded-xl border border-paper-dark px-6 py-5">
         <p class="text-xs font-semibold uppercase tracking-wide text-salvia mb-4">Aggiornamenti</p>

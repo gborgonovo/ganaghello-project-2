@@ -110,7 +110,7 @@ class Kanban extends Component
             fn($codes) => collect($codes)->map(fn($code) => $allStages->get($code))->filter()->values()
         );
 
-        $tasks = Task::with(['stage', 'area', 'parent', 'latestUpdate', 'firstImage.media'])
+        $tasks = Task::with(['stage', 'area', 'parent', 'latestUpdate', 'firstImage.media', 'entries'])
             ->withCount('children')
             ->when($this->filterArea, fn($q) => $q->where('area_id', $this->filterArea))
             ->when($this->filterGoal, fn($q) => $q->whereHas('goals', fn($gq) => $gq->where('goals.id', $this->filterGoal)))

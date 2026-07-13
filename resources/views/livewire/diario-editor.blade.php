@@ -59,6 +59,39 @@
             <p class="text-[11px] text-ink/35 mt-1">Automatico: con foto diventa polaroid, testo lungo nota, altrimenti post-it.</p>
         </div>
 
+        {{-- Task collegati: la voce fa da aggiornamento a questi lavori. Sempre facoltativo. --}}
+        <div>
+            <div class="flex items-center justify-between mb-1.5">
+                <label class="text-xs text-ink/50">
+                    Task collegati
+                    @if(count($taskIds))
+                    <span class="text-salvia">({{ count($taskIds) }})</span>
+                    @endif
+                </label>
+                <input type="text" wire:model.live.debounce.300ms="taskSearch" placeholder="Cerca un task..."
+                       class="text-xs border border-paper-dark rounded-lg px-2.5 py-1 w-40 bg-white
+                              focus:outline-none focus:border-salvia">
+            </div>
+
+            @if($tasksCollegabili->isEmpty())
+            <p class="text-[11px] text-ink/30 italic">
+                {{ $taskSearch ? 'Nessun task trovato.' : 'Nessun task per quest\'area. Scegli un\'area o cerca.' }}
+            </p>
+            @else
+            <div class="flex flex-wrap gap-1.5 max-h-32 overflow-y-auto">
+                @foreach($tasksCollegabili as $t)
+                @php $sel = in_array($t->id, $taskIds); @endphp
+                <button type="button" wire:click="toggleTask({{ $t->id }})" wire:key="task-{{ $t->id }}"
+                        class="text-xs px-2.5 py-1 rounded-full border transition-colors text-left
+                               {{ $sel ? 'bg-salvia text-white border-salvia' : 'text-ink/55 border-paper-dark hover:border-salvia' }}">
+                    {{ $sel ? '✓ ' : '' }}{{ Str::limit($t->title, 40) }}
+                </button>
+                @endforeach
+            </div>
+            @endif
+            <p class="text-[11px] text-ink/35 mt-1">Facoltativo: la voce comparira' nel task come aggiornamento dal diario.</p>
+        </div>
+
         {{-- Contenuto --}}
         <div>
             <label class="block text-xs text-ink/50 mb-1.5">Testo</label>
