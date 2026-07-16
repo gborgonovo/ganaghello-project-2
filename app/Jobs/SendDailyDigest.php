@@ -86,21 +86,36 @@ class SendDailyDigest implements ShouldQueue
             $taskCount += $overdue->count();
         }
 
-        foreach ($thresholds as $days) {
-            $targetDate = $today->copy()->addDays($days);
-            $tasks = $this->openTasksFor($user)
-                ->whereDate('due_date', $targetDate)
-                ->orderBy('due_date')
-                ->get();
+        // Le soglie sono fasce ("entro N giorni"), non date esatte: un task in arrivo va
+        // mostrato nella prima soglia >= ai giorni che mancano alla scadenza, non solo se
+        // cade esattamente su 1/3/7/30. Prendo tutti gli aperti fino alla soglia massima e
+        // li smisto nella fascia giusta.
+        $thresholds = array_values(array_filter(array_map('intval', $thresholds), fn($d) => $d >= 0));
+        sort($thresholds);
+        $maxDays = $thresholds ? max($thresholds) : 0;
 
-            if ($tasks->isNotEmpty()) {
-                $key = self::THRESHOLD_KEYS[$days] ?? "{$days}giorni";
-                $sections[$key] = $tasks->map(fn($t) => [
-                    'id'    => $t->id,
-                    'title' => $t->title,
-                    'area'  => $t->area?->name,
-                ])->all();
-                $taskCount += $tasks->count();
+        $upcoming = $this->openTasksFor($user)
+            ->whereDate('due_date', '>=', $today)
+            ->whereDate('due_date', '<=', $today->copy()->addDays($maxDays))
+            ->orderBy('due_date')
+            ->get();
+
+        $buckets = [];
+        foreach ($upcoming as $t) {
+            $days = (int) $today->diffInDays($t->due_date);
+            foreach ($thresholds as $d) {
+                if ($days <= $d) {
+                    $buckets[$d][] = ['id' => $t->id, 'title' => $t->title, 'area' => $t->area?->name];
+                    break;
+                }
+            }
+        }
+
+        foreach ($thresholds as $d) {
+            if (!empty($buckets[$d])) {
+                $key = self::THRESHOLD_KEYS[$d] ?? "{$d}giorni";
+                $sections[$key] = $buckets[$d];
+                $taskCount += count($buckets[$d]);
             }
         }
 
