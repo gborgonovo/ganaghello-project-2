@@ -37,7 +37,9 @@
 
         sync() {
             const ymd = this.toYmd(this.display);
-            this.$wire.set(this.prop, ymd || null);
+            // Stringa vuota, non null: le proprieta' Livewire sono `string` tipizzate e
+            // assegnare null darebbe un TypeError (500). I salvataggi convertono '' -> null.
+            this.$wire.set(this.prop, ymd || '');
             if (this.save) this.$wire[this.save](this.prop);
         },
 
