@@ -204,4 +204,39 @@ class DigestRemindersTest extends TestCase
 
         $mail->assertSent(DailyDigest::class, fn ($m) => count($m->dormant) === 1 && $m->dormant[0]['label'] === 'Nodo X');
     }
+
+    public function test_email_carries_the_full_upcoming_picture_not_just_the_crossing(): void
+    {
+        $mail = Mail::fake();
+        $user = User::factory()->create();
+
+        // A colpisce oggi il D-7: fa scattare l'email.
+        $a = $this->task($user, today()->addDays(7));
+        $this->seedSent($user, $a, [-30, -15]);
+
+        // B (tra 12 giorni) e C (scaduto da 10) oggi non hanno nessun crossing nuovo,
+        // ma devono comparire lo stesso nel quadro completo.
+        $b = $this->task($user, today()->addDays(12));
+        $this->seedSent($user, $b, [-30, -15]);
+        $c = $this->task($user, today()->subDays(10));
+        $this->seedSent($user, $c, [1, 3, 7]);
+
+        $before = DigestReminder::count();
+
+        $this->runDigest();
+
+        $mail->assertSent(DailyDigest::class, function ($m) use ($a, $b, $c) {
+            $ids = collect($m->groups)->flatMap(fn ($g) => array_column($g['tasks'], 'id'));
+            $labels = collect($m->groups)->pluck('label');
+
+            return $ids->sort()->values()->all() === collect([$a->id, $b->id, $c->id])->sort()->values()->all()
+                && $labels->contains('Tra 7 giorni')
+                && $labels->contains('Tra 12 giorni')
+                && $labels->contains('Scaduto da 10 giorni');
+        });
+
+        // Nel registro entra solo il crossing di A: B e C non aggiungono righe.
+        $this->assertDatabaseHas('digest_reminders', ['task_id' => $a->id, 'offset' => -7]);
+        $this->assertSame($before + 1, DigestReminder::count());
+    }
 }

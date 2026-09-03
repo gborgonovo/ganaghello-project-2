@@ -60,29 +60,38 @@ class SendDailyDigest implements ShouldQueue
         $withMnemo = Setting::get('digest.mnemosyne', '1') === '1';
         $today     = Carbon::today();
 
-        // Un solo bucket per task: la soglia attiva raggiunta oggi (prima, giorno stesso
-        // o ritardo). Nessun match => quel task non entra nel digest di oggi.
-        $reminders = $this->dueRemindersFor($user, $offsets, $today);
-        if ($reminders->isEmpty()) {
+        if ($offsets === []) {
             return;
         }
 
-        // Dedup: scarta gli offset gia' inviati per questo utente, anche in giorni passati.
-        // Cosi' un giorno saltato dal worker viene recuperato ma senza doppioni.
-        $sent = DigestReminder::where('user_id', $user->id)
-            ->get(['task_id', 'offset'])
-            ->map(fn ($r) => $r->task_id . ':' . $r->offset)
-            ->flip();
+        $maxOffset = max($offsets);
 
-        $reminders = $reminders->reject(
-            fn ($r) => $sent->has($r['task']->id . ':' . $r['offset'])
-        )->values();
+        // Tutti gli scaduti (di qualsiasi eta') piu' gli in arrivo entro la soglia
+        // massima: due_date <= oggi + maxOffset li copre entrambi. Questa e' anche la
+        // lista che finisce nell'email.
+        $rows = $this->openTasksFor($user)
+            ->whereNotNull('due_date')
+            ->whereDate('due_date', '<=', $today->copy()->addDays($maxOffset)->toDateString())
+            ->get()
+            ->map(fn (Task $task) => [
+                'task'       => $task,
+                'days_until' => $this->daysUntil($task->due_date, $today),
+            ]);
 
-        if ($reminders->isEmpty()) {
+        if ($rows->isEmpty()) {
             return;
         }
 
-        $groups = $this->buildGroups($reminders);
+        // Trigger: i task che colpiscono oggi una soglia esatta (o il recupero di un
+        // giorno saltato) e non l'hanno gia' fatto. Decide SE inviare, non il contenuto.
+        $fresh = $this->newCrossings($user, $rows, $offsets);
+        if ($fresh->isEmpty()) {
+            return;
+        }
+
+        // Contenuto: il quadro completo, tutte le scadenze in vista con la distanza reale,
+        // non solo i crossing di oggi.
+        $groups = $this->buildGroups($rows);
 
         // I dormienti viaggiano solo in aggiunta a un promemoria di scadenza, mai da soli.
         $dormant = [];
@@ -106,8 +115,9 @@ class SendDailyDigest implements ShouldQueue
             userName: $user->name,
         ));
 
-        // I promemoria si registrano solo a invio riuscito: un errore verra' ritentato.
-        DigestReminder::insert($reminders->map(fn ($r) => [
+        // Si registrano solo i crossing nuovi, e solo a invio riuscito: cosi' un errore
+        // viene ritentato e domani il trigger non li riscatta.
+        DigestReminder::insert($fresh->map(fn ($r) => [
             'user_id' => $user->id,
             'task_id' => $r['task']->id,
             'offset'  => $r['offset'],
@@ -118,9 +128,10 @@ class SendDailyDigest implements ShouldQueue
             'user_id' => $user->id,
             'type'    => 'digest',
             'payload' => [
-                'tasks_count'   => $reminders->count(),
-                'dormant_count' => count($dormant),
-                'mnemosyne_ok'  => $mnemoOk,
+                'tasks_count'    => $rows->count(),
+                'dormant_count'  => count($dormant),
+                'mnemosyne_ok'   => $mnemoOk,
+                'trigger_count'  => $fresh->count(),
             ],
         ]);
     }
@@ -143,40 +154,45 @@ class SendDailyDigest implements ShouldQueue
     }
 
     /**
-     * Per ogni task aperto con scadenza, il bucket attivo oggi (o niente).
+     * I crossing di oggi non ancora registrati: per ogni task, il bucket di soglia
+     * attivo oggi, scartati quelli gia' inviati in passato (dedup + recupero).
      *
-     * @return Collection<int,array{task:Task,offset:int,days_until:int}>
+     * @param  Collection<int,array{task:Task,days_until:int}>  $rows
+     * @return Collection<int,array{task:Task,offset:int}>
      */
-    private function dueRemindersFor(User $user, array $offsets, Carbon $today): Collection
+    private function newCrossings(User $user, Collection $rows, array $offsets): Collection
     {
-        if ($offsets === []) {
-            return collect();
-        }
-
-        $maxOffset    = max($offsets);
         $afterOffsets = array_values(array_filter($offsets, fn ($d) => $d > 0));
         $monthlyTail  = in_array(30, $offsets, true);
 
-        // Tutti gli scaduti (di qualsiasi eta', per la coda mensile) piu' gli in arrivo
-        // fino alla soglia massima: due_date <= oggi + maxOffset li copre entrambi.
-        $tasks = $this->openTasksFor($user)
-            ->whereNotNull('due_date')
-            ->whereDate('due_date', '<=', $today->copy()->addDays($maxOffset)->toDateString())
-            ->get();
-
-        return $tasks->reduce(function (Collection $carry, Task $task) use ($offsets, $afterOffsets, $monthlyTail, $today) {
-            $daysUntil = $this->daysUntil($task->due_date, $today);
+        $crossings = $rows->reduce(function (Collection $carry, array $row) use ($offsets, $afterOffsets, $monthlyTail) {
+            $daysUntil = $row['days_until'];
 
             $offset = $daysUntil >= 0
                 ? $this->upcomingBucket($daysUntil, $offsets)
                 : $this->overdueBucket(-$daysUntil, $afterOffsets, $monthlyTail);
 
             if ($offset !== null) {
-                $carry->push(['task' => $task, 'offset' => $offset, 'days_until' => $daysUntil]);
+                $carry->push(['task' => $row['task'], 'offset' => $offset]);
             }
 
             return $carry;
         }, collect());
+
+        if ($crossings->isEmpty()) {
+            return $crossings;
+        }
+
+        // Dedup: un giorno saltato dal worker viene recuperato, ma una soglia parte una
+        // volta sola.
+        $sent = DigestReminder::where('user_id', $user->id)
+            ->get(['task_id', 'offset'])
+            ->map(fn ($r) => $r->task_id . ':' . $r->offset)
+            ->flip();
+
+        return $crossings->reject(
+            fn ($r) => $sent->has($r['task']->id . ':' . $r['offset'])
+        )->values();
     }
 
     /** Giorni interi da oggi alla scadenza: >0 futuro, 0 oggi, <0 in ritardo. */
@@ -228,17 +244,17 @@ class SendDailyDigest implements ShouldQueue
     }
 
     /**
-     * Raggruppa i promemoria per distanza dalla scadenza, in ordine: in arrivo
-     * (Oggi, Domani, Tra N giorni) e poi scaduti (Scaduto da N giorni).
+     * Raggruppa le scadenze per distanza reale, in ordine: in arrivo (Oggi, Domani,
+     * Tra N giorni) e poi scaduti (Scaduto da N giorni).
      *
-     * @param  Collection<int,array{task:Task,offset:int,days_until:int}>  $reminders
+     * @param  Collection<int,array{task:Task,days_until:int}>  $rows
      * @return array<int,array{label:string,late:bool,tasks:array<int,array{id:int,title:string,area:?string}>}>
      */
-    private function buildGroups(Collection $reminders): array
+    private function buildGroups(Collection $rows): array
     {
         $groups = [];
 
-        foreach ($reminders as $r) {
+        foreach ($rows as $r) {
             $d   = $r['days_until'];
             $key = $d >= 0 ? $d : 1000 + (-$d);
 
