@@ -4,28 +4,18 @@ BiG-Log
 Buongiorno {{ $userName }}.
 
 @php
-  $sectionLabels = [
-    'oggi'     => 'Oggi',
-    'domani'   => 'Domani',
-    '3giorni'  => 'Entro 3 giorni',
-    '7giorni'  => 'Entro 7 giorni',
-    '30giorni' => 'Entro 30 giorni',
-    'scaduti'  => 'Scaduto',
-  ];
-  $hasTasks = collect($sections)->flatten(1)->isNotEmpty();
+  $hasTasks = collect($groups)->isNotEmpty();
 @endphp
 @if($hasTasks)
-IN SCADENZA
------------
-@foreach($sectionLabels as $key => $label)
-@if(!empty($sections[$key]))
-{{ strtoupper($label) }}
-@foreach($sections[$key] as $task)
+SCADENZE
+--------
+@foreach($groups as $group)
+{{ strtoupper($group['label']) }}
+@foreach($group['tasks'] as $task)
 · {{ $task['title'] }}{{ $task['area'] ? '  [' . $task['area'] . ']' : '' }}
   {{ url('/tasks/' . $task['id']) }}
 @endforeach
 
-@endif
 @endforeach
 @endif
 @if(!empty($dormant))

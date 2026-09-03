@@ -9,7 +9,7 @@
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-sm font-medium text-ink">Digest giornaliero</p>
-                    <p class="text-xs text-ink/50 mt-0.5">Email con scadenze imminenti e fili che si raffreddano</p>
+                    <p class="text-xs text-ink/50 mt-0.5">Email nei giorni esatti di promemoria di una scadenza, con eventuali fili che si raffreddano</p>
                 </div>
                 <button wire:click="$toggle('enabled')"
                         class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors
@@ -43,7 +43,12 @@
 
             {{-- Soglie --}}
             <div>
-                <label class="block text-xs text-ink/50 mb-2">Avvisi scadenza</label>
+                <label class="block text-xs text-ink/50 mb-2">Promemoria scadenza</label>
+                <p class="text-xs text-ink/40 mb-2 leading-relaxed">
+                    Un promemoria nel giorno esatto, sia prima sia dopo la scadenza
+                    (es. 7 giorni prima e 7 giorni dopo). Oltre i 30 giorni di ritardo,
+                    un promemoria ogni 30 giorni finché il task resta aperto.
+                </p>
                 <div class="space-y-1.5">
                     @foreach($allThresholds as $days => $label)
                     <label class="flex items-center gap-2.5 cursor-pointer group">

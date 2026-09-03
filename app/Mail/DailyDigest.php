@@ -13,12 +13,13 @@ class DailyDigest extends Mailable
     use Queueable, SerializesModels;
 
     /**
-     * @param  array  $sections   Raggruppamento scadenze: ['oggi'=>[...], 'domani'=>[...], '3giorni'=>[...], '7giorni'=>[...], '30giorni'=>[...]]
-     * @param  array  $dormant    Nodi dormienti: [['label'=>'...', 'days_inactive'=>47, 'task_id'=>null], ...]
+     * @param  array  $groups   Gruppi di scadenze in ordine di urgenza:
+     *                           [['label'=>'Oggi', 'late'=>false, 'tasks'=>[['id','title','area'], ...]], ...]
+     * @param  array  $dormant  Nodi dormienti: [['label'=>'...', 'url'=>'...', 'days_inactive'=>47], ...]
      * @param  string $userName
      */
     public function __construct(
-        public readonly array  $sections,
+        public readonly array  $groups,
         public readonly array  $dormant,
         public readonly string $userName,
     ) {}
@@ -26,7 +27,7 @@ class DailyDigest extends Mailable
     public function envelope(): Envelope
     {
         $parts = [];
-        $taskCount = collect($this->sections)->flatten(1)->count();
+        $taskCount = collect($this->groups)->sum(fn ($g) => count($g['tasks']));
         if ($taskCount > 0) {
             $parts[] = $taskCount === 1 ? '1 scadenza' : "{$taskCount} scadenze";
         }

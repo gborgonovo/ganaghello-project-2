@@ -41,25 +41,16 @@
   <div class="body">
 
     @php
-      $sectionLabels = [
-        'oggi'     => 'Oggi',
-        'domani'   => 'Domani',
-        '3giorni'  => 'Entro 3 giorni',
-        '7giorni'  => 'Entro 7 giorni',
-        '30giorni' => 'Entro 30 giorni',
-        'scaduti'  => 'Scaduto',
-      ];
-      $hasTasks = collect($sections)->flatten(1)->isNotEmpty();
+      $hasTasks = collect($groups)->isNotEmpty();
     @endphp
 
     @if($hasTasks)
-    <p class="section-title">In scadenza</p>
+    <p class="section-title">Scadenze</p>
 
-    @foreach($sectionLabels as $key => $label)
-      @if(!empty($sections[$key]))
-      @foreach($sections[$key] as $task)
+    @foreach($groups as $group)
+      @foreach($group['tasks'] as $task)
       <div class="task-row">
-        <div class="task-label{{ $key === 'scaduti' ? ' late' : '' }}">{{ $label }}</div>
+        <div class="task-label{{ $group['late'] ? ' late' : '' }}">{{ $group['label'] }}</div>
         <div class="task-title">
           <a href="{{ url('/tasks/' . $task['id']) }}">{{ $task['title'] }}</a>
         </div>
@@ -68,7 +59,6 @@
         @endif
       </div>
       @endforeach
-      @endif
     @endforeach
     @endif
 

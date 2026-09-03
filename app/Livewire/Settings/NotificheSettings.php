@@ -12,16 +12,17 @@ class NotificheSettings extends Component
     public int    $hour             = 7;
     public int    $minute           = 30;
     public bool   $withMnemosyne    = true;
-    public array  $thresholds       = [0, 1, 3, 7, 30];
+    public array  $thresholds       = [0, 1, 3, 7, 15, 30];
 
     public ?string $savedMessage = null;
 
     private const ALL_THRESHOLDS = [
         0  => 'Il giorno stesso',
-        1  => 'Il giorno prima',
-        3  => '3 giorni prima',
-        7  => '7 giorni prima',
-        30 => '30 giorni prima',
+        1  => '1 giorno',
+        3  => '3 giorni',
+        7  => '7 giorni',
+        15 => '15 giorni',
+        30 => '30 giorni',
     ];
 
     public function mount(): void
@@ -30,7 +31,7 @@ class NotificheSettings extends Component
         $this->hour          = (int) Setting::get('digest.hour', 7);
         $this->minute        = (int) Setting::get('digest.minute', 30);
         $this->withMnemosyne = Setting::get('digest.mnemosyne', '1') === '1';
-        $this->thresholds    = json_decode(Setting::get('digest.thresholds', json_encode([0, 1, 3, 7, 30])), true);
+        $this->thresholds    = json_decode(Setting::get('digest.thresholds', json_encode([0, 1, 3, 7, 15, 30])), true);
     }
 
     public function save(): void
