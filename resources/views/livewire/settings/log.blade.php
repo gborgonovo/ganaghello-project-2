@@ -3,6 +3,41 @@
 
     <div class="flex-1 space-y-8">
 
+        {{-- ===== Registro delle scritture ===== --}}
+        <div>
+            <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+                <h1 class="text-base font-semibold text-ink">Scritture</h1>
+                <div class="flex gap-2">
+                    <select wire:model.live="portaScritture" class="text-xs rounded-lg border-paper-dark py-1">
+                        <option value="">tutte le porte</option>
+                        <option value="interfaccia">interfaccia</option>
+                        <option value="mcp">mcp</option>
+                    </select>
+                    <select wire:model.live="entitaScritture" class="text-xs rounded-lg border-paper-dark py-1">
+                        <option value="">tutte le entità</option>
+                        @foreach($entitaScritte as $e)
+                        <option value="{{ $e }}">{{ $e }}</option>
+                        @endforeach
+                    </select>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl border border-paper-dark divide-y divide-paper-dark">
+                @forelse($scritture as $s)
+                <div wire:key="scr-{{ $s->id }}" class="flex items-center gap-3 px-4 py-2.5">
+                    <span class="text-xs px-1.5 py-0.5 rounded shrink-0 {{ $s->porta === 'mcp' ? 'bg-salvia/15 text-salvia' : 'bg-paper-dark text-ink/60' }}">{{ $s->porta }}</span>
+                    <span class="text-sm text-ink/70 flex-1 min-w-0 truncate" title="{{ $s->modifiche ? json_encode($s->modifiche, JSON_UNESCAPED_UNICODE) : '' }}">
+                        {{ $s->riassunto }}
+                    </span>
+                    <span class="text-xs text-ink/40 shrink-0">{{ $s->user?->name }} · {{ $s->created_at?->format('d/m/Y H:i') }}</span>
+                </div>
+                @empty
+                <div class="px-4 py-8 text-center text-sm text-ink/30 italic">Nessuna scrittura registrata ancora.</div>
+                @endforelse
+            </div>
+            <p class="text-[11px] text-ink/30 mt-2">Ultime 200 scritture, dall'app e dall'MCP. Passa sopra a una riga per vedere i valori prima e dopo.</p>
+        </div>
+
         {{-- ===== Job falliti ===== --}}
         <div>
             <div class="flex items-center justify-between mb-3">

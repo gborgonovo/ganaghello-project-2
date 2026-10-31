@@ -3,6 +3,7 @@
 namespace App\Livewire\Settings;
 
 use App\Models\NotificationLog;
+use App\Models\RegistroScrittura;
 use Illuminate\Support\Facades\DB;
 use Livewire\Component;
 
@@ -17,6 +18,9 @@ use Livewire\Component;
  */
 class Log extends Component
 {
+    public string $portaScritture  = '';
+    public string $entitaScritture = '';
+
     public function clearFailedJobs(): void
     {
         DB::table('failed_jobs')->delete();
@@ -35,7 +39,16 @@ class Log extends Component
             ->limit(50)
             ->get();
 
+        $scritture = RegistroScrittura::with('user')
+            ->when($this->portaScritture, fn ($q) => $q->where('porta', $this->portaScritture))
+            ->when($this->entitaScritture, fn ($q) => $q->where('entita', $this->entitaScritture))
+            ->orderByDesc('id')
+            ->limit(200)
+            ->get();
+
         return view('livewire.settings.log', [
+            'scritture'      => $scritture,
+            'entitaScritte'  => RegistroScrittura::distinct()->orderBy('entita')->pluck('entita'),
             'failed'      => $failed,
             'failedCount' => DB::table('failed_jobs')->count(),
             'logs'        => $logs,
