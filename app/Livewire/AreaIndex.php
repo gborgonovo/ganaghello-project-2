@@ -45,7 +45,7 @@ class AreaIndex extends Component
             'editColor' => 'nullable|regex:/^#[0-9A-Fa-f]{6}$/',
         ]);
 
-        Area::where('id', $this->editingId)->update([
+        Area::findOrFail($this->editingId)->update([
             'name'           => trim($this->editName),
             'color'          => $this->editColor ?: null,
             'status'         => $this->editStatus ?: null,

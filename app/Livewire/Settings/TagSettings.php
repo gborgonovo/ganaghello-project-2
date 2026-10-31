@@ -48,7 +48,7 @@ class TagSettings extends Component
             'editColor' => 'nullable|string|max:7',
         ]);
 
-        Tag::where('id', $this->editingId)->update([
+        Tag::findOrFail($this->editingId)->update([
             'name'  => trim($this->editName),
             'color' => $this->editColor,
         ]);

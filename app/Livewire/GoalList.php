@@ -39,7 +39,7 @@ class GoalList extends Component
     public function saveEdit(): void
     {
         $this->validate(['editTitle' => 'required|string|max:255']);
-        Goal::where('id', $this->editingId)->update([
+        Goal::findOrFail($this->editingId)->update([
             'title'       => trim($this->editTitle),
             'description' => trim($this->editDesc) ?: null,
             'deadline'    => $this->editDeadline ?: null,

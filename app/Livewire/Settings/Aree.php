@@ -62,7 +62,7 @@ class Aree extends Component
             'editColor' => 'nullable|string|max:7',
         ]);
 
-        Area::where('id', $this->editingId)->update([
+        Area::findOrFail($this->editingId)->update([
             'name'           => trim($this->editName),
             'color'          => $this->editColor,
             'text_color'     => $this->editTextColor,
