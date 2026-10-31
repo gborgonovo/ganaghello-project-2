@@ -5,6 +5,7 @@ namespace App\Livewire;
 use App\Models\Area;
 use App\Models\Stage;
 use App\Models\Task;
+use App\Queries\Scadenze;
 use App\Services\MnemosyneService;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -24,9 +25,6 @@ class Cruscotto extends Component
 
     public function render()
     {
-        $oggi    = Carbon::today();
-        $tra14gg = $oggi->copy()->addDays(14);
-
         // Tessere area
         $aree = $this->buildTessereArea();
 
@@ -37,14 +35,7 @@ class Cruscotto extends Component
         }
 
         // Scadenze imminenti (prossimi 14 gg)
-        $scadenze = Task::with(['area', 'stage'])
-            ->whereNull('completed_at')
-            ->whereNull('deleted_at')
-            ->whereNotNull('due_date')
-            ->whereBetween('due_date', [$oggi, $tra14gg])
-            ->orderBy('due_date')
-            ->limit(5)
-            ->get();
+        $scadenze = app(Scadenze::class)->query(14)->limit(5)->get();
 
         // Dormienti Mnemosyne (fault-tolerant)
         $briefing  = null;
