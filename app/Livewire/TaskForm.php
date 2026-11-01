@@ -9,10 +9,13 @@ use App\Models\Stage;
 use App\Models\Tag;
 use App\Models\Task;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\ValidationException;
 use Livewire\Component;
 
 class TaskForm extends Component
 {
+    private const CAMPI_DETTAGLI = ['priority', 'due_date', 'start_date', 'executor', 'work_estimate', 'cost_min', 'cost_max', 'cost_basis'];
+
     public bool $open     = false;
     public bool $expanded = false;
 
@@ -97,6 +100,19 @@ class TaskForm extends Component
     }
 
     public function save(): void
+    {
+        try {
+            $this->salva();
+        } catch (ValidationException $e) {
+            // I campi dei dettagli sono nascosti finché il form è compatto: aprirlo rende visibile l'errore.
+            if (array_intersect(array_keys($e->errors()), self::CAMPI_DETTAGLI)) {
+                $this->expanded = true;
+            }
+            throw $e;
+        }
+    }
+
+    private function salva(): void
     {
         $this->validate();
 

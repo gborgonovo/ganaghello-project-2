@@ -108,7 +108,8 @@ class RegolaStageTest extends TestCase
         Livewire::test(TaskForm::class)
             ->set('title', 'Nuovo')->set('stage_id', $this->s['todo']->id)
             ->call('save')
-            ->assertHasErrors('due_date');
+            ->assertHasErrors('due_date')
+            ->assertSet('expanded', true);
 
         $this->assertSame(0, Task::count());
     }
