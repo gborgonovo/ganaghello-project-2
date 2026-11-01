@@ -48,6 +48,9 @@ Se il token può scrivere compaiono anche i tool di scrittura. Prima di scrivere
 TXT)]
 class BigLogServer extends Server
 {
+    // Il pacchetto pagina tools/list a 15: un client che non segue nextCursor vedrebbe solo i primi.
+    public int $defaultPaginationLength = 50;
+
     protected array $tools = [
         Briefing::class,
         Riferimenti::class,
