@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use App\Actions\GoalActions;
 use App\Models\Goal;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
@@ -39,10 +40,10 @@ class GoalList extends Component
     public function saveEdit(): void
     {
         $this->validate(['editTitle' => 'required|string|max:255']);
-        Goal::findOrFail($this->editingId)->update([
-            'title'       => trim($this->editTitle),
-            'description' => trim($this->editDesc) ?: null,
-            'deadline'    => $this->editDeadline ?: null,
+        app(GoalActions::class)->modifica(Auth::user(), Goal::findOrFail($this->editingId), [
+            'title'       => $this->editTitle,
+            'description' => $this->editDesc,
+            'deadline'    => $this->editDeadline,
             'status'      => $this->editStatus,
         ]);
         $this->editingId = null;
@@ -58,14 +59,11 @@ class GoalList extends Component
     {
         $this->validate(['newTitle' => 'required|string|max:255']);
 
-        $max = Goal::where('parent_goal_id', $this->newParentId)->max('sequence') ?? 0;
-        Goal::create([
-            'user_id'        => Auth::id(),
-            'title'          => trim($this->newTitle),
-            'description'    => trim($this->newDesc) ?: null,
-            'deadline'       => $this->newDeadline ?: null,
+        app(GoalActions::class)->crea(Auth::user(), [
+            'title'          => $this->newTitle,
+            'description'    => $this->newDesc,
+            'deadline'       => $this->newDeadline,
             'parent_goal_id' => $this->newParentId,
-            'sequence'       => $max + 1,
         ]);
 
         $this->showCreate  = false;
@@ -78,7 +76,7 @@ class GoalList extends Component
 
     public function deleteGoal(int $id): void
     {
-        Goal::findOrFail($id)->delete();
+        app(GoalActions::class)->elimina(Auth::user(), Goal::findOrFail($id));
         $this->confirmDeleteId = null;
         $this->dispatch('toast', message: 'Goal eliminato.');
     }

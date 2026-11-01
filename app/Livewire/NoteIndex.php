@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use App\Actions\NotaActions;
 use App\Actions\TaskActions;
 use App\Models\Area;
 use App\Models\Note;
@@ -38,11 +39,10 @@ class NoteIndex extends Component
             'newContent' => 'required|string',
         ]);
 
-        Note::create([
-            'user_id' => Auth::id(),
+        app(NotaActions::class)->crea(Auth::user(), [
             'area_id' => $this->newAreaId,
-            'title'   => trim($this->newTitle),
-            'content' => trim($this->newContent),
+            'title'   => $this->newTitle,
+            'content' => $this->newContent,
         ]);
 
         $this->newTitle   = '';
@@ -64,7 +64,7 @@ class NoteIndex extends Component
     {
         $this->validate(['editContent' => 'required|string']);
 
-        Note::where('id', $this->editingId)->update([
+        app(NotaActions::class)->modifica(Auth::user(), Note::findOrFail($this->editingId), [
             'title'   => $this->editTitle ?: null,
             'content' => $this->editContent,
             'area_id' => $this->editAreaId,
@@ -81,7 +81,9 @@ class NoteIndex extends Component
 
     public function delete(int $id): void
     {
-        Note::find($id)?->delete();
+        if ($nota = Note::find($id)) {
+            app(NotaActions::class)->elimina(Auth::user(), $nota);
+        }
         $this->confirmDeleteId = null;
         $this->dispatch('toast', message: 'Nota eliminata.');
     }

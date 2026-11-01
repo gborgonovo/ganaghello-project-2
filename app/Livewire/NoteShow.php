@@ -2,8 +2,10 @@
 
 namespace App\Livewire;
 
+use App\Actions\NotaActions;
 use App\Models\Area;
 use App\Models\Note;
+use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 
 class NoteShow extends Component
@@ -38,9 +40,9 @@ class NoteShow extends Component
     {
         $this->validate(['modalContent' => 'required|string']);
 
-        $this->note->update([
-            'title'   => $this->modalTitle ?: null,
-            'content' => trim($this->modalContent),
+        $this->note = app(NotaActions::class)->modifica(Auth::user(), $this->note, [
+            'title'   => $this->modalTitle,
+            'content' => $this->modalContent,
             'area_id' => $this->modalAreaId ?: null,
         ]);
 
