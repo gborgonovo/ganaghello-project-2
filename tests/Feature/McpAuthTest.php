@@ -110,6 +110,8 @@ class McpAuthTest extends TestCase
             ['Accept' => 'application/json, text/event-stream', 'Authorization' => 'Bearer ' . $token]);
 
         $r->assertOk()->assertJsonMissingPath('result.nextCursor');
-        $this->assertCount(23, $r->json('result.tools'));
+        $dichiarati = (new \ReflectionClass(BigLogServer::class))->getDefaultProperties()['tools'];
+        $this->assertGreaterThan(15, count($dichiarati));
+        $this->assertCount(count($dichiarati), $r->json('result.tools'));
     }
 }
