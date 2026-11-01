@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use App\Actions\VoceActions;
 use App\Models\Attachment;
 use App\Models\Entry;
 use App\Models\Post;
@@ -73,7 +74,7 @@ class DiarioShow extends Component
             }
         }
 
-        $this->entry->delete();
+        app(VoceActions::class)->elimina(Auth::user(), $this->entry);
 
         return $this->redirectRoute('diario', navigate: true);
     }

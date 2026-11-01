@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use App\Actions\VoceActions;
 use App\Models\Area;
 use App\Models\Attachment;
 use App\Models\Entry;
@@ -47,7 +48,7 @@ class DiarioIndex extends Component
                 app(MediaService::class)->delete($media);
             }
         }
-        $entry->delete();
+        app(VoceActions::class)->elimina(Auth::user(), $entry);
 
         if ($this->readEntry && $this->readEntry->id === $id) {
             $this->readEntry = null;

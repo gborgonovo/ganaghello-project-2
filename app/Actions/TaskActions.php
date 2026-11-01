@@ -4,6 +4,7 @@ namespace App\Actions;
 
 use App\Exceptions\RegolaDominio;
 use App\Jobs\SyncTaskToMnemosyne;
+use App\Models\Entry;
 use App\Models\RegistroScrittura;
 use App\Models\Stage;
 use App\Models\Task;
@@ -152,7 +153,7 @@ class TaskActions
         return $task->fresh();
     }
 
-    /** Voci di diario collegate (task_entry): non sono relazioni del nodo, nessuna risincronizzazione. */
+    /** Voci di diario collegate (task_entry): sono relazioni del nodo della voce, che va risincronizzato. */
     public function collegaVoci(?User $utente, Task $task, array $aggiungi = [], array $togli = []): Task
     {
         Validator::make(compact('aggiungi', 'togli'), ['aggiungi.*' => 'integer|exists:entries,id', 'togli.*' => 'integer'])->validate();
@@ -163,6 +164,9 @@ class TaskActions
         $dopo = $task->entries()->pluck('entries.id')->all();
 
         if ($prima != $dopo) {
+            foreach (Entry::whereIn('id', array_merge(array_diff($dopo, $prima), array_diff($prima, $dopo)))->get() as $voce) {
+                app(VoceActions::class)->risincronizza($voce);
+            }
             RegistroScrittura::annota($utente, 'collega_voci', 'task', $task->id, "Task «{$task->title}»: voci collegate aggiornate", ['voci' => [$prima, $dopo]]);
         }
 

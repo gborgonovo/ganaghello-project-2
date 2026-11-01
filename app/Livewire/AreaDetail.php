@@ -3,6 +3,7 @@
 namespace App\Livewire;
 
 use App\Actions\TaskActions;
+use App\Actions\VoceActions;
 use App\Models\Area;
 use App\Models\Entry;
 use App\Models\Stage;
@@ -94,11 +95,11 @@ class AreaDetail extends Component
         $content = trim($this->entryContent);
         if (!$content) return;
 
-        Entry::create([
-            'user_id'    => Auth::id(),
+        app(VoceActions::class)->crea(Auth::user(), [
             'area_id'    => $this->area->id,
             'content'    => $content,
-            'entry_date' => today('Europe/Rome'),
+            'entry_time' => null,
+            'kind'       => 'postit',
         ]);
 
         $this->entryContent = '';

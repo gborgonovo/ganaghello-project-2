@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use App\Actions\VoceActions;
 use App\Models\Area;
 use App\Models\Attachment;
 use App\Models\Entry;
@@ -123,28 +124,19 @@ class DiarioEditor extends Component
         $hasPhoto = $this->cover || $this->coverMediaId
             || ($this->currentCoverUrl && !$this->removeCover);
 
-        $kind = $this->kind === 'auto'
-            ? Entry::defaultKind(trim($this->content), (bool) $hasPhoto)
-            : $this->kind;
-
         $data = [
-            'area_id'    => $this->areaId ?: null,
-            'title'      => trim($this->title),
-            'content'    => trim($this->content),
-            'kind'       => $kind,
+            'area_id'    => $this->areaId,
+            'title'      => $this->title,
+            'content'    => $this->content,
+            'kind'       => $this->kind,
             'entry_date' => $this->date,
-            'entry_time' => $this->time ?: null,
+            'entry_time' => $this->time,
+            'task_ids'   => $this->taskIds,
         ];
 
-        if ($this->entry) {
-            $this->entry->update($data);
-            $entry = $this->entry;
-        } else {
-            $entry = Entry::create($data + ['user_id' => Auth::id()]);
-        }
-
-        // Task a cui la voce fa da aggiornamento (pivot task_entry).
-        $entry->tasks()->sync($this->taskIds);
+        $entry = $this->entry
+            ? app(VoceActions::class)->modifica(Auth::user(), $this->entry, $data, (bool) $hasPhoto)
+            : app(VoceActions::class)->crea(Auth::user(), $data, (bool) $hasPhoto);
 
         // Sostituisci/rimuovi la copertina solo se e' cambiata.
         if ($this->removeCover || $this->cover || $this->coverMediaId) {
