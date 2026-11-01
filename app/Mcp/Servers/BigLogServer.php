@@ -14,8 +14,10 @@ use App\Mcp\Tools\CosaSiRaffredda;
 use App\Mcp\Tools\CreaAggiornamento;
 use App\Mcp\Tools\CreaArea;
 use App\Mcp\Tools\CreaGoal;
+use App\Mcp\Tools\CreaIspirazione;
 use App\Mcp\Tools\CreaNota;
 use App\Mcp\Tools\CreaSpesa;
+use App\Mcp\Tools\CreaTag;
 use App\Mcp\Tools\CreaTask;
 use App\Mcp\Tools\CreaVoce;
 use App\Mcp\Tools\Elenca;
@@ -24,9 +26,11 @@ use App\Mcp\Tools\Leggi;
 use App\Mcp\Tools\ModificaAggiornamento;
 use App\Mcp\Tools\ModificaArea;
 use App\Mcp\Tools\ModificaGoal;
+use App\Mcp\Tools\ModificaIspirazione;
 use App\Mcp\Tools\ModificaNota;
 use App\Mcp\Tools\ModificaPost;
 use App\Mcp\Tools\ModificaSpesa;
+use App\Mcp\Tools\ModificaTag;
 use App\Mcp\Tools\ModificaTask;
 use App\Mcp\Tools\ModificaVoce;
 use App\Mcp\Tools\Ping;
@@ -39,7 +43,7 @@ use Laravel\Mcp\Server\Attributes\Name;
 use Laravel\Mcp\Server\Attributes\Version;
 
 #[Name('BiG-Log')]
-#[Version('0.6.0')]
+#[Version('1.0.0')]
 #[Instructions(<<<'TXT'
 BiG-Log è il diario di bordo e gestionale della ristrutturazione della casa di Ganaghello (Castel San Giovanni, PC), futuro B&B "Borgonovo in Ganaghello". Contiene task e sotto-task con i loro aggiornamenti, goal, aree (i luoghi della casa, ad albero), note, tag, spese, voci di diario, post del blog e ispirazioni della moodboard.
 
@@ -91,5 +95,9 @@ class BigLogServer extends Server
         ModificaNota::class,
         CreaArea::class,
         ModificaArea::class,
+        CreaTag::class,
+        ModificaTag::class,
+        CreaIspirazione::class,
+        ModificaIspirazione::class,
     ];
 }
