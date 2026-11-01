@@ -2,7 +2,10 @@
 
 namespace App\Livewire\Settings;
 
+use App\Actions\AreaActions;
+use App\Exceptions\RegolaDominio;
 use App\Models\Area;
+use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 
 class Aree extends Component
@@ -31,8 +34,8 @@ class Aree extends Component
             'newColor' => 'nullable|string|max:7',
         ]);
 
-        Area::create([
-            'name'           => trim($this->newName),
+        app(AreaActions::class)->crea(Auth::user(), [
+            'name'           => $this->newName,
             'color'          => $this->newColor,
             'text_color'     => $this->newTextColor,
             'parent_area_id' => $this->newParentId ?: null,
@@ -62,8 +65,8 @@ class Aree extends Component
             'editColor' => 'nullable|string|max:7',
         ]);
 
-        Area::findOrFail($this->editingId)->update([
-            'name'           => trim($this->editName),
+        app(AreaActions::class)->modifica(Auth::user(), Area::findOrFail($this->editingId), [
+            'name'           => $this->editName,
             'color'          => $this->editColor,
             'text_color'     => $this->editTextColor,
             'parent_area_id' => $this->editParentId ?: null,
@@ -86,20 +89,12 @@ class Aree extends Component
 
     public function delete(int $id): void
     {
-        $area = Area::withCount(['children', 'tasks', 'notes', 'entries', 'inspirations', 'posts'])->findOrFail($id);
-
-        if ($area->children_count > 0) {
-            $this->deleteError = 'Ha sotto-aree: rimuovile prima.';
+        try {
+            app(AreaActions::class)->elimina(Auth::user(), Area::findOrFail($id));
+        } catch (RegolaDominio $e) {
+            $this->deleteError = $e->getMessage();
             return;
         }
-
-        $inUse = $area->tasks_count + $area->notes_count + $area->entries_count + $area->inspirations_count + $area->posts_count;
-        if ($inUse > 0) {
-            $this->deleteError = "Usata da {$inUse} elementi: riassegna prima.";
-            return;
-        }
-
-        $area->delete();
         $this->confirmDeleteId = null;
         $this->deleteError     = null;
         $this->dispatch('toast', message: 'Area eliminata.');

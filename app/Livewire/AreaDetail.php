@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use App\Actions\AreaActions;
 use App\Actions\TaskActions;
 use App\Actions\VoceActions;
 use App\Models\Area;
@@ -49,20 +50,20 @@ class AreaDetail extends Component
     public function saveName(): void
     {
         $this->validate(['areaName' => 'required|string|max:100']);
-        $this->area->update(['name' => trim($this->areaName)]);
+        app(AreaActions::class)->modifica(Auth::user(), $this->area, ['name' => $this->areaName]);
         $this->editingName = false;
         $this->area->refresh();
     }
 
     public function saveStatus(): void
     {
-        $this->area->update(['status' => $this->areaStatus ?: null]);
+        app(AreaActions::class)->modifica(Auth::user(), $this->area, ['status' => $this->areaStatus]);
         $this->area->refresh();
     }
 
     public function saveColor(): void
     {
-        $this->area->update(['color' => $this->areaColor ?: null]);
+        app(AreaActions::class)->modifica(Auth::user(), $this->area, ['color' => $this->areaColor]);
         $this->area->refresh();
     }
 

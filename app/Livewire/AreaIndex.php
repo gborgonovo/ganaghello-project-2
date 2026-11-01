@@ -2,6 +2,8 @@
 
 namespace App\Livewire;
 
+use App\Actions\AreaActions;
+use App\Exceptions\RegolaDominio;
 use App\Models\Area;
 use App\Models\Stage;
 use Illuminate\Support\Facades\Auth;
@@ -45,11 +47,11 @@ class AreaIndex extends Component
             'editColor' => 'nullable|regex:/^#[0-9A-Fa-f]{6}$/',
         ]);
 
-        Area::findOrFail($this->editingId)->update([
-            'name'           => trim($this->editName),
-            'color'          => $this->editColor ?: null,
-            'status'         => $this->editStatus ?: null,
-            'description'    => trim($this->editDesc) ?: null,
+        app(AreaActions::class)->modifica(Auth::user(), Area::findOrFail($this->editingId), [
+            'name'           => $this->editName,
+            'color'          => $this->editColor,
+            'status'         => $this->editStatus,
+            'description'    => $this->editDesc,
             'parent_area_id' => $this->editParentId ?: null,
         ]);
 
@@ -69,13 +71,11 @@ class AreaIndex extends Component
             'newColor' => 'nullable|regex:/^#[0-9A-Fa-f]{6}$/',
         ]);
 
-        $max = Area::max('sequence') ?? 0;
-        Area::create([
-            'name'           => trim($this->newName),
-            'color'          => $this->newColor ?: null,
-            'description'    => trim($this->newDesc) ?: null,
+        app(AreaActions::class)->crea(Auth::user(), [
+            'name'           => $this->newName,
+            'color'          => $this->newColor,
+            'description'    => $this->newDesc,
             'parent_area_id' => $this->newParentId ?: null,
-            'sequence'       => $max + 1,
         ]);
 
         $this->showCreate  = false;
@@ -88,12 +88,12 @@ class AreaIndex extends Component
 
     public function deleteArea(int $id): void
     {
-        $area = Area::withCount('tasks')->findOrFail($id);
-        if ($area->tasks_count > 0) {
-            $this->dispatch('toast', message: "Usata da {$area->tasks_count} task: riassegna prima.", type: 'error');
+        try {
+            app(AreaActions::class)->elimina(Auth::user(), Area::findOrFail($id));
+        } catch (RegolaDominio $e) {
+            $this->dispatch('toast', message: $e->getMessage(), type: 'error');
             return;
         }
-        $area->delete();
         $this->confirmDeleteId = null;
         $this->dispatch('toast', message: 'Area eliminata.');
     }

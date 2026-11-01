@@ -29,6 +29,11 @@ class AreaObserver
         }
     }
 
+    public function restored(Area $area): void
+    {
+        $this->sync($area);
+    }
+
     private function sync(Area $area): void
     {
         if (config('services.mnemosyne.sync', true)) {

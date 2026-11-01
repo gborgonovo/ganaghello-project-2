@@ -6,11 +6,12 @@ use App\Models\Concerns\HasMnemosyneNode;
 use App\Observers\AreaObserver;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 #[ObservedBy(AreaObserver::class)]
 class Area extends Model
 {
-    use HasMnemosyneNode;
+    use HasMnemosyneNode, SoftDeletes;
 
     protected $fillable = ['name', 'description', 'color', 'text_color', 'status', 'lat', 'lng', 'parent_area_id', 'sequence', 'mnemosyne_node_name'];
 
