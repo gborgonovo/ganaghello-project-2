@@ -3,9 +3,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Expense extends Model
 {
+    use SoftDeletes;
+
     protected $fillable = ['task_id', 'description', 'amount', 'category', 'supplier', 'expense_date', 'notes', 'media_id'];
 
     protected function casts(): array

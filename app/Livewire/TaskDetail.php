@@ -2,8 +2,10 @@
 
 namespace App\Livewire;
 
-use App\Actions\TaskActions;
+use App\Actions\AggiornamentoActions;
+use App\Actions\SpesaActions;
 use App\Actions\TagActions;
+use App\Actions\TaskActions;
 use App\Models\Area;
 use App\Models\Entry;
 use App\Models\Expense;
@@ -11,7 +13,6 @@ use App\Models\Goal;
 use App\Models\Stage;
 use App\Models\Tag;
 use App\Models\Task;
-use App\Models\TaskUpdate;
 use App\Models\User;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -292,10 +293,7 @@ class TaskDetail extends Component
         $content = trim($this->newUpdateContent);
         if (!$content) return;
 
-        TaskUpdate::create([
-            'task_id' => $this->task->id,
-            'content' => $content,
-        ]);
+        app(AggiornamentoActions::class)->crea(Auth::user(), $this->task, $content);
 
         $this->newUpdateContent = '';
         $this->task->refresh()->load('updates');
@@ -316,9 +314,7 @@ class TaskDetail extends Component
         $content = trim($this->editingUpdateContent);
         if (!$content) return;
 
-        TaskUpdate::where('id', $this->editingUpdateId)
-            ->where('task_id', $this->task->id)
-            ->update(['content' => $content]);
+        app(AggiornamentoActions::class)->modifica(Auth::user(), $this->task->updates()->findOrFail($this->editingUpdateId), $content);
 
         $this->editingUpdateId      = null;
         $this->editingUpdateContent = '';
@@ -334,7 +330,7 @@ class TaskDetail extends Component
 
     public function deleteUpdate(int $id): void
     {
-        TaskUpdate::where('id', $id)->where('task_id', $this->task->id)->delete();
+        app(AggiornamentoActions::class)->elimina(Auth::user(), $this->task->updates()->findOrFail($id));
         $this->task->refresh()->load('updates');
         $this->dispatch('toast', message: 'Aggiornamento eliminato.');
     }
@@ -408,10 +404,10 @@ class TaskDetail extends Component
         ];
 
         if ($this->editingExpenseId) {
-            $this->task->expenses()->whereKey($this->editingExpenseId)->update($data);
+            app(SpesaActions::class)->modifica(Auth::user(), $this->task->expenses()->findOrFail($this->editingExpenseId), $data);
             $msg = 'Spesa aggiornata.';
         } else {
-            $this->task->expenses()->create($data);
+            app(SpesaActions::class)->crea(Auth::user(), $this->task, $data);
             $msg = 'Spesa aggiunta.';
         }
 
@@ -427,7 +423,7 @@ class TaskDetail extends Component
 
     public function deleteExpense(int $id): void
     {
-        $this->task->expenses()->whereKey($id)->delete();
+        app(SpesaActions::class)->elimina(Auth::user(), $this->task->expenses()->findOrFail($id));
         $this->task->load(['expenses' => fn ($q) => $q->orderByDesc('expense_date')->orderByDesc('id')]);
         $this->dispatch('toast', message: 'Spesa eliminata.');
     }

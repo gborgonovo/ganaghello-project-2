@@ -103,6 +103,7 @@ class ExpenseTest extends TestCase
             ->call('deleteExpense', $e->id)
             ->assertDispatched('toast');
 
-        $this->assertDatabaseMissing('expenses', ['id' => $e->id]);
+        // Eliminazione recuperabile (Parte B MCP): la riga resta, segnata come eliminata.
+        $this->assertSoftDeleted('expenses', ['id' => $e->id]);
     }
 }
