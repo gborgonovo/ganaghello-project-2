@@ -12,6 +12,7 @@ use App\Mcp\Tools\ComponiPost;
 use App\Mcp\Tools\CosaScade;
 use App\Mcp\Tools\CosaSiRaffredda;
 use App\Mcp\Tools\CreaAggiornamento;
+use App\Mcp\Tools\CreaArea;
 use App\Mcp\Tools\CreaGoal;
 use App\Mcp\Tools\CreaNota;
 use App\Mcp\Tools\CreaSpesa;
@@ -21,6 +22,7 @@ use App\Mcp\Tools\Elenca;
 use App\Mcp\Tools\Elimina;
 use App\Mcp\Tools\Leggi;
 use App\Mcp\Tools\ModificaAggiornamento;
+use App\Mcp\Tools\ModificaArea;
 use App\Mcp\Tools\ModificaGoal;
 use App\Mcp\Tools\ModificaNota;
 use App\Mcp\Tools\ModificaPost;
@@ -87,5 +89,7 @@ class BigLogServer extends Server
         ModificaGoal::class,
         CreaNota::class,
         ModificaNota::class,
+        CreaArea::class,
+        ModificaArea::class,
     ];
 }
