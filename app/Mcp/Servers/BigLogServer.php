@@ -2,21 +2,28 @@
 
 namespace App\Mcp\Servers;
 
+use App\Mcp\Tools\ApplicaTag;
+use App\Mcp\Tools\AssegnaTask;
 use App\Mcp\Tools\Briefing;
 use App\Mcp\Tools\Cerca;
+use App\Mcp\Tools\CollegaGoal;
+use App\Mcp\Tools\CollegaVoce;
 use App\Mcp\Tools\CosaScade;
 use App\Mcp\Tools\CosaSiRaffredda;
+use App\Mcp\Tools\CreaTask;
 use App\Mcp\Tools\Elenca;
 use App\Mcp\Tools\Leggi;
+use App\Mcp\Tools\ModificaTask;
 use App\Mcp\Tools\Ping;
 use App\Mcp\Tools\Riferimenti;
+use App\Mcp\Tools\SpostaStage;
 use Laravel\Mcp\Server;
 use Laravel\Mcp\Server\Attributes\Instructions;
 use Laravel\Mcp\Server\Attributes\Name;
 use Laravel\Mcp\Server\Attributes\Version;
 
 #[Name('BiG-Log')]
-#[Version('0.2.0')]
+#[Version('0.3.0')]
 #[Instructions(<<<'TXT'
 BiG-Log è il diario di bordo e gestionale della ristrutturazione della casa di Ganaghello (Castel San Giovanni, PC), futuro B&B "Borgonovo in Ganaghello". Contiene task e sotto-task con i loro aggiornamenti, goal, aree (i luoghi della casa, ad albero), note, tag, spese, voci di diario, post del blog e ispirazioni della moodboard.
 
@@ -28,6 +35,8 @@ Regole del dominio:
 - i post non diventano mai pubblici da qui: la pubblicazione è un gesto dell'utente nell'app.
 
 Ogni elemento restituito ha un `url` che apre la pagina nell'app: proponilo quando l'utente vuole vedere o modificare qualcosa.
+
+Se il token può scrivere compaiono anche i tool di scrittura. Prima di scrivere riassumi all'utente cosa stai per fare; dopo, conferma con il link all'elemento. Nei testi (descrizioni, aggiornamenti, voci di diario) usa le parole che l'utente ha detto, senza inventare dettagli che non ha raccontato. Lo stage «archiviato» è uno stato del task; eliminare un elemento è un'altra cosa.
 TXT)]
 class BigLogServer extends Server
 {
@@ -40,5 +49,12 @@ class BigLogServer extends Server
         CosaScade::class,
         CosaSiRaffredda::class,
         Ping::class,
+        CreaTask::class,
+        ModificaTask::class,
+        SpostaStage::class,
+        AssegnaTask::class,
+        CollegaGoal::class,
+        CollegaVoce::class,
+        ApplicaTag::class,
     ];
 }
