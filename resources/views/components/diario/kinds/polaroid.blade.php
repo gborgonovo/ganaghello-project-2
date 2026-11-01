@@ -6,6 +6,8 @@
     <div class="bg-paper-dark overflow-hidden">
         <img src="{{ route('media.serve', [$cover, 'medium']) }}" alt="" class="w-full object-cover max-h-80">
     </div>
+    @else
+    <x-diario.foto-da-aggiungere :entry="$entry" />
     @endif
     <div class="px-1.5 pt-2 pb-1">
         <span class="font-hand text-lg leading-none text-ink/55">

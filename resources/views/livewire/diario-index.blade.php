@@ -149,6 +149,8 @@
         <img src="{{ route('media.serve', [$cover, 'medium']) }}" alt=""
              x-on:load="fit($event.target)"
              class="block w-full h-auto max-h-[86vh] object-contain bg-paper-dark">
+        @elseif($readEntry->kind === 'polaroid')
+        <x-diario.foto-da-aggiungere :entry="$readEntry" link />
         @endif
 
         <div class="px-6 py-5">

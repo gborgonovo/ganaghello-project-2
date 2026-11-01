@@ -27,6 +27,8 @@
         <img src="{{ route('media.serve', [$cover, 'medium']) }}"
              alt="" class="w-full max-h-[70vh] object-contain">
     </div>
+    @elseif($entry->kind === 'polaroid')
+    <x-diario.foto-da-aggiungere :entry="$entry" link class="rounded-2xl mb-8" />
     @endif
 
     {{-- Titolo --}}

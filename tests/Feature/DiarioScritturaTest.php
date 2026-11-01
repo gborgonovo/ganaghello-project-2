@@ -5,6 +5,8 @@ namespace Tests\Feature;
 use App\Jobs\SyncEntryToMnemosyne;
 use App\Livewire\AreaDetail;
 use App\Livewire\DiarioEditor;
+use App\Livewire\DiarioIndex;
+use App\Livewire\DiarioShow;
 use App\Models\Area;
 use App\Models\Entry;
 use App\Models\Stage;
@@ -101,5 +103,18 @@ class DiarioScritturaTest extends TestCase
         $this->assertSame('Spazzato il fienile', $v->content);
         $this->assertSame($area->id, $v->area_id);
         $this->assertSame('2026-11-01', $v->entry_date->toDateString());
+    }
+
+    public function test_una_polaroid_senza_foto_mostra_il_segnaposto_e_il_link(): void
+    {
+        $polaroid = Entry::create(['user_id' => auth()->id(), 'title' => 'Il pozzo', 'content' => 'x', 'kind' => 'polaroid', 'entry_date' => '2026-10-30']);
+        $postit   = Entry::create(['user_id' => auth()->id(), 'title' => 'Un post-it', 'content' => 'y', 'kind' => 'postit', 'entry_date' => '2026-10-29']);
+
+        Livewire::test(DiarioIndex::class)
+            ->assertSeeInOrder(['Il pozzo'])->assertSee('foto da aggiungere')
+            ->call('openRead', $polaroid->id)->assertSee('Aggiungi la foto')->assertSee(route('diario.edit', $polaroid->id), false);
+
+        Livewire::test(DiarioShow::class, ['entry' => $polaroid])->assertSee('Aggiungi la foto');
+        Livewire::test(DiarioShow::class, ['entry' => $postit])->assertDontSee('foto da aggiungere');
     }
 }
