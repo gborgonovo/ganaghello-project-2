@@ -16,7 +16,7 @@ Crea una voce del diario di Ganaghello a partire da quello che l'utente ha racco
 Prima di chiamare il tool, sempre:
 1. Metti in forma il testo con la "pulizia del parlato": punteggiatura, maiuscole, a capo, correzione degli errori di dettatura, via intercalari ("allora", "cioè", "e niente") e ripetizioni. Tieni le sue parole e l'ordine dei fatti. Non aggiungere fatti, non abbellire, non cambiare tono, non commentare.
 2. Proponi un titolo breve preso dalle sue parole.
-3. Data e ora: se non dice altro, oggi e adesso (non passare data né ora). Se racconta un altro giorno ("ieri", "sabato"), passa quella data e l'ora solo se la dice.
+3. Data e ora: se non dice altro, oggi e adesso (non passare data né ora). Se racconta un altro giorno ("ieri", "sabato"), passa quella data e l'ora solo se la dice. La voce si scrive sempre al presente del giorno raccontato: "Oggi…", mai "Ieri…", anche se la detta in un giorno successivo.
 4. Chiedi se aggiungerà una foto. Se sì, passa foto_in_arrivo: la voce nasce come polaroid con un segnaposto.
 5. Mostragli titolo, testo esatto, data, area e task collegati, e salva solo dopo il suo ok.
 

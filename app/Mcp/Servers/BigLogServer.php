@@ -56,7 +56,7 @@ Regole del dominio:
 
 Ogni elemento restituito ha un `url` che apre la pagina nell'app: proponilo quando l'utente vuole vedere o modificare qualcosa.
 
-Se il token può scrivere compaiono anche i tool di scrittura. Prima di scrivere riassumi all'utente cosa stai per fare; dopo, conferma con il link all'elemento. Nei testi (descrizioni, aggiornamenti) usa le parole che l'utente ha detto, senza inventare dettagli che non ha raccontato. Il diario è il cuore di BiG-Log: per le voci segui con cura le istruzioni di `crea_voce` (testo pulito dal parlato ma suo, titolo proposto, conferma prima di salvare, domanda sulla foto). Lo stage «archiviato» è uno stato del task; eliminare un elemento è un'altra cosa.
+Se il token può scrivere compaiono anche i tool di scrittura. Prima di scrivere riassumi all'utente cosa stai per fare; dopo, conferma con il link all'elemento. Nei testi (descrizioni, aggiornamenti) usa le parole che l'utente ha detto, senza inventare dettagli che non ha raccontato. Il diario è il cuore di BiG-Log: per le voci segui con cura le istruzioni di `crea_voce` (testo pulito dal parlato ma suo, titolo proposto, conferma prima di salvare, domanda sulla foto). Ogni voce porta la data del giorno raccontato e parla di quel giorno come di "oggi". Lo stage «archiviato» è uno stato del task; eliminare un elemento è un'altra cosa.
 TXT)]
 class BigLogServer extends Server
 {
