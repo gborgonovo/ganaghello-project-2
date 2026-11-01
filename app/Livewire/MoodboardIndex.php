@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use App\Actions\IspirazioneActions;
 use App\Jobs\LocalizeInspirationCover;
 use App\Models\Area;
 use App\Models\Attachment;
@@ -73,14 +74,13 @@ class MoodboardIndex extends Component
             return;
         }
 
-        $inspiration = Inspiration::create([
-            'user_id'     => Auth::id(),
+        $inspiration = app(IspirazioneActions::class)->crea(Auth::user(), [
             'area_id'     => $this->newAreaId,
-            'title'       => $this->newTitle ?: null,
-            'description' => $this->newDescription ?: null,
-            'url'         => $this->newUrl ?: null,
-            'cover'       => $this->newImageUrl ?: null,
-        ]);
+            'title'       => $this->newTitle,
+            'description' => $this->newDescription,
+            'url'         => $this->newUrl,
+            'cover'       => $this->newImageUrl,
+        ], conImmagine: (bool) ($this->newImage || $this->newImageMediaId));
 
         if ($this->newImage) {
             $media = app(MediaService::class)->store($this->newImage, 'inspiration');
@@ -123,7 +123,7 @@ class MoodboardIndex extends Component
             }
         }
 
-        $insp->delete();
+        app(IspirazioneActions::class)->elimina(Auth::user(), $insp);
         $this->confirmDeleteId = null;
         $this->dispatch('toast', message: 'Ispirazione eliminata.');
     }

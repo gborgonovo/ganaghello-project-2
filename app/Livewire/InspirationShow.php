@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use App\Actions\IspirazioneActions;
 use App\Actions\TaskActions;
 use App\Models\Inspiration;
 use App\Services\AttachmentService;
@@ -48,11 +49,11 @@ class InspirationShow extends Component
 
         $oldCover = $this->inspiration->cover;
 
-        $this->inspiration->update([
-            'title'       => $this->editTitle ?: null,
-            'description' => $this->editDesc ?: null,
-            'url'         => $this->editUrl ?: null,
-            'cover'       => $this->editImageUrl ?: null,
+        $this->inspiration = app(IspirazioneActions::class)->modifica(Auth::user(), $this->inspiration, [
+            'title'       => $this->editTitle,
+            'description' => $this->editDesc,
+            'url'         => $this->editUrl,
+            'cover'       => $this->editImageUrl,
             'area_id'     => $this->editAreaId,
         ]);
 
@@ -81,7 +82,7 @@ class InspirationShow extends Component
             }
         }
 
-        $insp->delete();
+        app(IspirazioneActions::class)->elimina(Auth::user(), $insp);
 
         $this->redirect(route('moodboard'), navigate: true);
     }
