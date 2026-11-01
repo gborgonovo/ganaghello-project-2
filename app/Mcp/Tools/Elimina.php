@@ -5,7 +5,9 @@ namespace App\Mcp\Tools;
 use App\Actions\AggiornamentoActions;
 use App\Actions\SpesaActions;
 use App\Actions\TaskActions;
+use App\Actions\VoceActions;
 use App\Exceptions\RegolaDominio;
+use App\Models\Entry;
 use App\Models\Expense;
 use App\Models\Task;
 use App\Models\TaskUpdate;
@@ -21,7 +23,7 @@ use Laravel\Mcp\Server\Tools\Annotations\IsDestructive;
 #[IsDestructive]
 class Elimina extends StrumentoScrittura
 {
-    public const ENTITA = ['task', 'aggiornamento', 'spesa'];
+    public const ENTITA = ['task', 'aggiornamento', 'spesa', 'voce'];
 
     protected function esegui(Request $request): Response
     {
@@ -57,6 +59,10 @@ class Elimina extends StrumentoScrittura
 
             case 'spesa':
                 app(SpesaActions::class)->elimina($u, Expense::find($id) ?? throw new RegolaDominio("Nessuna spesa con id {$id}."));
+                break;
+
+            case 'voce':
+                app(VoceActions::class)->elimina($u, Entry::find($id) ?? throw new RegolaDominio("Nessuna voce con id {$id}."));
                 break;
         }
 

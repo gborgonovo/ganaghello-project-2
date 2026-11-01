@@ -5,7 +5,9 @@ namespace App\Mcp\Tools;
 use App\Actions\AggiornamentoActions;
 use App\Actions\SpesaActions;
 use App\Actions\TaskActions;
+use App\Actions\VoceActions;
 use App\Exceptions\RegolaDominio;
+use App\Models\Entry;
 use App\Models\Expense;
 use App\Models\Task;
 use App\Models\TaskUpdate;
@@ -31,6 +33,7 @@ class Ripristina extends StrumentoScrittura
             'task'          => app(TaskActions::class)->ripristina($u, Task::withTrashed()->find($id) ?? throw new RegolaDominio("Nessun task con id {$id}.")),
             'aggiornamento' => app(AggiornamentoActions::class)->ripristina($u, TaskUpdate::withTrashed()->find($id) ?? throw new RegolaDominio("Nessun aggiornamento con id {$id}.")),
             'spesa'         => app(SpesaActions::class)->ripristina($u, Expense::withTrashed()->find($id) ?? throw new RegolaDominio("Nessuna spesa con id {$id}.")),
+            'voce'          => app(VoceActions::class)->ripristina($u, Entry::withTrashed()->find($id) ?? throw new RegolaDominio("Nessuna voce con id {$id}.")),
         };
 
         return $this->risposta($d['entita'], $id, 'ripristinato');
