@@ -2,7 +2,10 @@
 
 namespace App\Livewire\Settings;
 
+use App\Actions\TagActions;
+use App\Exceptions\RegolaDominio;
 use App\Models\Tag;
+use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 
 class TagSettings extends Component
@@ -19,14 +22,16 @@ class TagSettings extends Component
     public function create(): void
     {
         $this->validate([
-            'newName'  => 'required|string|max:100|unique:tags,name',
+            'newName'  => 'required|string|max:100',
             'newColor' => 'nullable|string|max:7',
         ]);
 
-        Tag::create([
-            'name'  => trim($this->newName),
-            'color' => $this->newColor,
-        ]);
+        try {
+            app(TagActions::class)->crea(Auth::user(), ['name' => $this->newName, 'color' => $this->newColor]);
+        } catch (RegolaDominio $e) {
+            $this->addError('newName', $e->getMessage());
+            return;
+        }
 
         $this->newName  = '';
         $this->newColor = '#5C6B4F';
@@ -48,10 +53,12 @@ class TagSettings extends Component
             'editColor' => 'nullable|string|max:7',
         ]);
 
-        Tag::findOrFail($this->editingId)->update([
-            'name'  => trim($this->editName),
-            'color' => $this->editColor,
-        ]);
+        try {
+            app(TagActions::class)->modifica(Auth::user(), Tag::findOrFail($this->editingId), ['name' => $this->editName, 'color' => $this->editColor]);
+        } catch (RegolaDominio $e) {
+            $this->addError('editName', $e->getMessage());
+            return;
+        }
 
         $this->editingId = null;
         $this->dispatch('toast', message: 'Tag aggiornato.');
@@ -64,9 +71,8 @@ class TagSettings extends Component
 
     public function delete(int $id): void
     {
-        $tag = Tag::findOrFail($id);
-        // Rimuove automaticamente le associazioni via cascade sul DB (taggables)
-        $tag->delete();
+        // Eliminazione recuperabile: i collegamenti restano e tornano se il tag viene ripristinato.
+        app(TagActions::class)->elimina(Auth::user(), Tag::findOrFail($id));
         $this->confirmDeleteId = null;
         $this->dispatch('toast', message: 'Tag eliminato.');
     }

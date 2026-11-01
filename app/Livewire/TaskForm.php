@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use App\Actions\TagActions;
 use App\Actions\TaskActions;
 use App\Models\Area;
 use App\Models\Goal;
@@ -86,7 +87,7 @@ class TaskForm extends Component
         $name = strtolower(trim($this->tagInput));
         if (!$name) return;
 
-        $tag = Tag::firstOrCreate(['name' => $name]);
+        $tag = app(TagActions::class)->trovaOCrea(Auth::user(), $name);
         if (!in_array($tag->id, $this->tagIds)) {
             $this->tagIds[] = $tag->id;
         }
