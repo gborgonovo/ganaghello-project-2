@@ -12,6 +12,8 @@ use App\Mcp\Tools\ComponiPost;
 use App\Mcp\Tools\CosaScade;
 use App\Mcp\Tools\CosaSiRaffredda;
 use App\Mcp\Tools\CreaAggiornamento;
+use App\Mcp\Tools\CreaGoal;
+use App\Mcp\Tools\CreaNota;
 use App\Mcp\Tools\CreaSpesa;
 use App\Mcp\Tools\CreaTask;
 use App\Mcp\Tools\CreaVoce;
@@ -19,6 +21,8 @@ use App\Mcp\Tools\Elenca;
 use App\Mcp\Tools\Elimina;
 use App\Mcp\Tools\Leggi;
 use App\Mcp\Tools\ModificaAggiornamento;
+use App\Mcp\Tools\ModificaGoal;
+use App\Mcp\Tools\ModificaNota;
 use App\Mcp\Tools\ModificaPost;
 use App\Mcp\Tools\ModificaSpesa;
 use App\Mcp\Tools\ModificaTask;
@@ -79,5 +83,9 @@ class BigLogServer extends Server
         ModificaVoce::class,
         ComponiPost::class,
         ModificaPost::class,
+        CreaGoal::class,
+        ModificaGoal::class,
+        CreaNota::class,
+        ModificaNota::class,
     ];
 }

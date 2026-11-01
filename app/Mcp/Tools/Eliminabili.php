@@ -3,6 +3,8 @@
 namespace App\Mcp\Tools;
 
 use App\Actions\AggiornamentoActions;
+use App\Actions\GoalActions;
+use App\Actions\NotaActions;
 use App\Actions\PostActions;
 use App\Actions\SpesaActions;
 use App\Actions\TaskActions;
@@ -10,6 +12,8 @@ use App\Actions\VoceActions;
 use App\Exceptions\RegolaDominio;
 use App\Models\Entry;
 use App\Models\Expense;
+use App\Models\Goal;
+use App\Models\Note;
 use App\Models\Post;
 use App\Models\Task;
 use App\Models\TaskUpdate;
@@ -24,6 +28,8 @@ class Eliminabili
         'spesa'         => [Expense::class, SpesaActions::class],
         'voce'          => [Entry::class, VoceActions::class],
         'post'          => [Post::class, PostActions::class],
+        'goal'          => [Goal::class, GoalActions::class],
+        'nota'          => [Note::class, NotaActions::class],
     ];
 
     public static function nomi(): array
