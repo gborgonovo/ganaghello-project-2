@@ -96,9 +96,7 @@
         <div wire:click="$set('editingDescription', true)"
              class="cursor-pointer group">
             @if($task->description)
-                <p class="text-sm text-ink/80 leading-relaxed whitespace-pre-wrap group-hover:text-ink transition-colors">
-                    {{ $task->description }}
-                </p>
+                <p class="text-sm text-ink/80 leading-relaxed whitespace-pre-wrap group-hover:text-ink transition-colors">{{ $task->description }}</p>
             @else
                 <p class="text-sm text-ink/30 italic group-hover:text-ink/50 transition-colors">
                     Aggiungi una descrizione...

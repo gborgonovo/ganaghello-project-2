@@ -327,9 +327,7 @@
 
                 {{-- Contenuto --}}
                 @if($item['tipo'] === 'diario')
-                <p class="text-sm text-ink/80 leading-relaxed whitespace-pre-wrap">
-                    {{ \Illuminate\Support\Str::limit($item['obj']->content, 200) }}
-                </p>
+                <p class="text-sm text-ink/80 leading-relaxed whitespace-pre-wrap">{{ \Illuminate\Support\Str::limit($item['obj']->content, 200) }}</p>
                 @elseif($item['tipo'] === 'aggiornamento')
                 <p class="text-sm text-ink/70 leading-relaxed">
                     {{ \Illuminate\Support\Str::limit($item['obj']->content, 150) }}
