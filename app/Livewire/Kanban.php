@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use App\Actions\TaskActions;
 use App\Models\Area;
 use App\Models\Goal;
 use App\Models\Stage;
@@ -40,18 +41,7 @@ class Kanban extends Component
         $task  = Task::findOrFail($taskId);
         $stage = Stage::findOrFail($stageId);
 
-        $updates = ['stage_id' => $stageId];
-
-        if (in_array($stage->code, ['todo', 'doing', 'in_attesa', 'done']) && !$task->due_date) {
-            $updates['due_date'] = today('Europe/Rome');
-        }
-        if ($stage->code === 'done' && !$task->completed_at) {
-            $updates['completed_at'] = now();
-        } elseif ($stage->code !== 'done' && $task->completed_at) {
-            $updates['completed_at'] = null;
-        }
-
-        $task->update($updates);
+        app(TaskActions::class)->spostaStage(Auth::user(), $task, $stage->code, scadenzaPredefinita: true);
     }
 
     public function stepForward(int $taskId): void
@@ -81,18 +71,7 @@ class Kanban extends Component
         $title = trim($this->quickAdd[$stageId] ?? '');
         if (!$title) return;
 
-        $stage   = Stage::findOrFail($stageId);
-        $updates = [
-            'user_id'  => Auth::id(),
-            'title'    => $title,
-            'stage_id' => $stageId,
-        ];
-
-        if (in_array($stage->code, ['todo', 'doing', 'in_attesa', 'done'])) {
-            $updates['due_date'] = today('Europe/Rome');
-        }
-
-        Task::create($updates);
+        app(TaskActions::class)->crea(Auth::user(), ['title' => $title, 'stage_id' => $stageId], scadenzaPredefinita: true);
         $this->quickAdd[$stageId] = '';
     }
 

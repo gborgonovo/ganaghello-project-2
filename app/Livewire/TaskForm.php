@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use App\Actions\TaskActions;
 use App\Models\Area;
 use App\Models\Goal;
 use App\Models\Stage;
@@ -41,16 +42,11 @@ class TaskForm extends Component
 
     protected function rules(): array
     {
-        $stageCode = $this->stage_id
-            ? Stage::find($this->stage_id)?->code
-            : null;
-        $dueDateRequired = in_array($stageCode, ['todo', 'doing', 'in_attesa', 'done']);
-
         return [
             'title'    => 'required|string|max:255',
             'stage_id' => 'nullable|exists:stages,id',
             'area_id'  => 'nullable|exists:areas,id',
-            'due_date' => $dueDateRequired ? 'required|date' : 'nullable|date',
+            'due_date' => 'nullable|date',
             'cost_min' => 'nullable|numeric|min:0',
             'cost_max' => 'nullable|numeric|min:0',
         ];
@@ -104,33 +100,23 @@ class TaskForm extends Component
     {
         $this->validate();
 
-        $task = Task::create([
-            'user_id'        => Auth::id(),
-            'title'          => trim($this->title),
-            'description'    => trim($this->description) ?: null,
-            'stage_id'       => $this->stage_id ?? Stage::where('code', 'idea')->value('id'),
-            'area_id'        => $this->area_id ?: null,
+        $task = app(TaskActions::class)->crea(Auth::user(), [
+            'title'          => $this->title,
+            'description'    => $this->description,
+            'stage_id'       => $this->stage_id,
+            'area_id'        => $this->area_id,
             'parent_task_id' => $this->parent_task_id,
-            'priority'       => $this->priority ?: null,
-            'due_date'       => $this->due_date ?: null,
-            'start_date'     => $this->start_date ?: null,
-            'executor'       => $this->executor ?: null,
-            'work_estimate'  => $this->work_estimate !== '' ? (float) $this->work_estimate : null,
-            'cost_min'       => $this->cost_min !== '' ? (float) $this->cost_min : null,
-            'cost_max'       => $this->cost_max !== '' ? (float) $this->cost_max : null,
-            'cost_basis'     => $this->cost_basis ?: null,
+            'priority'       => $this->priority,
+            'due_date'       => $this->due_date,
+            'start_date'     => $this->start_date,
+            'executor'       => $this->executor,
+            'work_estimate'  => $this->work_estimate,
+            'cost_min'       => $this->cost_min,
+            'cost_max'       => $this->cost_max,
+            'cost_basis'     => $this->cost_basis,
+            'tag'            => Tag::whereIn('id', $this->tagIds)->pluck('name')->all(),
+            'goal_ids'       => $this->goalIds,
         ]);
-
-        if ($this->tagIds) {
-            $task->tags()->sync($this->tagIds);
-        }
-        if ($this->goalIds) {
-            $task->goals()->sync($this->goalIds);
-            // Le relazioni del task verso i goal sono note solo ora: risincronizza.
-            if (config('services.mnemosyne.sync', true)) {
-                \App\Jobs\SyncTaskToMnemosyne::dispatch($task->id);
-            }
-        }
 
         $this->closeModal();
         $this->dispatch('task-created', taskId: $task->id);

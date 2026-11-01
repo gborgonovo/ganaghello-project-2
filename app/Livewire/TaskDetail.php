@@ -2,6 +2,8 @@
 
 namespace App\Livewire;
 
+use App\Actions\TaskActions;
+use App\Actions\TagActions;
 use App\Models\Area;
 use App\Models\Entry;
 use App\Models\Expense;
@@ -178,21 +180,12 @@ class TaskDetail extends Component
     private function applyStage(int $stageId): void
     {
         $stage = Stage::find($stageId);
-        $updates = ['stage_id' => $stageId];
 
-        $closedCodes = ['done', 'archiviato'];
-        if (in_array($stage->code, $closedCodes) && !$this->task->completed_at) {
-            $updates['completed_at'] = $this->pendingCompletedAt ?: now();
-        }
-        if (!in_array($stage->code, $closedCodes)) {
-            $updates['completed_at'] = null;
-        }
-        if ($this->due_date) {
-            $updates['due_date'] = $this->due_date;
-        }
+        app(TaskActions::class)->spostaStage(Auth::user(), $this->task, $stage->code,
+            scadenza: $this->due_date ?: null,
+            chiusoIl: $this->task->completed_at ? null : ($this->pendingCompletedAt ?: null));
 
         $this->pendingCompletedAt = '';
-        $this->task->update($updates);
         $this->task->refresh()->load(['stage', 'area', 'tags', 'goals', 'updates', 'children.stage', 'parent']);
         $this->syncFromModel();
         $this->dispatch('toast', message: 'Stato aggiornato.');
@@ -202,7 +195,7 @@ class TaskDetail extends Component
     public function saveTitle(): void
     {
         $this->validate(['title' => 'required|string|max:255']);
-        $this->task->update(['title' => trim($this->title)]);
+        app(TaskActions::class)->modifica(Auth::user(), $this->task, ['title' => $this->title]);
         $this->editingTitle = false;
         $this->task->refresh();
     }
@@ -210,7 +203,7 @@ class TaskDetail extends Component
     // Campo description
     public function saveDescription(): void
     {
-        $this->task->update(['description' => trim($this->description) ?: null]);
+        app(TaskActions::class)->modifica(Auth::user(), $this->task, ['description' => $this->description]);
         $this->editingDescription = false;
     }
 
@@ -222,10 +215,7 @@ class TaskDetail extends Component
                     'completed_at', 'parent_task_id'];
         if (!in_array($field, $allowed)) return;
 
-        $value = $this->$field;
-        if ($value === '') $value = null;
-
-        $this->task->update([$field => $value]);
+        app(TaskActions::class)->modifica(Auth::user(), $this->task, [$field => $this->$field]);
         $this->task->refresh()->load(['stage', 'area', 'tags', 'goals', 'updates', 'children.stage']);
         $this->syncFromModel();
     }
@@ -233,41 +223,29 @@ class TaskDetail extends Component
     // Tag
     public function addTag(): void
     {
-        $name = strtolower(trim($this->tagInput));
-        if (!$name) return;
-        $tag = Tag::firstOrCreate(['name' => $name]);
-        if (!in_array($tag->id, $this->tagIds)) {
-            $this->tagIds[] = $tag->id;
-            $this->task->tags()->sync($this->tagIds);
-            $this->task->refresh()->load('tags');
-            $this->tagIds = $this->task->tags->pluck('id')->toArray();
-        }
+        if (!trim($this->tagInput)) return;
+        app(TagActions::class)->applica(Auth::user(), $this->task, [$this->tagInput]);
+        $this->task->refresh()->load('tags');
+        $this->tagIds   = $this->task->tags->pluck('id')->toArray();
         $this->tagInput = '';
     }
 
     public function removeTag(int $id): void
     {
-        $this->tagIds = array_values(array_filter($this->tagIds, fn ($t) => $t !== $id));
-        $this->task->tags()->sync($this->tagIds);
+        app(TagActions::class)->applica(Auth::user(), $this->task, togli: [$id]);
         $this->task->refresh()->load('tags');
+        $this->tagIds = $this->task->tags->pluck('id')->toArray();
     }
 
     // Goal
     public function toggleGoal(int $goalId): void
     {
-        if (in_array($goalId, $this->goalIds)) {
-            $this->goalIds = array_values(array_filter($this->goalIds, fn ($g) => $g !== $goalId));
-        } else {
-            $this->goalIds[] = $goalId;
-        }
-        $this->task->goals()->sync($this->goalIds);
+        $collegato = in_array($goalId, $this->goalIds);
+        app(TaskActions::class)->collegaGoal(Auth::user(), $this->task,
+            aggiungi: $collegato ? [] : [$goalId],
+            togli: $collegato ? [$goalId] : []);
         $this->task->refresh()->load('goals');
         $this->goalIds = $this->task->goals->pluck('id')->toArray();
-
-        // Le relazioni CONTRIBUTES_TO sono cambiate: risincronizza il nodo del task.
-        if (config('services.mnemosyne.sync', true)) {
-            \App\Jobs\SyncTaskToMnemosyne::dispatch($this->task->id);
-        }
     }
 
     // Sotto-task
@@ -276,12 +254,7 @@ class TaskDetail extends Component
         $title = trim($this->newSubtaskTitle);
         if (!$title) return;
 
-        Task::create([
-            'user_id'        => Auth::id(),
-            'title'          => $title,
-            'stage_id'       => Stage::where('code', 'idea')->value('id'),
-            'parent_task_id' => $this->task->id,
-        ]);
+        app(TaskActions::class)->crea(Auth::user(), ['title' => $title, 'parent_task_id' => $this->task->id]);
 
         $this->newSubtaskTitle = '';
         $this->task->refresh()->load('children.stage');
@@ -293,7 +266,7 @@ class TaskDetail extends Component
     /** Aggancia una voce di diario gia' scritta a questo task. */
     public function linkEntry(int $entryId): void
     {
-        $this->task->entries()->syncWithoutDetaching([$entryId]);
+        app(TaskActions::class)->collegaVoci(Auth::user(), $this->task, aggiungi: [$entryId]);
         $this->task->refresh()->load('entries.attachments.media');
         $this->showEntryPicker = false;
         $this->entrySearch     = '';
@@ -302,7 +275,7 @@ class TaskDetail extends Component
 
     public function unlinkEntry(int $entryId): void
     {
-        $this->task->entries()->detach($entryId);
+        app(TaskActions::class)->collegaVoci(Auth::user(), $this->task, togli: [$entryId]);
         $this->task->refresh()->load('entries.attachments.media');
         $this->dispatch('toast', message: 'Collegamento rimosso.');
     }
@@ -369,16 +342,14 @@ class TaskDetail extends Component
     // Eliminazione task
     public function deleteTask(): void
     {
-        $this->task->delete();
+        app(TaskActions::class)->elimina(Auth::user(), $this->task, sottotask: 'lascia');
         $this->redirect($this->backUrl, navigate: true);
     }
 
     // Assegnazione
     public function saveAssignee(): void
     {
-        // assigned_to e' operativo: non e' tra i campi semantici, quindi
-        // non scatena una risincronizzazione Mnemosyne (corretto).
-        $this->task->update(['assigned_to' => $this->assigned_to ?: null]);
+        app(TaskActions::class)->assegna(Auth::user(), $this->task, $this->assigned_to ?: null);
         $this->task->load('assignedUser');
         $this->dispatch('toast', message: 'Responsabile aggiornato.');
     }
@@ -390,7 +361,7 @@ class TaskDetail extends Component
         } else {
             $this->collaboratorIds[] = $userId;
         }
-        $this->task->collaborators()->sync($this->collaboratorIds);
+        app(TaskActions::class)->assegna(Auth::user(), $this->task, null, $this->collaboratorIds, cambiaResponsabile: false);
         $this->task->load('collaborators');
         $this->dispatch('toast', message: 'Collaboratori aggiornati.');
     }

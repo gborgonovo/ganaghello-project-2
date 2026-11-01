@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use App\Actions\TaskActions;
 use App\Models\Attachment;
 use App\Models\Inspiration;
 use App\Models\Media;
@@ -91,16 +92,12 @@ class InspirationShow extends Component
 
     public function convertToTask(): void
     {
-        $insp  = $this->inspiration->load('attachments.media');
-        $stage = Stage::where('code', 'idea')->first();
-        if (!$stage) return;
+        $insp = $this->inspiration->load('attachments.media');
 
-        $task = Task::create([
-            'user_id'     => Auth::id(),
+        $task = app(TaskActions::class)->crea(Auth::user(), [
             'title'       => $insp->title ?? 'Idea da moodboard',
             'description' => $insp->description,
             'area_id'     => $insp->area_id,
-            'stage_id'    => $stage->id,
         ]);
 
         foreach ($insp->attachments as $att) {

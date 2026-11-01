@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use App\Actions\TaskActions;
 use App\Models\Area;
 use App\Models\Entry;
 use App\Models\Stage;
@@ -81,12 +82,7 @@ class AreaDetail extends Component
         $title = trim($this->quickTaskTitle);
         if (!$title) return;
 
-        Task::create([
-            'user_id'  => Auth::id(),
-            'title'    => $title,
-            'stage_id' => Stage::where('code', 'idea')->value('id'),
-            'area_id'  => $this->area->id,
-        ]);
+        app(TaskActions::class)->crea(Auth::user(), ['title' => $title, 'area_id' => $this->area->id]);
 
         $this->quickTaskTitle = '';
         $this->dispatch('task-created');

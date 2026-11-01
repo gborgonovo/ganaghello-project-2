@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use App\Actions\TaskActions;
 use App\Models\Area;
 use App\Models\Note;
 use App\Models\Stage;
@@ -89,16 +90,12 @@ class NoteIndex extends Component
 
     public function convertToTask(int $id): void
     {
-        $note  = Note::findOrFail($id);
-        $stage = Stage::where('code', 'idea')->first();
-        if (!$stage) return;
+        $note = Note::findOrFail($id);
 
-        $task = Task::create([
-            'user_id'     => Auth::id(),
+        $task = app(TaskActions::class)->crea(Auth::user(), [
             'title'       => $note->title ?? str($note->content)->limit(60)->toString(),
             'description' => $note->content,
             'area_id'     => $note->area_id,
-            'stage_id'    => $stage->id,
         ]);
 
         $this->convertedTaskId = $task->id;
