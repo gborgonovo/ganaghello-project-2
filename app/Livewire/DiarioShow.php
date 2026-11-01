@@ -2,13 +2,11 @@
 
 namespace App\Livewire;
 
+use App\Actions\PostActions;
 use App\Actions\VoceActions;
-use App\Models\Attachment;
 use App\Models\Entry;
-use App\Models\Post;
 use App\Services\MediaService;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Str;
 use Livewire\Component;
 
 /**
@@ -30,29 +28,7 @@ class DiarioShow extends Component
      */
     public function composePost()
     {
-        $entry = $this->entry->load('attachments.media');
-
-        $post = Post::create([
-            'user_id'      => Auth::id(),
-            'area_id'      => $entry->area_id,
-            'title'        => $entry->title ?: 'Senza titolo',
-            'slug'         => 'bozza-' . Str::random(8),
-            'content'      => trim($entry->content),
-            'visibility'   => 'draft',
-            'published_at' => $entry->entry_date,
-        ]);
-
-        $post->entries()->attach($entry->id);
-
-        $seq = 0;
-        foreach ($entry->attachments as $att) {
-            Attachment::create([
-                'attachable_type' => Post::class,
-                'attachable_id'   => $post->id,
-                'media_id'        => $att->media_id,
-                'sequence'        => $seq++,
-            ]);
-        }
+        $post = app(PostActions::class)->componi(Auth::user(), [$this->entry->id]);
 
         return $this->redirectRoute('blog.edit', ['post' => $post->id], navigate: true);
     }

@@ -7,7 +7,6 @@ use App\Models\Area;
 use App\Models\Goal;
 use App\Models\Stage;
 use App\Models\Tag;
-use App\Models\Task;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
 use Livewire\Component;

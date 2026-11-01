@@ -2,8 +2,10 @@
 
 namespace App\Livewire;
 
+use App\Actions\PostActions;
 use App\Models\Post;
 use App\Services\MediaService;
+use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 
 class BlogIndex extends Component
@@ -16,12 +18,7 @@ class BlogIndex extends Component
     {
         if (!in_array($visibility, ['private', 'draft', 'public'])) return;
 
-        $post = Post::findOrFail($postId);
-        $data = ['visibility' => $visibility];
-        if ($visibility === 'public' && !$post->published_at) {
-            $data['published_at'] = now();
-        }
-        $post->update($data);
+        app(PostActions::class)->modifica(Auth::user(), Post::findOrFail($postId), ['visibility' => $visibility]);
     }
 
     public function delete(int $postId): void
@@ -38,7 +35,7 @@ class BlogIndex extends Component
             }
         });
 
-        $post->delete();
+        app(PostActions::class)->elimina(Auth::user(), $post);
         $this->confirmDeleteId = null;
     }
 

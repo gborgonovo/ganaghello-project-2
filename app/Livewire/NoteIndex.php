@@ -5,8 +5,6 @@ namespace App\Livewire;
 use App\Actions\TaskActions;
 use App\Models\Area;
 use App\Models\Note;
-use App\Models\Stage;
-use App\Models\Task;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 

@@ -2,6 +2,8 @@
 
 namespace App\Livewire;
 
+use App\Actions\PostActions;
+use App\Actions\TagActions;
 use App\Models\Area;
 use App\Models\Attachment;
 use App\Models\Media;
@@ -9,7 +11,6 @@ use App\Models\Post;
 use App\Models\Tag;
 use App\Services\MediaService;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Str;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 
@@ -54,13 +55,7 @@ class PostEditor extends Component
     {
         // /blog/nuovo: crea una bozza e rimanda all'URL di modifica (no duplicati al refresh)
         if (!$post || !$post->exists) {
-            $draft = Post::create([
-                'user_id'    => Auth::id(),
-                'title'      => 'Senza titolo',
-                'slug'       => 'bozza-' . Str::random(8),
-                'content'    => '',
-                'visibility' => 'draft',
-            ]);
+            $draft = app(PostActions::class)->crea(Auth::user());
             $this->redirectRoute('blog.edit', ['post' => $draft->id], navigate: true);
             return;
         }
@@ -79,7 +74,7 @@ class PostEditor extends Component
     {
         // Auto-slug solo se lo slug e' ancora una bozza autogenerata
         if (str_starts_with($this->slug, 'bozza-') || $this->slug === '') {
-            $this->slug = $this->uniqueSlug($this->title);
+            $this->slug = app(PostActions::class)->slugUnico($this->title, $this->post->id);
         }
     }
 
@@ -87,24 +82,16 @@ class PostEditor extends Component
     {
         $this->validate();
 
-        $this->slug = $this->uniqueSlug($this->slug ?: $this->title);
-
-        $publishedAt = $this->post->published_at;
-        if ($this->visibility === 'public' && !$publishedAt) {
-            $publishedAt = $this->publishedAt ? \Carbon\Carbon::parse($this->publishedAt) : now();
-        } elseif ($this->publishedAt) {
-            $publishedAt = \Carbon\Carbon::parse($this->publishedAt);
-        }
-
-        $this->post->update([
-            'title'        => trim($this->title),
-            'slug'         => $this->slug,
-            'excerpt'      => trim($this->excerpt) ?: null,
-            'content'      => trim($this->content),
+        $this->post = app(PostActions::class)->modifica(Auth::user(), $this->post, [
+            'title'        => $this->title,
+            'slug'         => $this->slug ?: $this->title,
+            'excerpt'      => $this->excerpt,
+            'content'      => $this->content,
             'visibility'   => $this->visibility,
             'area_id'      => $this->areaId ?: null,
-            'published_at' => $publishedAt,
-        ]);
+            'published_at' => $this->publishedAt ?: null,
+        ])->load('attachments.media', 'tags');
+        $this->slug = $this->post->slug;
 
         $this->saved = true;
         $this->dispatch('toast', message: 'Post salvato.');
@@ -183,18 +170,16 @@ class PostEditor extends Component
 
     public function addTag(): void
     {
-        $name = trim(strtolower($this->newTag));
-        if ($name === '') return;
+        if (trim($this->newTag) === '') return;
 
-        $tag = Tag::firstOrCreate(['name' => $name]);
-        $this->post->tags()->syncWithoutDetaching([$tag->id]);
+        app(TagActions::class)->applica(Auth::user(), $this->post, [$this->newTag]);
         $this->newTag = '';
         $this->post->load('tags');
     }
 
     public function removeTag(int $tagId): void
     {
-        $this->post->tags()->detach($tagId);
+        app(TagActions::class)->applica(Auth::user(), $this->post, togli: [$tagId]);
         $this->post->load('tags');
     }
 
@@ -202,18 +187,6 @@ class PostEditor extends Component
     {
         $this->showLibrary = !$this->showLibrary;
         $this->libSearch   = '';
-    }
-
-    private function uniqueSlug(string $from): string
-    {
-        $base = Str::slug($from) ?: 'post';
-        $slug = $base;
-        $i    = 2;
-        while (Post::where('slug', $slug)->where('id', '!=', $this->post->id)->exists()) {
-            $slug = "{$base}-{$i}";
-            $i++;
-        }
-        return $slug;
     }
 
     public function render()
